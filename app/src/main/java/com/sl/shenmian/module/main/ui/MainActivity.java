@@ -23,6 +23,7 @@ import com.sl.shenmian.module.main.pojo.Station;
 import com.sl.shenmian.module.main.pojo.StationType;
 import com.sl.shenmian.module.offline.ChooseHistoryActivity;
 import com.sl.shenmian.module.scan.ScanActivity;
+import com.sl.shenmian.module.seachcode.ui.SeachCodeActivity;
 import com.sl.shenmian.module.settings.SettingActivity;
 
 import butterknife.BindView;
@@ -139,7 +140,7 @@ public class MainActivity extends BaseActivity {
                 break;
             case R.id.main_scan_search_btn:
                 //扫码查询
-
+                intent.setClass(mContext, SeachCodeActivity.class);
                 break;
             case R.id.main_history_record_btn:
                 //历史记录

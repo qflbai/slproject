@@ -42,6 +42,18 @@
         <activity android:name=".module.offline.ChooseHistoryActivity" />
         <activity android:name=".module.offline.RecordHistoryActivity" />
         <activity android:name=".module.settings.SettingActivity"></activity>
+        <!-- 扫码查询页面 -->
+        <activity
+            android:name=".module.seachcode.ui.SeachCodeActivity"
+            android:configChanges="orientation|keyboardHidden"
+            android:screenOrientation="portrait">
+        </activity>
+        <!-- 扫码查询结果页面 -->
+        <activity
+            android:name=".module.seachcode.ui.SearchResultActivity"
+            android:configChanges="orientation|keyboardHidden"
+            android:screenOrientation="portrait">
+        </activity>
     </application>
 
 </manifest>

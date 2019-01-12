@@ -53,5 +53,10 @@ public final class NetApi {
          */
         public static final String SEAL_STATUS = "mvc/appindex/sealing/getSealSatus.mvc";
 
+        /**
+         * 扫码查询
+         */
+        public static final String SEARCH_CODE = "mvc/appindex/sealing/getScanInfo.mvc";
+
     }
 }
