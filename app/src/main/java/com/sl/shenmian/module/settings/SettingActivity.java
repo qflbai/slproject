@@ -98,8 +98,10 @@ public class SettingActivity extends BaseActivity {
                     public void onClick(View v) {
                         if(verifyPwd(et1,et2,et3)){
                             alertDialog.dismiss();
-
-
+                            String pwd1 = et1.getText().toString();
+                            String pwd2 = et2.getText().toString();
+                            String pwd3 = et3.getText().toString();
+                            amendPwd(pwd1,pwd2,pwd3);
                         }
                     }
                 });
