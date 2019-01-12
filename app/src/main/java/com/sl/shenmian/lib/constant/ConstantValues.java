@@ -19,7 +19,11 @@ public class ConstantValues {
         /**
          * 用户信息key
          */
-        public static final String KEY_USER_INFO = "key_user_info";
+        public static final String KEY_USER_ACCOUNT = "key_user_account";
+    }
+
+    public static class OfflineInfo{
+        public static final String KEY_SEAL_TYPE = "key_seal_type";
     }
 
     public static class RelevanInfo {

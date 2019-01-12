@@ -5,8 +5,8 @@
     <uses-permission android:name="android.permission.DISABLE_KEYGUARD" />
     <uses-permission android:name="android.permission.USE_FINGERPRINT" />
     <uses-permission android:name="com.symbol.emdk.permission.EMDK" />
-    <uses-permission android:name="android.permission.INTERNET"/>
-    <!--读写权限-->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <!-- 读写权限 -->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
@@ -18,30 +18,35 @@
         android:roundIcon="@mipmap/smlogo"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-
         <uses-library android:name="com.symbol.emdk" />
 
         <activity android:name=".module.main.ui.MainActivity">
-            <!--<intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>-->
-        </activity>
-        <!-- 扫码功能页面 -->
-        <activity android:name=".module.scan.ScanActivity"
-            android:configChanges="orientation|keyboardHidden"
-            android:screenOrientation="portrait">
+
+            <!--
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            -->
+        </activity>
+        <!-- 扫码功能页面 -->
+        <activity
+            android:name=".module.scan.ScanActivity"
+            android:configChanges="orientation|keyboardHidden"
+            android:screenOrientation="portrait">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
         <!-- 签名页面 -->
-        <activity android:name=".module.signature.SignatureActivity"
+        <activity
+            android:name=".module.signature.SignatureActivity"
             android:configChanges="orientation|keyboardHidden"
-            android:screenOrientation="landscape">
-
-        </activity>
+            android:screenOrientation="landscape" />
+        <activity android:name=".module.offline.ChooseHistoryActivity" />
+        <activity android:name=".module.offline.RecordHistoryActivity"></activity>
     </application>
 
 </manifest>
