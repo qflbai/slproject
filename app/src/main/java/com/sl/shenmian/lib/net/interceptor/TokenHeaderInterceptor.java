@@ -16,7 +16,7 @@ import okhttp3.Response;
  */
 
 public class TokenHeaderInterceptor implements Interceptor {
-    public static final String COKIE_VALUE_PREFIX = "suntech.session.id=";
+    public static final String COKIE_VALUE_PREFIX = "token";
 
     @Override
     public Response intercept(Chain chain) throws IOException {
@@ -24,7 +24,7 @@ public class TokenHeaderInterceptor implements Interceptor {
         Request originalRequest = chain.request();
         // get new request, add request header
         Request updateRequest = originalRequest.newBuilder()
-                .header("Cookie", COKIE_VALUE_PREFIX + token)
+                .header("token",  token)
                 .build();
         return chain.proceed(updateRequest);
     }
