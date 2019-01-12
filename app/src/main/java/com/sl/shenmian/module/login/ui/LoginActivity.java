@@ -5,7 +5,10 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
 import android.view.View;
 import android.view.WindowManager;
@@ -27,6 +30,7 @@ import com.sl.shenmian.lib.net.rxjava.DataNetObserver;
 import com.sl.shenmian.lib.net.rxjava.NetObserver;
 import com.sl.shenmian.lib.net.state.ServerResponseState;
 import com.sl.shenmian.lib.net.url.NetApi;
+import com.sl.shenmian.lib.ui.dialog.LoadingDialog;
 import com.sl.shenmian.lib.utils.SystemUtil;
 import com.sl.shenmian.lib.utils.sharedpreferences.SpUtil;
 import com.sl.shenmian.lib.utils.toast.ToastUtil;
@@ -63,7 +67,8 @@ public class LoginActivity extends AbsActivity<LoginViewModel> {
     //相机权限 手机权限 定位权限gps 网络 存储权限
     private String[] mPermissions = {
             Manifest.permission.READ_EXTERNAL_STORAGE,
-            Manifest.permission.WRITE_EXTERNAL_STORAGE
+            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            Manifest.permission.READ_PHONE_STATE
     };
     private boolean mIsHaveAllPermissions = false;
     private NetObserver dataNetObserver;
@@ -106,6 +111,7 @@ public class LoginActivity extends AbsActivity<LoginViewModel> {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (!checkPermissionAllGranted(mPermissions)) {
                 mIsHaveAllPermissions = false;
+                ActivityCompat.requestPermissions(this, mPermissions, 201);
                 return;
             } else {
                 mIsHaveAllPermissions = true;
@@ -116,6 +122,13 @@ public class LoginActivity extends AbsActivity<LoginViewModel> {
             // initAppData();
         }
     }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+    }
+
 
     /**
      * 检查是否拥有指定的所有权限
@@ -155,7 +168,7 @@ public class LoginActivity extends AbsActivity<LoginViewModel> {
         String acc_pwd_parent = "/^[A-Za-z0-9]{3,14}$/";
 
         boolean checked = false;
-        if (account.length() == 0) {
+        /*if (account.length() == 0) {
             if (acc_acc_parent.matches(acc_acc_parent)) {
                 checked = true;
             } else {
@@ -163,8 +176,8 @@ public class LoginActivity extends AbsActivity<LoginViewModel> {
             }
         } else {
             ToastUtil.showCenter(LoginActivity.this, getString(R.string.login_user_account_error_empty));
-        }
-        if (password.length() == 0) {
+        }*/
+        /*if (password.length() != 0) {
             if (acc_acc_parent.matches(acc_pwd_parent)) {
                 checked = true;
             } else {
@@ -172,16 +185,25 @@ public class LoginActivity extends AbsActivity<LoginViewModel> {
             }
         } else {
             ToastUtil.showCenter(LoginActivity.this, getString(R.string.login_user_password_error_empty));
+        }*/
+
+        if(account.isEmpty()||password.isEmpty()){
+            ToastUtil.showCenter(mContext,"账号或密码不能为空");
+            return false;
+        }else {
+            return true;
         }
-        return checked;
     }
 
     private RetrofitManage retrofitManage = new RetrofitManage();
 
     private void login() {
+        FragmentManager supportFragmentManager = LoginActivity.this.getSupportFragmentManager();
+        // 正在登陆
+        LoadingDialog.newInstance().showLoad(supportFragmentManager, "正在登录...");
+
         String account = account_ed.getText().toString().trim();
         String password = password_ed.getText().toString().trim();
-
         HashMap<String, Object> paraMap = new HashMap<>();
         paraMap.put("loginCode", account);
         paraMap.put("password", password);
@@ -191,6 +213,7 @@ public class LoginActivity extends AbsActivity<LoginViewModel> {
 
                 @Override
                 public void onResponse(String dataJson) {
+                    LoadingDialog.newInstance().dismiss();
                     LoginInfo loginInfo = JSON.parseObject(dataJson, LoginInfo.class);
                     String resultCode = loginInfo.getResultCode();
                     boolean success = loginInfo.isSuccess();
@@ -199,6 +222,9 @@ public class LoginActivity extends AbsActivity<LoginViewModel> {
 
                         if ("0".equals(resultCode)) {
                             saveLoginInfo();
+                            LoginInfo.DataBean data = loginInfo.getData();
+                            String token = data.getToken();
+                            NetApi.setToken(token);
                             Intent intent = new Intent(mContext, MainActivity.class);
                             activityJumps(intent);
                         } else {
@@ -216,7 +242,8 @@ public class LoginActivity extends AbsActivity<LoginViewModel> {
 
                 @Override
                 public void onError(Throwable e) {
-
+                    ToastUtil.showCenter(mContext, "登录失败");
+                    LoadingDialog.newInstance().dismiss();
                 }
             });
         }
@@ -232,18 +259,20 @@ public class LoginActivity extends AbsActivity<LoginViewModel> {
         UserInfo userInfo = new UserInfo();
         userInfo.setAccount(account_ed.getText().toString().trim());
         userInfo.setPassword(password_ed.getText().toString().trim());
-        if (isRePASSWORD) {
-            SpUtil.putString(LoginActivity.this, ConstantValues.UserInfo.KEY_USER_PWD, userInfo.getPassword());
-            SpUtil.putString(LoginActivity.this, ConstantValues.UserInfo.KEY_USER_ACCOUNT, userInfo.getAccount());
+        boolean remember = SpUtil.getBoolean(mContext, ConstantValues.UserInfo.key_remember_pwd, false);
+        if (remember) {
+            SpUtil.putString(mContext, ConstantValues.UserInfo.KEY_USER_PWD, userInfo.getPassword());
+            SpUtil.putString(mContext, ConstantValues.UserInfo.KEY_USER_ACCOUNT, userInfo.getAccount());
         }
 
     }
 
     private void loadLoginInfo() {
-
-        String userName = SpUtil.getString(LoginActivity.this, ConstantValues.UserInfo.KEY_USER_ACCOUNT, "");
-        String pwd = SpUtil.getString(LoginActivity.this, ConstantValues.UserInfo.KEY_USER_PWD, "");
-        account_ed.setText(userName);
-        password_ed.setText(pwd);
+        if (isRememberPwd) {
+            String userName = SpUtil.getString(mContext, ConstantValues.UserInfo.KEY_USER_ACCOUNT, "");
+            String pwd = SpUtil.getString(mContext, ConstantValues.UserInfo.KEY_USER_PWD, "");
+            account_ed.setText(userName);
+            password_ed.setText(pwd);
+        }
     }
 }

@@ -37,6 +37,10 @@ public class NetBaseUrl {
      */
     private static final String scan_server_ip = "http://s.sun-tech.cn/app/";
     /**
+     * 测试地址
+     */
+    private static final String clb_ip = "http://192.168.1.119:8081/SM_ERP/";
+    /**
      * IM服务器地址
      */
     private static final String IM_SERVER_IP = "http://im.sun-tech.cn/";
@@ -54,7 +58,7 @@ public class NetBaseUrl {
     /**
      * debug模式默认ip
      */
-    private static final String DEBUG_URL_IP = scan_server_ip;
+    private static final String DEBUG_URL_IP = clb_ip;
 
 
     /**

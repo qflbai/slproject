@@ -31,7 +31,7 @@ public class BaseActivity extends LibBaseActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-        BarUtils.setStatusBarAlpha(this);
+       // BarUtils.setStatusBarAlpha(this);
     }
 
     @Override

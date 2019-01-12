@@ -30,7 +30,7 @@ public class ConstantValues {
         /**
          * 密码
          */
-        public static final String key_remember_pwd = "key_user_pwd";
+        public static final String key_remember_pwd = "key_remember_pwd";
     }
 
     public static class OfflineInfo{
