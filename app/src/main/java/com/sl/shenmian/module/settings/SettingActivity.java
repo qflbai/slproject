@@ -148,9 +148,10 @@ public class SettingActivity extends BaseActivity {
      */
     private void amendPwd(String pwd1,String pwd2,String pwd3){
         HashMap<String,Object> param = new HashMap<>();
-        param.put("","");
-
-        String path = "";
+        param.put("loginCode",pwd1);
+        param.put("newPsw",pwd2);
+        param.put("oldPsw",pwd3);
+        String path = NetApi.App.AMEND_PWD;
 
         RetrofitService service = retrofitManage.createService();
         Observable<Response<ResponseBody>> responseObservable = service.postFormNet(path, param);
@@ -159,7 +160,8 @@ public class SettingActivity extends BaseActivity {
                 .subscribe(new DataNetObserver(mContext, new DataNetCallback() {
                     @Override
                     public void onOkResponse(String dataJson) {
-
+                        SpUtil.putString(mContext,ConstantValues.UserInfo.KEY_USER_PWD,pwd2);
+                        ToastUtil.show(mContext,"密码修改成功");
                     }
 
                     @Override

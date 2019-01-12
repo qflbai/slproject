@@ -14,8 +14,8 @@ public class ServerResponseState {
     public static final String ST_011002 = "SL000002";
     public static final String ST_011003 = "SL000003";
     public static final String ST_011004 = "SL000004";
-    public static final String ST_011005 = "ST011005";
-    public static final String ST_011006 = "ST011006";
+    public static final String ST_011005 = "PO000001";
+    public static final String ST_011006 = "MU000001";
     public static final String ST_011007 = "ST011007";
     public static final String ST_011099 = "ST011099";
 
@@ -38,10 +38,10 @@ public class ServerResponseState {
                 message = ":设备已过有效日期";
                 break;
             case ST_011005:
-                message = "用户在另一地登陆";
+                message = "缺少必要参数";
                 break;
             case ST_011006:
-                message = "登陆超时";
+                message = "密码错误";
                 break;
             case ST_011007:
                 message = "权限不足";

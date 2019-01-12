@@ -63,11 +63,11 @@ public class DataNetObserver extends BaseObserver {
                         ServerResponseResult serverResponseResult = JSONObject.parseObject(jsonString, ServerResponseResult.class);
                         Object data = serverResponseResult.getData();
                         String json = JSONObject.toJSONString(data);
-                        if (serverResponseResult.isSuccess()) {
+                        String resultCode = serverResponseResult.getResultCode();
+                        if ("0".equals(resultCode)) {
                             mNetCallback.onOkResponse(json);
                         } else {
 
-                            String resultCode = serverResponseResult.getResultCode();
                             String stateMessage = ServerResponseState.getStateMessage(resultCode);
                             if (!stateMessage.isEmpty()) {
                                 ToastUtil.show(mContext, stateMessage);

@@ -58,5 +58,9 @@ public final class NetApi {
          */
         public static final String SEARCH_CODE = "mvc/appindex/sealing/getScanInfo.mvc";
 
+        /**
+         * 修改密码
+         */
+        public static final String AMEND_PWD= "mvc/appindex/user/updatePsw.mvc";
     }
 }
