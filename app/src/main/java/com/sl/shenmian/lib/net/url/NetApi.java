@@ -28,35 +28,6 @@ public final class NetApi {
         return mToken;
     }
 
-    /**
-     * 总部接口地址
-     */
-    public static class SDK {
-        /**
-         * 授权校验
-         */
-        public static final String AUTHORIZATION_VERIFY = "plugins/checksdk";
-        /**
-         * 后台解码
-         */
-        public static final String SERVE_DECODE = "plugins/scan";
-        /**
-         * 扫码信息上传
-         */
-        public static final String CODE_UPLODE = "decodeinfos/insert";
-    
-        /** 第三方登录检测接口 : 该接口提供用户服务器用户验证功能  IM服务器提供接口*/
-        public  static String CHECK_UUID_IS_BIND_URL = "SunTechRestFul/checkuuidisbinduseraccount";
-    
-        /**第三方登录绑定接口 : 该接口实现用户名与UID绑定的功能 IM服务器提供接口*/
-        public  static String BIND_USER_WITH_UID_URL = "SunTechRestFul/adduserbindaccount";
-        
-        /** 找回密码 IM服务器提供接口*/
-        public  static String RESET_PASSWORD_URL = "SunTechRestFul/forgotpassword";
-    
-        /** 修改密码 IM服务器提供接口*/
-        public  static String UPDATE_PASSWORD_URL = "SunTechRestFul/updateuserpassword";
-    }
 
     public static class App {
         /**
@@ -67,5 +38,11 @@ public final class NetApi {
          * 手机兼容接口
          */
         public static final String PHONE_COMPATIBILITY_CHECK= "plugins/incompatibleModel/check";
+
+        /**
+         * 施封接口
+         */
+        public static final String PADLOCK_INFO = "mvc/appindex/sealing/saveSealingInfo.mvc";
+
     }
 }

@@ -14,7 +14,7 @@ public class OfflineInfo {
     private String time;
     private int uploadingStae;
     private String remark;
-
+    private String imagePath;
     public String getCoding() {
         return coding;
     }
@@ -53,5 +53,13 @@ public class OfflineInfo {
 
     public void setRemark(String remark) {
         this.remark = remark;
+    }
+
+    public String getImagePath() {
+        return imagePath;
+    }
+
+    public void setImagePath(String imagePath) {
+        this.imagePath = imagePath;
     }
 }

@@ -1,6 +1,8 @@
 package com.sl.shenmian.module.offline;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -8,11 +10,14 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
 
+import com.alibaba.fastjson.JSON;
 import com.sl.shenmian.R;
 import com.sl.shenmian.lib.base.activity.AbsActivity;
 import com.sl.shenmian.lib.base.activity.BaseActivity;
 import com.sl.shenmian.lib.constant.ConstantValues;
 import com.sl.shenmian.lib.net.RetrofitManage;
+import com.sl.shenmian.lib.net.retrofit.RetrofitService;
+import com.sl.shenmian.lib.net.url.NetApi;
 import com.sl.shenmian.lib.utils.sharedpreferences.SpUtil;
 import com.sl.shenmian.module.db.dao.DBDao;
 import com.sl.shenmian.module.db.database.AppDatabase;
@@ -25,7 +30,10 @@ import com.sl.shenmian.module.offline.model.SealType;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import butterknife.BindView;
@@ -33,17 +41,24 @@ import io.reactivex.BackpressureStrategy;
 import io.reactivex.Flowable;
 import io.reactivex.FlowableEmitter;
 import io.reactivex.FlowableOnSubscribe;
+import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
+import okhttp3.ResponseBody;
+import retrofit2.Response;
 
-public class RecordHistoryActivity extends BaseActivity{
+public class RecordHistoryActivity extends BaseActivity {
     @BindView(R.id.lv_code)
     ListView mLvCode;
     private ArrayList<OfflineInfo> mOfflineInfos;
     private OffLineAdapter mOffLineAdapter;
+    private SealType mSealType;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,11 +94,11 @@ public class RecordHistoryActivity extends BaseActivity{
     private void getIntentInfo() {
         Intent intent = getIntent();
         if (intent != null) {
-            SealType sealType = (SealType) intent.getSerializableExtra(ConstantValues.OfflineInfo.KEY_SEAL_TYPE);
-            if (sealType == null) {
+            mSealType = (SealType) intent.getSerializableExtra(ConstantValues.OfflineInfo.KEY_SEAL_TYPE);
+            if (mSealType == null) {
                 return;
             }
-            queryDB(sealType);
+            queryDB(mSealType);
         }
     }
 
@@ -104,6 +119,7 @@ public class RecordHistoryActivity extends BaseActivity{
                             offlineInfo.setCoding(sealInfoEntity.getCoding());
                             offlineInfo.setRemark(sealInfoEntity.getRemark());
                             offlineInfo.setTime(sealInfoEntity.getTime());
+                            offlineInfo.setImagePath(sealInfoEntity.getImagePath());
                             int uploadingStae = sealInfoEntity.getUploadingStae();
                             if (uploadingStae != 1) {
                                 isHaveData = true;
@@ -121,7 +137,11 @@ public class RecordHistoryActivity extends BaseActivity{
 
     private boolean isHaveData = false;
     private Subscription mSubscription;
+
     private void submitData() {
+        if (mSealType == null) {
+            return;
+        }
         if (isHaveData) {
             return;
         }
@@ -132,8 +152,22 @@ public class RecordHistoryActivity extends BaseActivity{
 
                 RetrofitManage retrofitManage = new RetrofitManage();
                 for (OfflineInfo offlineInfo : mOfflineInfos) {
-
-
+                    switch (mSealType) {
+                        case tongGuanPadlock:
+                            padlockDataSubmit(0, offlineInfo);
+                            break;
+                        case houseEnterDisassemble:
+                            disassembleDaaSubmit(0, offlineInfo);
+                            break;
+                        case houseOutPadlock:
+                            padlockDataSubmit(1, offlineInfo);
+                            break;
+                        case shopDisassemble:
+                            disassembleDaaSubmit(1, offlineInfo);
+                            break;
+                        default:
+                            break;
+                    }
                     s.onNext("0k");
                 }
                 s.onComplete();
@@ -170,7 +204,48 @@ public class RecordHistoryActivity extends BaseActivity{
 
     }
 
-    private void dataUpload(){
+    private RetrofitManage retrofitManage = new RetrofitManage();
+
+    /**
+     * 施封数据上传
+     */
+    private void padlockDataSubmit(int type, OfflineInfo offlineInfo) {
+        String imagePath = offlineInfo.getImagePath();
+        Bitmap bitmap = BitmapFactory.decodeFile(imagePath);
+        int byteCount = bitmap.getByteCount();
+        final File file = new File(imagePath);
+        RetrofitService service = retrofitManage.createService();
+        String pathUrl = NetApi.App.PADLOCK_INFO;
+        HashMap<String, String> paramMap = new HashMap<>();
+        paramMap.put("name", file.getName());
+        paramMap.put("size", byteCount + "");
+        paramMap.put("type", "2");
+
+        // 创建请求体，内容是文件
+        RequestBody requestFile = RequestBody.create(MediaType.parse("multipart/form-data"), file);
+
+        MultipartBody.Part body = MultipartBody.Part.createFormData("file", file.getName(), requestFile);
+
+        Observable<Response<ResponseBody>> responseObservable = service.uplodaOne(pathUrl, paramMap, body);
+        responseObservable.observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Consumer<Response<ResponseBody>>() {
+                    @Override
+                    public void accept(Response<ResponseBody> responseBodyResponse) throws Exception {
+
+
+                    }
+                }, new Consumer<Throwable>() {
+                    @Override
+                    public void accept(Throwable throwable) throws Exception {
+
+                    }
+                });
+    }
+
+    /**
+     * 解封数据上传
+     */
+    private void disassembleDaaSubmit(int type, OfflineInfo offlineInfo) {
 
     }
 }
