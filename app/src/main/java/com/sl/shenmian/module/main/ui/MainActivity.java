@@ -111,21 +111,49 @@ public class MainActivity extends BaseActivity {
         }
     };
 
-    @OnClick({R.id.main_clearance_btn})
-    void onClick(View v) {
+    @OnClick({R.id.main_clearance_btn,R.id.main_ware_in_storage_btn,R.id.main_ware_out_storage_btn,
+            R.id.main_store_in_storage_btn,R.id.main_scan_search_btn,R.id.main_history_record_btn,
+            R.id.main_settings_btn})
+    void OnClick(View v) {
         switch (v.getId()){
             case R.id.main_clearance_btn:
-                    startClearance();
+                //通关施封
+                startScanActivity(R.string.clearance);
                 break;
+            case R.id.main_ware_in_storage_btn:
+                //仓库入库解封
+                startScanActivity(R.string.ware_in_storage);
+                break;
+            case R.id.main_ware_out_storage_btn:
+                //仓库出库施封
+                startScanActivity(R.string.ware_out_storage);
+                break;
+            case R.id.main_store_in_storage_btn:
+                //门店入库解封
+                startScanActivity(R.string.store_in_storage);
+                break;
+            case R.id.main_scan_search_btn:
+                //扫码查询
+
+                break;
+            case R.id.main_history_record_btn:
+                //历史记录
+
+                break;
+            case R.id.main_settings_btn:
+                //设置
+
+                break;
+
         }
     }
 
     /**
-     * 通关施封
+     * 启动扫码页面
      */
-    private void startClearance(){
+    private void startScanActivity(int resId){
         Intent intent = new Intent(this, ScanActivity.class);
-        intent.putExtra(IntentKeys.KEY_ACTIVITY_TITLE_NAME,R.string.clearance);
+        intent.putExtra(IntentKeys.KEY_ACTIVITY_TITLE_NAME,resId);
         startActivity(intent);
     }
 

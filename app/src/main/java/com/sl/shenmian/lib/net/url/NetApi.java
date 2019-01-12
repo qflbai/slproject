@@ -44,5 +44,10 @@ public final class NetApi {
          */
         public static final String PADLOCK_INFO = "mvc/appindex/sealing/saveSealingInfo.mvc";
 
+        /**
+         * 封条状态
+         */
+        public static final String SEAL_STATUS = "mvc/appindex/sealing/getSealSatus.mvc";
+
     }
 }

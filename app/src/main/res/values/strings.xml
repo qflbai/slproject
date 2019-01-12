@@ -55,4 +55,8 @@
     <string name="user_account">用户账号:</string>
     <string name="user_group">所属组织:</string>
     <string name="update_password">修改密码</string>
+    <string name="seal_no_found_info">封条信息不存在</string>
+    <string name="seal_no_has_locked">封条未施封</string>
+    <string name="seal_has_locked">封条已施封</string>
+    <string name="seal_has_un_block">封条已解封</string>
 </resources>

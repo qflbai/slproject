@@ -1,20 +1,46 @@
 package com.sl.shenmian.module.scan;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.Toolbar;
+import android.util.JsonReader;
 import android.util.Log;
 import android.view.View;
 
+import com.alibaba.fastjson.JSON;
 import com.sl.shenmian.R;
 import com.sl.shenmian.lib.base.activity.ZbarActivity;
+import com.sl.shenmian.lib.constant.ConstantValues;
+import com.sl.shenmian.lib.net.RetrofitManage;
+import com.sl.shenmian.lib.net.callback.NetCallback;
+import com.sl.shenmian.lib.net.retrofit.RetrofitService;
+import com.sl.shenmian.lib.net.rxjava.NetObserver;
+import com.sl.shenmian.lib.net.url.NetApi;
+import com.sl.shenmian.lib.net.url.NetBaseUrl;
+import com.sl.shenmian.lib.utils.toast.ToastUtil;
+import com.sl.shenmian.module.clearance.ClearanceActivity;
 import com.sl.shenmian.module.commons.IntentKeys;
+import com.sl.shenmian.module.main.pojo.Result;
+import com.sl.shenmian.module.scan.pojo.CodeState;
+
+import java.util.HashMap;
+
+import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
+import okhttp3.ResponseBody;
+import retrofit2.Response;
 
 public class ScanActivity extends ZbarActivity {
 
     private int mTitleResId;
+    private RetrofitManage mRetrofitManage;
+    private NetObserver mNetObserver;
+    private String code = null;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -48,6 +74,121 @@ public class ScanActivity extends ZbarActivity {
 
     @Override
     protected void onData(String data) {
-        Log.e(TAG, data);
+       // Log.e(TAG, data);
+        code = data;
+        searchCodeState(data);
+    }
+
+    private void searchCodeState(String data){
+        mRetrofitManage = null;
+        if (mRetrofitManage == null) {
+            mRetrofitManage = new RetrofitManage();
+        }
+        if(null == mNetObserver) {
+            mNetObserver = new NetObserver(mContext,new NetCallback() {
+
+                @Override
+                public void onSubscribe(Disposable disposable) {
+
+                }
+
+                @Override
+                public void onResponse(String dataJson) {
+                    Result result = JSON.parseObject(dataJson,Result.class);
+                    if(null != result && null != result.getData() && result.getData().length() > 0){
+
+                        CodeState codeState = JSON.parseObject(result.getData(),CodeState.class);
+                        labelCodeStatus(codeState);
+                    }
+                }
+
+                @Override
+                public void onError(Throwable e) {
+
+                }
+            });
+        }
+
+        HashMap<String,Object> paramMap = new HashMap<>();
+        paramMap.put("labelCode",data);
+        RetrofitService service = mRetrofitManage.createService(NetBaseUrl.getBaseUrl());
+        String urlPath = NetApi.App.SEAL_STATUS;
+        Observable<Response<ResponseBody>> observable = service.postFormNet(urlPath,paramMap);
+        observable.subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(mNetObserver);
+    }
+
+    private boolean checkHasSeal(CodeState codeState){
+        if(!codeState.isHasSeal()){
+            //封条信息不存在
+            ToastUtil.show(mContext,getString(R.string.seal_no_found_info));
+            return false;
+        }
+        if(codeState.isHasLocked()){
+            //封条已施封
+            ToastUtil.show(mContext,getString(R.string.seal_has_locked));
+            return false;
+        }
+        return true;
+    }
+
+    private boolean checkHasLock(CodeState codeState){
+        if(!codeState.isHasSeal()){
+            //封条信息不存在
+            ToastUtil.show(mContext,getString(R.string.seal_no_found_info));
+            return false;
+        }
+        if(!codeState.isHasLocked()){
+            //未施封
+            ToastUtil.show(mContext,getString(R.string.seal_no_has_locked));
+            return false;
+        }
+        if(codeState.isHasUnblock()){
+            //已解封
+            ToastUtil.show(mContext,getString(R.string.seal_has_un_block));
+            return false;
+        }
+        return true;
+    }
+
+
+    private void startIntent(Intent intent){
+        intent.putExtra("seal_code",code);
+        startActivity(intent);
+    }
+
+
+    private void labelCodeStatus(CodeState codeState){
+
+        if(mTitleResId == R.string.clearance){
+            //通关施封
+            if(checkHasSeal(codeState)){
+                Intent intent = new Intent(ScanActivity.this, ClearanceActivity.class);
+                startIntent(intent);
+            }
+
+        }else  if(mTitleResId == R.string.ware_out_storage){
+            //仓库出库施封
+            if(checkHasSeal(codeState)){
+                Intent intent = new Intent(ScanActivity.this, ClearanceActivity.class);
+                startIntent(intent);
+            }
+
+        }else  if(mTitleResId == R.string.store_in_storage){
+            //门店入库解封
+            if(checkHasLock(codeState)){
+                Intent intent = new Intent(ScanActivity.this, ClearanceActivity.class);
+                startIntent(intent);
+            }
+
+        }else  if(mTitleResId == R.string.ware_in_storage){
+            //仓库入库解封
+            if(checkHasLock(codeState)){
+                Intent intent = new Intent(ScanActivity.this, ClearanceActivity.class);
+                startIntent(intent);
+            }
+
+        }
     }
 }
