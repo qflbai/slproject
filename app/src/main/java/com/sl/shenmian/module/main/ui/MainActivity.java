@@ -6,14 +6,31 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.Button;
 
+import com.alibaba.fastjson.JSON;
 import com.sl.shenmian.R;
 import com.sl.shenmian.lib.base.activity.BaseActivity;
+import com.sl.shenmian.lib.net.RetrofitManage;
+import com.sl.shenmian.lib.net.callback.NetCallback;
+import com.sl.shenmian.lib.net.retrofit.RetrofitService;
+import com.sl.shenmian.lib.net.rxjava.NetObserver;
+import com.sl.shenmian.lib.net.url.NetApi;
+import com.sl.shenmian.lib.net.url.NetBaseUrl;
 import com.sl.shenmian.lib.ui.dialog.CustomDialog;
+import com.sl.shenmian.module.commons.Constants;
 import com.sl.shenmian.module.commons.IntentKeys;
+import com.sl.shenmian.module.main.pojo.Result;
+import com.sl.shenmian.module.main.pojo.Station;
+import com.sl.shenmian.module.main.pojo.StationType;
 import com.sl.shenmian.module.scan.ScanActivity;
 
 import butterknife.BindView;
 import butterknife.OnClick;
+import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
+import okhttp3.ResponseBody;
+import retrofit2.Response;
 
 public class MainActivity extends BaseActivity {
 
@@ -55,19 +72,23 @@ public class MainActivity extends BaseActivity {
     @BindView(R.id.main_settings_btn)
     Button main_settings_btn;
 
+    private RetrofitManage mRetrofitManage;
+    private NetObserver mNetObserver;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.layout_main_view);
         initConfig();
+        initData();
     }
-
     private void initConfig() {
         initBackToolbar(getString(R.string.main_menu));
         Toolbar toolbar = getToolbar();
         toolbar.setNavigationIcon(R.mipmap.ic_title_back);
         toolbar.setOnClickListener(onClickListener);
     }
+
 
     private View.OnClickListener onClickListener = new View.OnClickListener() {
         @Override
@@ -127,5 +148,15 @@ public class MainActivity extends BaseActivity {
         if(null != dialog){
             dialog.dismiss();
         }
+    }
+
+    private void initData(){
+        loadStationInfo(StationType.CUSTOMS);
+        loadStationInfo(StationType.WAREHOUSE);
+        loadStationInfo(StationType.STORE);
+    }
+
+    private void loadStationInfo(StationType stationType){
+
     }
 }
