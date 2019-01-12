@@ -1,9 +1,14 @@
 package com.sl.shenmian.lib.net.rxjava;
 
-import com.sl.shenmian.lib.base.repository.BaseRepository;
+import android.content.Context;
+import android.content.Intent;
+
+
 import com.sl.shenmian.lib.net.callback.NetCallback;
+import com.sl.shenmian.lib.utils.toast.ToastUtil;
 
 import java.io.IOException;
+import java.net.SocketTimeoutException;
 
 import io.reactivex.disposables.Disposable;
 import okhttp3.ResponseBody;
@@ -21,15 +26,14 @@ public class NetObserver extends BaseObserver {
      * 回调接口
      */
     private NetCallback mNetCallback;
-    private BaseRepository mBaseRepository;
-    public NetObserver( NetCallback netCallback) {
-        mNetCallback = netCallback;
+    /**
+     * 上下文
+     */
+    private Context mContext;
 
-    }
-
-    public NetObserver(BaseRepository baseRepository, NetCallback netCallback) {
+    public NetObserver(Context context, NetCallback netCallback) {
         mNetCallback = netCallback;
-        mBaseRepository =baseRepository;
+        mContext = context;
     }
 
     @Override
@@ -39,9 +43,6 @@ public class NetObserver extends BaseObserver {
         } else {
             mNetCallback.onSubscribe(d);
             addNetManage(d);
-        }
-        if(mBaseRepository!=null){
-            mBaseRepository.addDisposable(d);
         }
         mIsNetRequesting = true;
     }
@@ -57,6 +58,7 @@ public class NetObserver extends BaseObserver {
                     String jsonString = response.body().string();
                     mNetCallback.onResponse(jsonString);
                 } catch (IOException e) {
+                    ToastUtil.show(mContext, "IO异常");
                     mNetCallback.onError(e);
                     e.printStackTrace();
                 }
@@ -75,13 +77,25 @@ public class NetObserver extends BaseObserver {
      */
     private void netError(Response<ResponseBody> response) {
         HttpException httpException = new HttpException(response);
-        mNetCallback.onError(httpException);
+        int code = httpException.code();
+        if (code == 401) {
+            ToastUtil.show(mContext, code + "登陆超时...");
+            Intent intent = new Intent();
+            intent.setAction("com.suntech.app.xiuzheng.launch.ui.LoginActivity");
+            intent.addCategory("android.intent.category.DEFAULT");
+            mContext.startActivity(intent);
+        } else {
+            ToastUtil.show(mContext, code + "错误");
+            mNetCallback.onError(httpException);
+        }
     }
 
     @Override
     public void onError(Throwable e) {
         mIsNetRequesting = false;
-
+        if (e instanceof SocketTimeoutException) {
+            ToastUtil.show(mContext, "网络连接超时");
+        }
         mNetCallback.onError(e);
     }
 

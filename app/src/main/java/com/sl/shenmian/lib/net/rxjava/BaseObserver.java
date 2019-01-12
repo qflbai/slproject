@@ -1,8 +1,8 @@
 package com.sl.shenmian.lib.net.rxjava;
 
+import java.util.ArrayList;
 
 import io.reactivex.Observer;
-import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 import okhttp3.ResponseBody;
 import retrofit2.Response;
@@ -20,26 +20,27 @@ public abstract class BaseObserver implements Observer<Response<ResponseBody>> {
     /**
      * 网络请求网阀
      */
-    protected CompositeDisposable disposables = new CompositeDisposable();
+    protected ArrayList<Disposable> disposables = new ArrayList<>();
 
     public void addNetManage(Disposable disposable) {
+        if (disposables.contains(disposable)) {
+            return;
+        }
         disposables.add(disposable);
     }
 
     /**
-     * 关闭所有网络请求
+     * 关闭网络请求
      */
-    public void closeAllNet() {
+    public void closeNet() {
+        if (disposables.size() <= 0) {
+            return;
+        }
         mIsNetRequesting = false;
+        for (Disposable disposable : disposables) {
+            disposable.dispose();
+        }
         disposables.clear();
-    }
-
-    /**
-     * 关闭当前
-     */
-    public void closeNet(Disposable disposable) {
-        mIsNetRequesting = false;
-        disposables.remove(disposable);
     }
 
 }

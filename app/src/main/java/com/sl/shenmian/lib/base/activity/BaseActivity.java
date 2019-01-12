@@ -13,6 +13,7 @@ import android.widget.TextView;
 
 import com.sl.shenmian.R;
 import com.sl.shenmian.lib.base.LibBaseActivity;
+import com.sl.shenmian.lib.net.rxjava.BaseObserver;
 import com.sl.shenmian.lib.utils.BarUtils;
 
 import butterknife.ButterKnife;
@@ -26,20 +27,17 @@ import butterknife.ButterKnife;
 
 public class BaseActivity extends LibBaseActivity {
 
-    private Bundle mSavedInstanceState;
-
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
-        //setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         super.onCreate(savedInstanceState);
-        mSavedInstanceState = savedInstanceState;
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        BarUtils.setStatusBarAlpha(this);
     }
 
     @Override
     public void setContentView(int layoutResID) {
         super.setContentView(layoutResID);
         ButterKnife.bind(this);
-        initViews(mSavedInstanceState);
     }
 
     @Override
@@ -69,41 +67,67 @@ public class BaseActivity extends LibBaseActivity {
         super.onDestroy();
     }
 
-    /**
-     * 初始化views
-     *
-     * @param savedInstanceState
-     */
-    public void initViews(Bundle savedInstanceState) {
-
-    }
-
 
     /**
-     * 状态栏初始化
+     * 初始化toolbar(在子类中调用)
      */
-    protected void initStatusBar() {
-        BarUtils.setStatusBarAlpha(this);
+    protected void initToolbar() {
+        Toolbar toolbar = getToolbar();
+        toolbar.setNavigationIcon(R.mipmap.back);
+        //toolbar.setNavigationIcon(R.mipmap.back);
+        getTitleImageButton().setBackground(getResources().getDrawable(R.mipmap.grzx));
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
     }
-
 
     /**
      * 初始化toolbar(在子类中调用)
      *
      * @param title 标题
      */
-    protected void initBackToolbar(CharSequence title) {
+    protected void initToolbar(CharSequence title) {
         Toolbar toolbar = getToolbar();
+        toolbar.setNavigationIcon(R.mipmap.back);
+        toolbar.setBackground(getResources().getDrawable(R.color.colorPrimary));
+        getTitleImageButton().setBackground(getResources().getDrawable(R.mipmap.grzx));
         setToolbarTitle(title);
-        /*toolbar.setNavigationIcon(R.mipmap.ic_title_back);
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 onFinish();
             }
-        });*/
+        });
     }
 
+    protected void initBackToolbar(CharSequence title){
+        Toolbar toolbar = getToolbar();
+        toolbar.setNavigationIcon(R.mipmap.back);
+        toolbar.setBackground(getResources().getDrawable(R.color.colorPrimary));
+        getTitleImageButton().setBackground(getResources().getDrawable(R.mipmap.grzx));
+        setToolbarTitle(title);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onFinish();
+            }
+        });
+    }
+
+    /**
+     * 初始化toolbar(在子类中调用)
+     *
+     * @param title 标题
+     */
+    protected void initToolbarNoback(CharSequence title) {
+        Toolbar toolbar = getToolbar();
+        toolbar.setBackground(getResources().getDrawable(R.mipmap.back));
+        getTitleImageButton().setBackground(getResources().getDrawable(R.mipmap.grzx));
+        setToolbarTitle(title);
+    }
 
     /**
      * 获取toolbar
@@ -150,12 +174,18 @@ public class BaseActivity extends LibBaseActivity {
         getTitleTextView().setText(title);
     }
 
+    /**
+     * 页面跳转
+     */
+    protected void activityJumps() {
+        overridePendingTransition(R.anim.zoom_in_avtivity_switchover, R.anim.zoom_out_avtivity_switchover);
+    }
 
     /**
      * 页面跳转
      */
     protected void activityJumps(Intent intent) {
-        // overridePendingTransition(R.anim.zoom_in_avtivity_switchover, R.anim.zoom_out_avtivity_switchover);
+        overridePendingTransition(R.anim.zoom_in_avtivity_switchover, R.anim.zoom_out_avtivity_switchover);
         startActivity(intent);
     }
 
@@ -164,7 +194,8 @@ public class BaseActivity extends LibBaseActivity {
      */
     @Override
     protected void quitLogin() {
-
+       /* Intent intent = new Intent(mContext, LoginActivity.class);
+        startActivity(intent);*/
     }
 
     /**
@@ -174,22 +205,14 @@ public class BaseActivity extends LibBaseActivity {
         finish();
     }
 
-    protected void onExit(){
-        onFinish();
-        System.exit(0);
-    }
 
     /**
-     * 显示进度条
+     * 关闭网络请求
      */
-    public void showProgressBar() {
-    }
-
-    /**
-     * 隐藏进度条
-     */
-    public void hideProgressBar() {
-
+    protected void closeNet(BaseObserver baseObserver) {
+        if (baseObserver != null) {
+            baseObserver.closeNet();
+        }
     }
 
 }

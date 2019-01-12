@@ -25,7 +25,7 @@ public abstract class AbsActivity<T extends BaseViewModel> extends BaseActivity 
 
     public AbsActivity() {}
 
-    @Override
+
     public void initViews(Bundle savedInstanceState) {
         mViewModel = VMProviders(this, (Class<T>) TUtil.getInstance(this, 0));
         dataObserver();

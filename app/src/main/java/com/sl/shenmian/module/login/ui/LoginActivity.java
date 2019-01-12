@@ -161,11 +161,11 @@ public class LoginActivity extends AbsActivity<LoginViewModel> {
         userInfo.setAccount(account_ed.getText().toString().trim());
         userInfo.setPassword(account_ed.getText().toString().trim());
 
-        SpUtil.putString(LoginActivity.this, ConstantValues.UserInfo.KEY_USER_INFO, JSON.toJSONString(userInfo));
+        SpUtil.putString(LoginActivity.this, ConstantValues.UserInfo.KEY_USER_ACCOUNT, JSON.toJSONString(userInfo));
     }
 
     private void loadLoginInfo(){
-        String info = SpUtil.getString(LoginActivity.this,ConstantValues.UserInfo.KEY_USER_INFO,"");
+        String info = SpUtil.getString(LoginActivity.this,ConstantValues.UserInfo.KEY_USER_ACCOUNT,"");
         if(null != info && info.length() > 0){
             UserInfo userInfo = JSON.parseObject(info,UserInfo.class);
             if(null != userInfo && null != userInfo.getAccount() && userInfo.getAccount().length() > 0
