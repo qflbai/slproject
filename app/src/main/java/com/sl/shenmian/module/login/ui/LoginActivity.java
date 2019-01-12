@@ -187,10 +187,10 @@ public class LoginActivity extends AbsActivity<LoginViewModel> {
             ToastUtil.showCenter(LoginActivity.this, getString(R.string.login_user_password_error_empty));
         }*/
 
-        if(account.isEmpty()||password.isEmpty()){
-            ToastUtil.showCenter(mContext,"账号或密码不能为空");
+        if (account.isEmpty() || password.isEmpty()) {
+            ToastUtil.showCenter(mContext, "账号或密码不能为空");
             return false;
-        }else {
+        } else {
             return true;
         }
     }
@@ -221,7 +221,7 @@ public class LoginActivity extends AbsActivity<LoginViewModel> {
                         String stateMessage = ServerResponseState.getStateMessage(resultCode);
 
                         if ("0".equals(resultCode)) {
-                            saveLoginInfo();
+                            saveLoginInfo(loginInfo);
                             LoginInfo.DataBean data = loginInfo.getData();
                             String token = data.getToken();
                             NetApi.setToken(token);
@@ -255,15 +255,17 @@ public class LoginActivity extends AbsActivity<LoginViewModel> {
                 .subscribe(dataNetObserver);
     }
 
-    private void saveLoginInfo() {
+    private void saveLoginInfo(LoginInfo loginInfo) {
         UserInfo userInfo = new UserInfo();
         userInfo.setAccount(account_ed.getText().toString().trim());
         userInfo.setPassword(password_ed.getText().toString().trim());
         boolean remember = SpUtil.getBoolean(mContext, ConstantValues.UserInfo.key_remember_pwd, false);
-        if (remember) {
-            SpUtil.putString(mContext, ConstantValues.UserInfo.KEY_USER_PWD, userInfo.getPassword());
-            SpUtil.putString(mContext, ConstantValues.UserInfo.KEY_USER_ACCOUNT, userInfo.getAccount());
-        }
+
+        SpUtil.putString(mContext, ConstantValues.UserInfo.KEY_USER_PWD, userInfo.getPassword());
+        SpUtil.putString(mContext, ConstantValues.UserInfo.KEY_USER_ACCOUNT, userInfo.getAccount());
+
+        SpUtil.putString(mContext, ConstantValues.UserInfo.KEY_USER_USERNAME, loginInfo.getData().getUsername());
+        SpUtil.putString(mContext, ConstantValues.UserInfo.KEY_USER_ORG, loginInfo.getData().getOrgName());
 
     }
 

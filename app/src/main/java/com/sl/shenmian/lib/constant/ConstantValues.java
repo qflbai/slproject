@@ -17,9 +17,18 @@ public class ConstantValues {
      */
     public static class UserInfo {
         /**
-         * 用户信息key
+         * 用户账号key
          */
         public static final String KEY_USER_ACCOUNT = "key_user_account";
+        /**
+         * 用户名key
+         */
+        public static final String KEY_USER_USERNAME = "key_user_username";
+        /**
+         * 所属组织key
+         */
+        public static final String KEY_USER_ORG= "key_user_org";
+
         /**
          * 密码
          */

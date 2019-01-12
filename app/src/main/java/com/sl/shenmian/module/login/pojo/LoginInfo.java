@@ -74,7 +74,7 @@ public class LoginInfo {
          * img : man.png
          * loginCode : Effendi
          */
-
+        private String orgName;
         private String id;
         private String sex;
         private String username;
@@ -128,6 +128,14 @@ public class LoginInfo {
 
         public void setLoginCode(String loginCode) {
             this.loginCode = loginCode;
+        }
+
+        public String getOrgName() {
+            return orgName;
+        }
+
+        public void setOrgName(String orgName) {
+            this.orgName = orgName;
         }
     }
 }
