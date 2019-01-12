@@ -36,7 +36,7 @@ public class SealInfoEntity {
      * 是否上传( 0:未上传 1:上传)
      */
     @ColumnInfo
-    private int uploadingStae;
+    private int uploadingState;
     /**
      * 封条状态
      */
@@ -68,6 +68,10 @@ public class SealInfoEntity {
     private String imagePath2;
     @ColumnInfo
     private String imagePath3;
+    @ColumnInfo
+    private String carLicense;
+    @ColumnInfo
+    private String lockedImei;
     public long getId() {
         return id;
     }
@@ -140,12 +144,12 @@ public class SealInfoEntity {
         this.remark = remark;
     }
 
-    public int getUploadingStae() {
-        return uploadingStae;
+    public int getUploadingState() {
+        return uploadingState;
     }
 
-    public void setUploadingStae(int uploadingStae) {
-        this.uploadingStae = uploadingStae;
+    public void setUploadingState(int uploadingState) {
+        this.uploadingState = uploadingState;
     }
 
     public String getImagePath1() {
@@ -170,5 +174,21 @@ public class SealInfoEntity {
 
     public void setImagePath3(String imagePath3) {
         this.imagePath3 = imagePath3;
+    }
+
+    public String getCarLicense() {
+        return carLicense;
+    }
+
+    public void setCarLicense(String carLicense) {
+        this.carLicense = carLicense;
+    }
+
+    public String getLockedImei() {
+        return lockedImei;
+    }
+
+    public void setLockedImei(String lockedImei) {
+        this.lockedImei = lockedImei;
     }
 }

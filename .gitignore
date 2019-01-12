@@ -16,3 +16,4 @@ src/main/java/com/sl/shenmian/module/settings/
 src/main/java/com/sl/shenmian/module/storeinstorage/
 src/main/java/com/sl/shenmian/module/wareinstorage/
 src/main/java/com/sl/shenmian/module/wareoutstorage/
+local.properties

@@ -31,6 +31,10 @@ public final class NetApi {
 
     public static class App {
         /**
+         * 登录
+         */
+        public static final String LOGIN="appindex/login_login.do";
+        /**
          * 更新版本
          */
         public static final String UPDATA_VERSION="plugins/updateAppVersion";
@@ -42,7 +46,7 @@ public final class NetApi {
         /**
          * 施封接口
          */
-        public static final String PADLOCK_INFO = "mvc/appindex/sealing/saveSealingInfo.mvc";
+        public static final String PADLOCK_INFO = "mvc/appindex/sealing/saveLockedInfo.mvc";
 
         /**
          * 封条状态

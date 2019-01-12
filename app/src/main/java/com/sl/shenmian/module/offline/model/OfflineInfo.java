@@ -9,11 +9,15 @@ import android.widget.TextView;
  * @Description:
  */
 public class OfflineInfo {
+    private long id ;
     private String coding;
     private String address;
     private String time;
     private int uploadingStae;
     private String remark;
+    private String carLicense;
+    private String lockedImei;
+    private String userAccount;
     private String imagePath1;
     private String imagePath2;
     private String imagePath3;
@@ -79,5 +83,37 @@ public class OfflineInfo {
 
     public void setImagePath3(String imagePath3) {
         this.imagePath3 = imagePath3;
+    }
+
+    public String getCarLicense() {
+        return carLicense;
+    }
+
+    public void setCarLicense(String carLicense) {
+        this.carLicense = carLicense;
+    }
+
+    public String getLockedImei() {
+        return lockedImei;
+    }
+
+    public void setLockedImei(String lockedImei) {
+        this.lockedImei = lockedImei;
+    }
+
+    public String getUserAccount() {
+        return userAccount;
+    }
+
+    public void setUserAccount(String userAccount) {
+        this.userAccount = userAccount;
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
     }
 }

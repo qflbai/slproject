@@ -10,10 +10,10 @@ public class ServerResponseState {
      * 成功
      */
     public static final String ST_0 = "0";
-    public static final String ST_011001 = "ST011001";
-    public static final String ST_011002 = "ST011002";
-    public static final String ST_011003 = "ST011003";
-    public static final String ST_011004 = "ST011004";
+    public static final String ST_011001 = "SL000001";
+    public static final String ST_011002 = "SL000002";
+    public static final String ST_011003 = "SL000003";
+    public static final String ST_011004 = "SL000004";
     public static final String ST_011005 = "ST011005";
     public static final String ST_011006 = "ST011006";
     public static final String ST_011007 = "ST011007";
@@ -32,10 +32,10 @@ public class ServerResponseState {
                 message = "密码错误";
                 break;
             case ST_011003:
-                message = "验证码不正确";
+                message = "当前设备未授权";
                 break;
             case ST_011004:
-                message = "账号被锁定";
+                message = ":设备已过有效日期";
                 break;
             case ST_011005:
                 message = "用户在另一地登陆";

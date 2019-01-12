@@ -4,6 +4,61 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/color_page_bg"
     tools:context=".module.offline.ChooseHistoryActivity">
+
+    <include
+        android:id="@+id/include_title"
+        layout="@layout/constraint_toolbar_title" />
+
+    <TextView
+        android:id="@+id/tv_1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/selectableItemBackground"
+        android:clickable="true"
+        android:gravity="center"
+        android:padding="@dimen/dp_10"
+        android:text="通关施封历史记录"
+        android:textSize="@dimen/sp_18"
+        app:layout_constraintTop_toBottomOf="@id/include_title" />
+    <TextView
+        android:id="@+id/tv_2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/selectableItemBackground"
+        android:clickable="true"
+        android:layout_marginTop="@dimen/dp_5"
+        android:gravity="center"
+        android:padding="@dimen/dp_10"
+        android:text="仓库解封历史记录"
+        android:textSize="@dimen/sp_18"
+        app:layout_constraintTop_toBottomOf="@id/tv_1" />
+
+    <TextView
+        android:id="@+id/tv_3"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/selectableItemBackground"
+        android:clickable="true"
+        android:gravity="center"
+        android:layout_marginTop="@dimen/dp_5"
+        android:padding="@dimen/dp_10"
+        android:text="仓库出库施封历史记录"
+        android:textSize="@dimen/sp_18"
+        app:layout_constraintTop_toBottomOf="@id/tv_2" />
+
+    <TextView
+        android:id="@+id/tv_4"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/selectableItemBackground"
+        android:clickable="true"
+        android:gravity="center"
+        android:padding="@dimen/dp_10"
+        android:text="门店解封历史记录"
+        android:layout_marginTop="@dimen/dp_5"
+        android:textSize="@dimen/sp_18"
+        app:layout_constraintTop_toBottomOf="@id/tv_3" />
 
 </android.support.constraint.ConstraintLayout>

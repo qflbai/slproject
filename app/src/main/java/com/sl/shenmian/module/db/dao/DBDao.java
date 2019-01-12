@@ -21,5 +21,8 @@ public interface DBDao {
     void insert(SealInfoEntity... disassemblesEntities);
 
     @Query("SELECT * FROM SealInfoEntity WHERE userAccount  = :userAccount AND sealType = :sealType")
-    Single<List<SealInfoEntity>> quserOverdueAcency(String userAccount,int sealType);
+    Single<List<SealInfoEntity>> quserOverdueAcency(String userAccount, int sealType);
+
+    @Query("UPDATE SealInfoEntity SET uploadingState = :uploadingState WHERE id :id")
+    void upDateUpLoadingState(long id, int uploadingState);
 }

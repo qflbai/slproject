@@ -20,6 +20,17 @@ public class ConstantValues {
          * 用户信息key
          */
         public static final String KEY_USER_ACCOUNT = "key_user_account";
+        /**
+         * 密码
+         */
+        public static final String KEY_USER_PWD = "key_user_pwd";
+        /**
+         * 记住密码
+         */
+        /**
+         * 密码
+         */
+        public static final String key_remember_pwd = "key_user_pwd";
     }
 
     public static class OfflineInfo{

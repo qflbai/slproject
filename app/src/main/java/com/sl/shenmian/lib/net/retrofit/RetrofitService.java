@@ -127,9 +127,9 @@ public interface RetrofitService {
      */
     @Multipart
     @POST
-    Observable<Response<ResponseBody>> uplodaOne(@Url String urlPath, @QueryMap Map<String, String> paramMap, @Part MultipartBody.Part part);
+    Observable<Response<ResponseBody>> uplodaOne(@Url String urlPath, @QueryMap Map<String, Object> paramMap, @Part MultipartBody.Part part);
 
     @Multipart
     @POST
-    Observable<Response<ResponseBody>> uplodas(@Url String urlPath, @QueryMap Map<String, String> paramMap, @Part List<MultipartBody.Part> parts);
+    Observable<Response<ResponseBody>> uplodas(@Url String urlPath, @QueryMap Map<String, Object> paramMap, @Part List<MultipartBody.Part> parts);
 }

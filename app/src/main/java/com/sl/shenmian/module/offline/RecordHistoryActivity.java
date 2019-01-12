@@ -1,28 +1,23 @@
 package com.sl.shenmian.module.offline;
 
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
 
 import com.alibaba.fastjson.JSON;
 import com.sl.shenmian.R;
-import com.sl.shenmian.lib.base.activity.AbsActivity;
 import com.sl.shenmian.lib.base.activity.BaseActivity;
 import com.sl.shenmian.lib.constant.ConstantValues;
 import com.sl.shenmian.lib.net.RetrofitManage;
+import com.sl.shenmian.lib.net.body.ServerResponseResult;
 import com.sl.shenmian.lib.net.retrofit.RetrofitService;
 import com.sl.shenmian.lib.net.url.NetApi;
 import com.sl.shenmian.lib.utils.sharedpreferences.SpUtil;
 import com.sl.shenmian.module.db.dao.DBDao;
 import com.sl.shenmian.module.db.database.AppDatabase;
 import com.sl.shenmian.module.db.entity.SealInfoEntity;
-import com.sl.shenmian.module.main.source.MainRepository;
 import com.sl.shenmian.module.offline.adpater.OffLineAdapter;
 import com.sl.shenmian.module.offline.model.OfflineInfo;
 import com.sl.shenmian.module.offline.model.SealType;
@@ -31,7 +26,6 @@ import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -59,6 +53,9 @@ public class RecordHistoryActivity extends BaseActivity {
     private ArrayList<OfflineInfo> mOfflineInfos;
     private OffLineAdapter mOffLineAdapter;
     private SealType mSealType;
+    private String mUserAccount;
+    private Flowable<String> flowable;
+    private DBDao mDbDao;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,6 +65,13 @@ public class RecordHistoryActivity extends BaseActivity {
         initData();
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (mSubscription != null) {
+            mSubscription.cancel();
+        }
+    }
 
     private void initUI() {
         Button titleButton = getTitleButton();
@@ -88,6 +92,8 @@ public class RecordHistoryActivity extends BaseActivity {
     }
 
     private void initData() {
+        mDbDao = AppDatabase.getInstance().dbDao();
+        mUserAccount = SpUtil.getString(mContext, ConstantValues.UserInfo.KEY_USER_ACCOUNT, "");
         getIntentInfo();
     }
 
@@ -115,14 +121,18 @@ public class RecordHistoryActivity extends BaseActivity {
                     public void accept(List<SealInfoEntity> sealInfoEntities) throws Exception {
                         for (SealInfoEntity sealInfoEntity : sealInfoEntities) {
                             OfflineInfo offlineInfo = new OfflineInfo();
+                            offlineInfo.setId(sealInfoEntity.getId());
                             offlineInfo.setAddress(sealInfoEntity.getAddress());
                             offlineInfo.setCoding(sealInfoEntity.getCoding());
                             offlineInfo.setRemark(sealInfoEntity.getRemark());
                             offlineInfo.setTime(sealInfoEntity.getTime());
+                            offlineInfo.setCarLicense(sealInfoEntity.getCarLicense());
+                            offlineInfo.setLockedImei(sealInfoEntity.getLockedImei());
+                            offlineInfo.setUserAccount(sealInfoEntity.getUserAccount());
                             offlineInfo.setImagePath1(sealInfoEntity.getImagePath1());
                             offlineInfo.setImagePath2(sealInfoEntity.getImagePath2());
                             offlineInfo.setImagePath3(sealInfoEntity.getImagePath3());
-                            int uploadingStae = sealInfoEntity.getUploadingStae();
+                            int uploadingStae = sealInfoEntity.getUploadingState();
                             if (uploadingStae != 1) {
                                 isHaveData = true;
                                 offlineInfo.setUploadingStae(0);
@@ -216,36 +226,62 @@ public class RecordHistoryActivity extends BaseActivity {
         String pathUrl = NetApi.App.PADLOCK_INFO;
 
         String imagePath1 = offlineInfo.getImagePath1();
-        Bitmap bitmap1 = BitmapFactory.decodeFile(imagePath1);
+        //    Bitmap bitmap1 = BitmapFactory.decodeFile(imagePath1);
         String imagePath2 = offlineInfo.getImagePath2();
-        Bitmap bitmap2 = BitmapFactory.decodeFile(imagePath2);
+        // Bitmap bitmap2 = BitmapFactory.decodeFile(imagePath2);
         String imagePath3 = offlineInfo.getImagePath3();
-        Bitmap bitmap3 = BitmapFactory.decodeFile(imagePath3);
+        //  Bitmap bitmap3 = BitmapFactory.decodeFile(imagePath3);
 
-        HashMap<String, String> paramMap = new HashMap<>();
-        paramMap.put("loginCode", "");
-        paramMap.put("logType", "");
-        paramMap.put("carLicense", "2");
-        paramMap.put("lockedRemark","");
-        paramMap.put("labelCode", "2");
-        paramMap.put("lockedAddrId", "2");
-        paramMap.put("lockedImei", "2");
+        HashMap<String, Object> paramMap = new HashMap<>();
+        paramMap.put("loginCode", offlineInfo.getUserAccount());
+        paramMap.put("logType", type);
+        paramMap.put("carLicense", offlineInfo.getCarLicense());
+        paramMap.put("lockedRemark", offlineInfo.getRemark());
+        paramMap.put("labelCode", offlineInfo.getCoding());
+        paramMap.put("lockedAddrId", offlineInfo.getAddress());
+        paramMap.put("lockedImei", offlineInfo.getLockedImei());
 
-        int byteCount = bitmap1.getByteCount();
-        final File file = new File(imagePath1);
+
+        final File file1 = new File(imagePath1);
+        final File file2 = new File(imagePath2);
+        final File file3 = new File(imagePath3);
 
         // 创建请求体，内容是文件
-        RequestBody requestFile = RequestBody.create(MediaType.parse("multipart/form-data"), file);
+        RequestBody requestFile1 = RequestBody.create(MediaType.parse("multipart/form-data"), file1);
+        MultipartBody.Part body1 = MultipartBody.Part.createFormData("file1", file1.getName(), requestFile1);
+        // 创建请求体，内容是文件
+        RequestBody requestFile2 = RequestBody.create(MediaType.parse("multipart/form-data"), file2);
+        MultipartBody.Part body2 = MultipartBody.Part.createFormData("file2", file2.getName(), requestFile2);
+        // 创建请求体，内容是文件
+        RequestBody requestFile3 = RequestBody.create(MediaType.parse("multipart/form-data"), file3);
+        MultipartBody.Part body3 = MultipartBody.Part.createFormData("file1", file3.getName(), requestFile3);
 
-        MultipartBody.Part body = MultipartBody.Part.createFormData("file", file.getName(), requestFile);
+        ArrayList<MultipartBody.Part> parts = new ArrayList<>();
+        parts.add(body1);
+        parts.add(body2);
+        parts.add(body3);
 
-        Observable<Response<ResponseBody>> responseObservable = service.uplodaOne(pathUrl, paramMap, body);
-        responseObservable.observeOn(AndroidSchedulers.mainThread())
+        Observable<Response<ResponseBody>> responseObservable = service.uplodas(pathUrl, paramMap, parts);
+        Disposable subscribe = responseObservable.observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Consumer<Response<ResponseBody>>() {
                     @Override
                     public void accept(Response<ResponseBody> responseBodyResponse) throws Exception {
+                        int code = responseBodyResponse.code();
+                        if (code == 200) {
+                            ResponseBody body = responseBodyResponse.body();
+                            assert body != null;
+                            String string = body.string();
+                            ServerResponseResult serverResponseResult = JSON.parseObject(string, ServerResponseResult.class);
+                            if (serverResponseResult.isSuccess()) {
+                                offlineInfo.setUploadingStae(1);
+                            } else {
+                                offlineInfo.setUploadingStae(0);
+                            }
+                        } else {
+                            offlineInfo.setUploadingStae(0);
+                        }
 
-
+                        mDbDao.upDateUpLoadingState(offlineInfo.getId(), offlineInfo.getUploadingStae());
                     }
                 }, new Consumer<Throwable>() {
                     @Override
@@ -259,6 +295,70 @@ public class RecordHistoryActivity extends BaseActivity {
      * 解封数据上传
      */
     private void disassembleDaaSubmit(int type, OfflineInfo offlineInfo) {
+        RetrofitService service = retrofitManage.createService();
+        String pathUrl = NetApi.App.PADLOCK_INFO;
 
+        String imagePath1 = offlineInfo.getImagePath1();
+        //    Bitmap bitmap1 = BitmapFactory.decodeFile(imagePath1);
+        String imagePath2 = offlineInfo.getImagePath2();
+        // Bitmap bitmap2 = BitmapFactory.decodeFile(imagePath2);
+        String imagePath3 = offlineInfo.getImagePath3();
+        //  Bitmap bitmap3 = BitmapFactory.decodeFile(imagePath3);
+
+        HashMap<String, Object> paramMap = new HashMap<>();
+        paramMap.put("loginCode", offlineInfo.getUserAccount());
+        paramMap.put("logType", type);
+        paramMap.put("unlockRemark", offlineInfo.getRemark());
+        paramMap.put("labelCode", offlineInfo.getCoding());
+        paramMap.put("unlockAddrId", offlineInfo.getAddress());
+        paramMap.put("unlockImei", offlineInfo.getLockedImei());
+
+
+        final File file1 = new File(imagePath1);
+        final File file2 = new File(imagePath2);
+        final File file3 = new File(imagePath3);
+
+        // 创建请求体，内容是文件
+        RequestBody requestFile1 = RequestBody.create(MediaType.parse("multipart/form-data"), file1);
+        MultipartBody.Part body1 = MultipartBody.Part.createFormData("file1", file1.getName(), requestFile1);
+        // 创建请求体，内容是文件
+        RequestBody requestFile2 = RequestBody.create(MediaType.parse("multipart/form-data"), file2);
+        MultipartBody.Part body2 = MultipartBody.Part.createFormData("file2", file2.getName(), requestFile2);
+        // 创建请求体，内容是文件
+        RequestBody requestFile3 = RequestBody.create(MediaType.parse("multipart/form-data"), file3);
+        MultipartBody.Part body3 = MultipartBody.Part.createFormData("file1", file3.getName(), requestFile3);
+
+        ArrayList<MultipartBody.Part> parts = new ArrayList<>();
+        parts.add(body1);
+        parts.add(body2);
+        parts.add(body3);
+
+        Observable<Response<ResponseBody>> responseObservable = service.uplodas(pathUrl, paramMap, parts);
+        Disposable subscribe = responseObservable.observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Consumer<Response<ResponseBody>>() {
+                    @Override
+                    public void accept(Response<ResponseBody> responseBodyResponse) throws Exception {
+                        int code = responseBodyResponse.code();
+                        if (code == 200) {
+                            ResponseBody body = responseBodyResponse.body();
+                            assert body != null;
+                            String string = body.string();
+                            ServerResponseResult serverResponseResult = JSON.parseObject(string, ServerResponseResult.class);
+                            if (serverResponseResult.isSuccess()) {
+                                offlineInfo.setUploadingStae(1);
+                            } else {
+                                offlineInfo.setUploadingStae(0);
+                            }
+                        } else {
+                            offlineInfo.setUploadingStae(0);
+                        }
+                        mDbDao.upDateUpLoadingState(offlineInfo.getId(), offlineInfo.getUploadingStae());
+                    }
+                }, new Consumer<Throwable>() {
+                    @Override
+                    public void accept(Throwable throwable) throws Exception {
+
+                    }
+                });
     }
 }

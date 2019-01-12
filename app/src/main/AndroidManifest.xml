@@ -20,25 +20,21 @@
         android:theme="@style/AppTheme">
         <uses-library android:name="com.symbol.emdk" />
 
-        <activity android:name=".module.main.ui.MainActivity">
 
-            <!--
+        <activity android:name=".module.login.ui.LoginActivity"
+            android:configChanges="orientation|keyboardHidden"
+            >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-            -->
         </activity>
+        <activity android:name=".module.main.ui.MainActivity"/>
         <!-- 扫码功能页面 -->
         <activity
             android:name=".module.scan.ScanActivity"
             android:configChanges="orientation|keyboardHidden"
             android:screenOrientation="portrait">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
         <!-- 签名页面 -->
         <activity
