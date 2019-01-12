@@ -23,6 +23,6 @@ public interface DBDao {
     @Query("SELECT * FROM SealInfoEntity WHERE userAccount  = :userAccount AND sealType = :sealType")
     Single<List<SealInfoEntity>> quserOverdueAcency(String userAccount, int sealType);
 
-    @Query("UPDATE SealInfoEntity SET uploadingState = :uploadingState WHERE id :id")
+    @Query("UPDATE SealInfoEntity SET uploadingState = :uploadingState WHERE id =:id")
     void upDateUpLoadingState(long id, int uploadingState);
 }
