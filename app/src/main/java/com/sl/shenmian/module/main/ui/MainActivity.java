@@ -80,7 +80,6 @@ public class MainActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.layout_main_view);
         initConfig();
-        initData();
     }
     private void initConfig() {
         initBackToolbar(getString(R.string.main_menu));
@@ -150,13 +149,4 @@ public class MainActivity extends BaseActivity {
         }
     }
 
-    private void initData(){
-        loadStationInfo(StationType.CUSTOMS);
-        loadStationInfo(StationType.WAREHOUSE);
-        loadStationInfo(StationType.STORE);
-    }
-
-    private void loadStationInfo(StationType stationType){
-
-    }
 }
