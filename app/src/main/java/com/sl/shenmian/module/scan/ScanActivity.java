@@ -190,5 +190,7 @@ public class ScanActivity extends ZbarActivity {
             }
 
         }
+
+        finish();
     }
 }

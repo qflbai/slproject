@@ -124,19 +124,23 @@ public class MainActivity extends BaseActivity {
 
             case R.id.main_clearance_btn:
                 //通关施封
-
+                intent.setClass(mContext,ScanActivity.class);
+                intent.putExtra(IntentKeys.KEY_ACTIVITY_TITLE_NAME,R.string.clearance);
                 break;
             case R.id.main_ware_in_storage_btn:
                 //仓库入库解封
-
+                intent.setClass(mContext,ScanActivity.class);
+                intent.putExtra(IntentKeys.KEY_ACTIVITY_TITLE_NAME,R.string.ware_in_storage);
                 break;
             case R.id.main_ware_out_storage_btn:
                 //仓库出库施封
-
+                intent.setClass(mContext,ScanActivity.class);
+                intent.putExtra(IntentKeys.KEY_ACTIVITY_TITLE_NAME,R.string.ware_out_storage);
                 break;
             case R.id.main_store_in_storage_btn:
                 //门店入库解封
-
+                intent.setClass(mContext,ScanActivity.class);
+                intent.putExtra(IntentKeys.KEY_ACTIVITY_TITLE_NAME,R.string.store_in_storage);
                 break;
             case R.id.main_scan_search_btn:
                 //扫码查询
@@ -156,7 +160,6 @@ public class MainActivity extends BaseActivity {
 
         activityJumps(intent);
     }
-
 
     private void showExitDialog() {
         if (null == dialog) {

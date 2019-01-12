@@ -2,12 +2,10 @@ package com.sl.shenmian.module.seachcode.ui.adapter;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
-import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
 import android.widget.GridLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -16,12 +14,10 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.sl.shenmian.R;
-import com.sl.shenmian.module.seachcode.pojo.Image;
 import com.sl.shenmian.module.seachcode.pojo.SeachCodeInfo;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.zip.Inflater;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -43,9 +39,8 @@ public class SeachCodeAdapter extends RecyclerView.Adapter {
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-         viewHodler viewHodler = null;
          View view = LayoutInflater.from(mContext).inflate(R.layout.seach_code_result_list_item,parent,false);
-         viewHodler = (viewHodler) view.getTag();
+         viewHodler viewHodler = new viewHodler(view);
          return viewHodler;
     }
 
@@ -102,8 +97,8 @@ public class SeachCodeAdapter extends RecyclerView.Adapter {
                 }
             }
         });
-        if(seachCodeInfo.getSiglist().size() > 0){
-            for(Image image : seachCodeInfo.getSiglist()){
+        if(seachCodeInfo.getImg().size() > 0){
+            for(SeachCodeInfo.ImgBean image : seachCodeInfo.getImg()){
                 ImageView imageView = new ImageView(mContext);
                 imageView.setLayoutParams(new LinearLayout.LayoutParams(35,35));
                 imageView.setPadding(2,2,2,2);

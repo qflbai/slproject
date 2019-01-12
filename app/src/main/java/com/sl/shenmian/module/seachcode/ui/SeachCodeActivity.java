@@ -68,5 +68,6 @@ public class SeachCodeActivity extends ZbarActivity {
     protected void onData(String data) {
         super.onData(data);
         search_view.setText(data);
+        search_view.setSelection(data.length());
     }
 }

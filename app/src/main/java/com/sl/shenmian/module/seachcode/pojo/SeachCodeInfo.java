@@ -1,16 +1,25 @@
 package com.sl.shenmian.module.seachcode.pojo;
 
-import java.io.Serializable;
-import java.util.ArrayList;
+
 import java.util.List;
 
-public class SeachCodeInfo implements Serializable{
+public class SeachCodeInfo{
+
+    /**
+     * username : 张三
+     * addr : 黄冈口岸
+     * time : 2019-01-01
+     * lic : 粤B 3591
+     * remark : 黄金千两
+     * img : [{"url":"原图链接","thumbUrl":"缩略图"},{"url":"原图链接","thumbUrl":"缩略图"},{"url":"原图链接","thumbUrl":"缩略图"}]
+     */
+
     private String username;
     private String addr;
     private String time;
     private String lic;
     private String remark;
-    private List<Image> siglist = new ArrayList<>();
+    private List<ImgBean> img;
 
     public String getUsername() {
         return username;
@@ -44,14 +53,6 @@ public class SeachCodeInfo implements Serializable{
         this.lic = lic;
     }
 
-    public List<Image> getSiglist() {
-        return siglist;
-    }
-
-    public void setSiglist(List<Image> siglist) {
-        this.siglist = siglist;
-    }
-
     public String getRemark() {
         return remark;
     }
@@ -60,4 +61,37 @@ public class SeachCodeInfo implements Serializable{
         this.remark = remark;
     }
 
+    public List<ImgBean> getImg() {
+        return img;
+    }
+
+    public void setImg(List<ImgBean> img) {
+        this.img = img;
+    }
+
+    public static class ImgBean {
+        /**
+         * url : 原图链接
+         * thumbUrl : 缩略图
+         */
+
+        private String url;
+        private String thumbUrl;
+
+        public String getUrl() {
+            return url;
+        }
+
+        public void setUrl(String url) {
+            this.url = url;
+        }
+
+        public String getThumbUrl() {
+            return thumbUrl;
+        }
+
+        public void setThumbUrl(String thumbUrl) {
+            this.thumbUrl = thumbUrl;
+        }
+    }
 }

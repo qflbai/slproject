@@ -33,11 +33,15 @@ public class ClearanceActivity extends BaseActivity {
     @BindView(R.id.sig_list_view)
     GridLayout sig_list_view;
 
+    private String seal_code;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.layout_clearance_view);
+        seal_code =  getIntent().getStringExtra("seal_code");
         initConfig();
+        initData();
     }
 
     private void initConfig() {
@@ -45,6 +49,10 @@ public class ClearanceActivity extends BaseActivity {
         Toolbar toolbar = getToolbar();
         toolbar.setNavigationIcon(R.mipmap.ic_title_back);
         toolbar.setOnClickListener(onClickListener);
+    }
+
+    private void initData(){
+        feng_code_tv.setText(seal_code);
     }
 
     private View.OnClickListener onClickListener = new View.OnClickListener() {

@@ -2,6 +2,7 @@ package com.sl.shenmian.module.seachcode.ui;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.JsonReader;
@@ -12,8 +13,11 @@ import com.alibaba.fastjson.JSON;
 import com.sl.shenmian.R;
 import com.sl.shenmian.lib.base.activity.BaseActivity;
 import com.sl.shenmian.lib.net.RetrofitManage;
+import com.sl.shenmian.lib.net.body.ServerResponseResult;
+import com.sl.shenmian.lib.net.callback.DataNetCallback;
 import com.sl.shenmian.lib.net.callback.NetCallback;
 import com.sl.shenmian.lib.net.retrofit.RetrofitService;
+import com.sl.shenmian.lib.net.rxjava.DataNetObserver;
 import com.sl.shenmian.lib.net.rxjava.NetObserver;
 import com.sl.shenmian.lib.net.url.NetApi;
 import com.sl.shenmian.lib.net.url.NetBaseUrl;
@@ -42,7 +46,7 @@ public class SearchResultActivity extends BaseActivity {
     RecyclerView search_result_view;
 
     private RetrofitManage mRetrofitManage;
-    private NetObserver mNetObserver;
+    private DataNetObserver mNetObserver;
 
     private List<SeachCodeInfo> seachCodeInfoList = new ArrayList<>();
     private SeachCodeAdapter adapter = null;
@@ -62,28 +66,32 @@ public class SearchResultActivity extends BaseActivity {
     }
 
     private void loadSeachResultData(){
+        search_result_view.setLayoutManager(new GridLayoutManager(this,3));
         seachCodeInfoList.clear();
         mRetrofitManage = null;
         if(null == mRetrofitManage) {
             mRetrofitManage = new RetrofitManage();
         }
         if(null == mNetObserver) {
-            mNetObserver = new NetObserver(this,new NetCallback() {
+            mNetObserver = new DataNetObserver(this,new DataNetCallback() {
 
                 @Override
-                public void onSubscribe(Disposable disposable) {
+                public void onOkResponse(String dataJson) {
+
+                    List<SeachCodeInfo> mlist = JSON.parseArray(dataJson,SeachCodeInfo.class);
+                    seachCodeInfoList.addAll(mlist);
+                    setScanResult();
 
                 }
 
                 @Override
-                public void onResponse(String dataJson) {
+                public void onFailResponse(String dataJson, ServerResponseResult serverResponseResult) {
 
-                    Result result = JSON.parseObject(dataJson,Result.class);
-                    if(null != result && null != result.getData() && result.getData().length() > 0){
-                        List<SeachCodeInfo> mlist = JSON.parseArray(result.getData(),SeachCodeInfo.class);
-                        seachCodeInfoList.addAll(mlist);
-                        setScanResult();
-                    }
+                }
+
+                @Override
+                public void onSubscribe(Disposable disposable) {
+
                 }
 
                 @Override
@@ -95,7 +103,7 @@ public class SearchResultActivity extends BaseActivity {
 
         HashMap<String,Object> paramMap = new HashMap<>();
         paramMap.put("labelCode",scan_code);
-        RetrofitService service = mRetrofitManage.createService(NetBaseUrl.getBaseUrl());
+        RetrofitService service = mRetrofitManage.createService();
         String urlPath = NetApi.App.SEARCH_CODE;
         Observable<Response<ResponseBody>> observable = service.postFormNet(urlPath,paramMap);
         observable.subscribeOn(Schedulers.io())
