@@ -3,6 +3,7 @@ package com.sl.shenmian.module.seachcode.ui;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.JsonReader;
@@ -66,7 +67,10 @@ public class SearchResultActivity extends BaseActivity {
     }
 
     private void loadSeachResultData(){
-        search_result_view.setLayoutManager(new GridLayoutManager(this,3));
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(mContext);
+        linearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+
+        search_result_view.setLayoutManager(linearLayoutManager);
         seachCodeInfoList.clear();
         mRetrofitManage = null;
         if(null == mRetrofitManage) {

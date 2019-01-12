@@ -26,11 +26,12 @@ public class SeachCodeAdapter extends RecyclerView.Adapter {
 
     private Context mContext;
     private List<SeachCodeInfo> mlist = new ArrayList<>();
-    public SeachCodeAdapter(Context context){
+
+    public SeachCodeAdapter(Context context) {
         this.mContext = context;
     }
 
-    public void setData(List<SeachCodeInfo> list){
+    public void setData(List<SeachCodeInfo> list) {
         mlist.clear();
         mlist.addAll(list);
     }
@@ -39,47 +40,47 @@ public class SeachCodeAdapter extends RecyclerView.Adapter {
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-         View view = LayoutInflater.from(mContext).inflate(R.layout.seach_code_result_list_item,parent,false);
-         viewHodler viewHodler = new viewHodler(view);
-         return viewHodler;
+        View view = LayoutInflater.from(mContext).inflate(R.layout.seach_code_result_list_item, parent, false);
+        viewHodler viewHodler = new viewHodler(view);
+        return viewHodler;
     }
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder vhodler, int position) {
 
-        viewHodler viewHodler = (viewHodler)vhodler;
+        viewHodler viewHodler = (viewHodler) vhodler;
         SeachCodeInfo seachCodeInfo = mlist.get(position);
-        if(null != seachCodeInfo && null != seachCodeInfo.getUsername() && seachCodeInfo.getUsername().length() > 0){
+        if (null != seachCodeInfo && null != seachCodeInfo.getUsername() && seachCodeInfo.getUsername().length() > 0) {
             viewHodler.clearance_user_tv.setText(seachCodeInfo.getUsername());
-        }else {
+        } else {
             viewHodler.clearance_user_tv.setText("");
         }
-        if(null != seachCodeInfo && null != seachCodeInfo.getAddr() && seachCodeInfo.getAddr().length() > 0){
+        if (null != seachCodeInfo && null != seachCodeInfo.getAddr() && seachCodeInfo.getAddr().length() > 0) {
             viewHodler.clearance_addr_tv.setText(seachCodeInfo.getAddr());
-        }else {
+        } else {
             viewHodler.clearance_addr_tv.setText("");
         }
-        if(null != seachCodeInfo && null != seachCodeInfo.getTime() && seachCodeInfo.getTime().length() > 0){
+        if (null != seachCodeInfo && null != seachCodeInfo.getTime() && seachCodeInfo.getTime().length() > 0) {
             viewHodler.clearance_time_tv.setText(seachCodeInfo.getTime());
-        }else {
+        } else {
             viewHodler.clearance_time_tv.setText("");
         }
-        if(null != seachCodeInfo && null != seachCodeInfo.getLic() && seachCodeInfo.getLic().length() > 0){
+        if (null != seachCodeInfo && null != seachCodeInfo.getLic() && seachCodeInfo.getLic().length() > 0) {
             viewHodler.car_number_tv.setText(seachCodeInfo.getTime());
-        }else {
+        } else {
             viewHodler.car_number_tv.setText("");
         }
-        if(null != seachCodeInfo && null != seachCodeInfo.getRemark() && seachCodeInfo.getRemark().length() > 0){
+        if (null != seachCodeInfo && null != seachCodeInfo.getRemark() && seachCodeInfo.getRemark().length() > 0) {
             viewHodler.remark_tv.setText(seachCodeInfo.getTime());
-        }else {
+        } else {
             viewHodler.remark_tv.setText("");
         }
 
-        if(position  > 0){
+        if (position > 0) {
             viewHodler.clearance_user.setText(mContext.getString(R.string.out_user));
             viewHodler.clearance_addr.setText(mContext.getString(R.string.out_addr));
             viewHodler.clearance_time.setText(mContext.getString(R.string.out_time));
-        }else {
+        } else {
             viewHodler.clearance_user.setText(mContext.getString(R.string.clearance_user));
             viewHodler.clearance_addr.setText(mContext.getString(R.string.clearance_addr1));
             viewHodler.clearance_time.setText(mContext.getString(R.string.clearance_time));
@@ -89,19 +90,19 @@ public class SeachCodeAdapter extends RecyclerView.Adapter {
             @Override
             public void onClick(View v) {
 
-                viewHodler viewHodler1 = (viewHodler)v.getTag();
-                if(viewHodler1.signature_list_view.getVisibility() == View.VISIBLE){
+                viewHodler viewHodler1 = (viewHodler) v.getTag();
+                if (viewHodler1.signature_list_view.getVisibility() == View.VISIBLE) {
                     viewHodler1.signature_list_view.setVisibility(View.GONE);
-                }else {
+                } else {
                     viewHodler1.signature_list_view.setVisibility(View.VISIBLE);
                 }
             }
         });
-        if(seachCodeInfo.getImg().size() > 0){
-            for(SeachCodeInfo.ImgBean image : seachCodeInfo.getImg()){
+        if (seachCodeInfo.getImg().size() > 0) {
+            for (SeachCodeInfo.ImgBean image : seachCodeInfo.getImg()) {
                 ImageView imageView = new ImageView(mContext);
-                imageView.setLayoutParams(new LinearLayout.LayoutParams(35,35));
-                imageView.setPadding(2,2,2,2);
+                imageView.setLayoutParams(new LinearLayout.LayoutParams(35, 35));
+                imageView.setPadding(2, 2, 2, 2);
                 //imageView.setim
                 Glide.with(mContext)
                         .load(image.getThumbUrl())
@@ -131,21 +132,31 @@ public class SeachCodeAdapter extends RecyclerView.Adapter {
     }
 
 
-    static class viewHodler extends RecyclerView.ViewHolder{
-        @BindView(R.id.clearance_user_tv) TextView clearance_user_tv;
-        @BindView(R.id.clearance_addr_tv) TextView clearance_addr_tv;
-        @BindView(R.id.clearance_time_tv)TextView clearance_time_tv;
-        @BindView(R.id.clearance_user) TextView clearance_user;
-        @BindView(R.id.clearance_addr) TextView clearance_addr;
-        @BindView(R.id.clearance_time)TextView clearance_time;
-        @BindView(R.id.car_number_tv) TextView car_number_tv;
-        @BindView(R.id.remark_tv) TextView remark_tv;
-        @BindView(R.id.show_signature_list) TextView show_signature_list;
-        @BindView(R.id.signature_list_view) GridLayout signature_list_view;
+    static class viewHodler extends RecyclerView.ViewHolder {
+        @BindView(R.id.clearance_user_tv)
+        TextView clearance_user_tv;
+        @BindView(R.id.clearance_addr_tv)
+        TextView clearance_addr_tv;
+        @BindView(R.id.clearance_time_tv)
+        TextView clearance_time_tv;
+        @BindView(R.id.clearance_user)
+        TextView clearance_user;
+        @BindView(R.id.clearance_addr)
+        TextView clearance_addr;
+        @BindView(R.id.clearance_time)
+        TextView clearance_time;
+        @BindView(R.id.car_number_tv)
+        TextView car_number_tv;
+        @BindView(R.id.remark_tv)
+        TextView remark_tv;
+        @BindView(R.id.show_signature_list)
+        TextView show_signature_list;
+        @BindView(R.id.signature_list_view)
+        GridLayout signature_list_view;
 
-        public viewHodler(View view){
+        public viewHodler(View view) {
             super(view);
-            ButterKnife.bind(this,view);
+            ButterKnife.bind(viewHodler.this, view);
         }
     }
 }

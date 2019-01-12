@@ -326,7 +326,7 @@ public class RecordHistoryActivity extends BaseActivity {
         MultipartBody.Part body2 = MultipartBody.Part.createFormData("file2", file2.getName(), requestFile2);
         // 创建请求体，内容是文件
         RequestBody requestFile3 = RequestBody.create(MediaType.parse("multipart/form-data"), file3);
-        MultipartBody.Part body3 = MultipartBody.Part.createFormData("file1", file3.getName(), requestFile3);
+        MultipartBody.Part body3 = MultipartBody.Part.createFormData("file3", file3.getName(), requestFile3);
 
         ArrayList<MultipartBody.Part> parts = new ArrayList<>();
         parts.add(body1);
