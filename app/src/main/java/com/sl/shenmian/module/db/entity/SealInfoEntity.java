@@ -63,7 +63,11 @@ public class SealInfoEntity {
     @ColumnInfo
     private String remark;
     @ColumnInfo
-    private String imagePath;
+    private String imagePath1;
+    @ColumnInfo
+    private String imagePath2;
+    @ColumnInfo
+    private String imagePath3;
     public long getId() {
         return id;
     }
@@ -144,11 +148,27 @@ public class SealInfoEntity {
         this.uploadingStae = uploadingStae;
     }
 
-    public String getImagePath() {
-        return imagePath;
+    public String getImagePath1() {
+        return imagePath1;
     }
 
-    public void setImagePath(String imagePath) {
-        this.imagePath = imagePath;
+    public void setImagePath1(String imagePath1) {
+        this.imagePath1 = imagePath1;
+    }
+
+    public String getImagePath2() {
+        return imagePath2;
+    }
+
+    public void setImagePath2(String imagePath2) {
+        this.imagePath2 = imagePath2;
+    }
+
+    public String getImagePath3() {
+        return imagePath3;
+    }
+
+    public void setImagePath3(String imagePath3) {
+        this.imagePath3 = imagePath3;
     }
 }

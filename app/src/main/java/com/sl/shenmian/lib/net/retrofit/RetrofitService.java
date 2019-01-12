@@ -1,5 +1,6 @@
 package com.sl.shenmian.lib.net.retrofit;
 
+import java.util.List;
 import java.util.Map;
 
 import io.reactivex.Observable;
@@ -126,5 +127,9 @@ public interface RetrofitService {
      */
     @Multipart
     @POST
-    Observable<Response<ResponseBody>> uplodaOne(@Url String urlPath, @QueryMap Map<String, String> paramMap, @Part MultipartBody.Part file);
+    Observable<Response<ResponseBody>> uplodaOne(@Url String urlPath, @QueryMap Map<String, String> paramMap, @Part MultipartBody.Part part);
+
+    @Multipart
+    @POST
+    Observable<Response<ResponseBody>> uplodas(@Url String urlPath, @QueryMap Map<String, String> paramMap, @Part List<MultipartBody.Part> parts);
 }

@@ -119,7 +119,9 @@ public class RecordHistoryActivity extends BaseActivity {
                             offlineInfo.setCoding(sealInfoEntity.getCoding());
                             offlineInfo.setRemark(sealInfoEntity.getRemark());
                             offlineInfo.setTime(sealInfoEntity.getTime());
-                            offlineInfo.setImagePath(sealInfoEntity.getImagePath());
+                            offlineInfo.setImagePath1(sealInfoEntity.getImagePath1());
+                            offlineInfo.setImagePath2(sealInfoEntity.getImagePath2());
+                            offlineInfo.setImagePath3(sealInfoEntity.getImagePath3());
                             int uploadingStae = sealInfoEntity.getUploadingStae();
                             if (uploadingStae != 1) {
                                 isHaveData = true;
@@ -210,16 +212,27 @@ public class RecordHistoryActivity extends BaseActivity {
      * 施封数据上传
      */
     private void padlockDataSubmit(int type, OfflineInfo offlineInfo) {
-        String imagePath = offlineInfo.getImagePath();
-        Bitmap bitmap = BitmapFactory.decodeFile(imagePath);
-        int byteCount = bitmap.getByteCount();
-        final File file = new File(imagePath);
         RetrofitService service = retrofitManage.createService();
         String pathUrl = NetApi.App.PADLOCK_INFO;
+
+        String imagePath1 = offlineInfo.getImagePath1();
+        Bitmap bitmap1 = BitmapFactory.decodeFile(imagePath1);
+        String imagePath2 = offlineInfo.getImagePath2();
+        Bitmap bitmap2 = BitmapFactory.decodeFile(imagePath2);
+        String imagePath3 = offlineInfo.getImagePath3();
+        Bitmap bitmap3 = BitmapFactory.decodeFile(imagePath3);
+
         HashMap<String, String> paramMap = new HashMap<>();
-        paramMap.put("name", file.getName());
-        paramMap.put("size", byteCount + "");
-        paramMap.put("type", "2");
+        paramMap.put("loginCode", "");
+        paramMap.put("logType", "");
+        paramMap.put("carLicense", "2");
+        paramMap.put("lockedRemark","");
+        paramMap.put("labelCode", "2");
+        paramMap.put("lockedAddrId", "2");
+        paramMap.put("lockedImei", "2");
+
+        int byteCount = bitmap1.getByteCount();
+        final File file = new File(imagePath1);
 
         // 创建请求体，内容是文件
         RequestBody requestFile = RequestBody.create(MediaType.parse("multipart/form-data"), file);
