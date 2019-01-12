@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/help_title_view_bg_color">
+
+        <include layout="@layout/constraint_toolbar_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            />
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <!-- 通关施封 -->
+            <Button
+                android:id="@+id/main_clearance_btn"
+                style="@style/MenuFontStyle"
+                android:layout_width="135dp"
+                android:layout_height="90dp"
+                android:layout_alignParentTop="true"
+                android:layout_marginLeft="15dip"
+                android:layout_marginTop="15dip"
+                android:background="@drawable/menu_blue_btn"
+                android:text="@string/clearance" />
+            <!--仓库入库解封-->
+            <Button
+                android:id="@+id/main_ware_in_storage_btn"
+                style="@style/MenuFontStyle"
+                android:layout_width="135dp"
+                android:layout_height="90dp"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentRight="true"
+                android:layout_marginRight="15dip"
+                android:layout_marginTop="15dip"
+                android:background="@drawable/menu_green_btn"
+                android:text="@string/ware_in_storage" />
+            <!--仓库出库施封-->
+            <Button
+                android:id="@+id/main_ware_out_storage_btn"
+                style="@style/MenuFontStyle"
+                android:layout_width="135dp"
+                android:layout_height="90dp"
+                android:layout_below="@+id/main_clearance_btn"
+                android:layout_marginLeft="15dip"
+                android:layout_marginTop="15dip"
+                android:background="@drawable/menu_green_btn"
+                android:text="@string/ware_out_storage" />
+            <!--门店入库解封-->
+            <Button
+                android:id="@+id/main_store_in_storage_btn"
+                style="@style/MenuFontStyle"
+                android:layout_width="135dp"
+                android:layout_height="90dp"
+                android:layout_marginRight="15dip"
+                android:layout_marginTop="15dip"
+                android:layout_alignParentRight="true"
+                android:layout_below="@+id/main_ware_in_storage_btn"
+                android:background="@drawable/menu_blue_btn"
+                android:text="@string/store_in_storage"
+                />
+
+            <!--扫描查询-->
+            <Button
+                android:id="@+id/main_scan_search_btn"
+                style="@style/MenuFontStyle"
+                android:layout_width="135dp"
+                android:layout_height="90dp"
+                android:layout_marginLeft="15dip"
+                android:layout_marginTop="35dip"
+                android:layout_below="@+id/main_ware_out_storage_btn"
+                android:background="@drawable/menu_blue_btn"
+                android:text="@string/scan_search" />
+            <!--历史记录-->
+            <Button
+                android:id="@+id/main_history_record_btn"
+                style="@style/MenuFontStyle"
+                android:layout_width="135dp"
+                android:layout_height="90dp"
+                android:layout_marginRight="15dip"
+                android:layout_alignParentRight="true"
+                android:layout_marginTop="35dip"
+                android:layout_below="@+id/main_store_in_storage_btn"
+                android:background="@drawable/menu_blue_btn"
+                android:text="@string/history_record" />
+            <!--设置-->
+            <Button
+                android:id="@+id/main_settings_btn"
+                android:layout_width="match_parent"
+                android:layout_height="45dp"
+                android:layout_marginRight="15dip"
+                android:layout_marginLeft="15dip"
+                android:layout_alignParentRight="true"
+                android:layout_marginTop="15dip"
+                android:layout_below="@+id/main_history_record_btn"
+                android:background="@drawable/menu_orange_btn"
+                style="@style/MenuFontStyle"
+                android:text="@string/settings" />
+        </RelativeLayout>
+</LinearLayout>

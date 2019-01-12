@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <include layout="@layout/constraint_toolbar_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dip"
+        android:background="@drawable/layout_line_bg">
+
+        <ImageView
+            android:id="@+id/sm_logo"
+            android:layout_width="45dip"
+            android:layout_height="41dp"
+            android:layout_alignParentTop="true"
+            android:layout_marginLeft="45dip"
+            android:layout_marginTop="4dp"
+            android:background="@mipmap/smlogo" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/sm_group"
+                android:textStyle="bold"
+                android:textSize="@dimen/dp_25"
+                android:textColor="@android:color/black"
+                android:layout_toRightOf="@+id/sm_logo"
+                android:layout_marginTop="@dimen/dp_10"
+                android:layout_marginLeft="5dip"
+                android:layout_alignParentTop="true"
+                />
+            <TextView
+                android:id="@+id/code_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/sm_logo"
+                android:layout_marginLeft="45dip"
+                android:layout_marginTop="5dip"
+                android:text="@string/feng_code"
+                android:textColor="@android:color/black"
+                android:textSize="@dimen/dp_18"
+                />
+            <TextView
+                android:id="@+id/feng_code_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/sm_logo"
+                android:layout_marginLeft="5dip"
+                android:layout_marginTop="5dip"
+                android:text=""
+                android:layout_toRightOf="@+id/code_tv"
+                android:textColor="@android:color/black"
+                android:textSize="@dimen/dp_18"
+                />
+    </RelativeLayout>
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/search_result_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dip"
+        android:layout_marginRight="10dip"
+        />
+
+</LinearLayout>

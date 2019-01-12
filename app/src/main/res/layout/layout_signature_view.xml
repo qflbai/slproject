@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:layout_editor_absoluteY="25dp">
+
+    <com.kyanogen.signatureview.SignatureView xmlns:sign="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/signature_view"
+        android:layout_width="579dp"
+        android:layout_height="0dp"
+        android:layout_marginBottom="5dp"
+        sign:backgroundColor="?android:attr/colorActivatedHighlight"
+        sign:enableSignature="true"
+        sign:layout_constraintBottom_toTopOf="@+id/signature_cancel_btn"
+        sign:layout_constraintStart_toStartOf="parent"
+        sign:layout_constraintTop_toTopOf="parent"
+        sign:penColor="#000000"
+        sign:penSize="5dp" />
+
+    <Button
+        android:id="@+id/signature_cancel_btn"
+        android:layout_width="75dip"
+        android:layout_height="35dip"
+        android:layout_marginBottom="7dp"
+        android:layout_marginStart="16dp"
+        android:background="@android:color/holo_red_dark"
+        android:text="@string/cancel"
+        android:textColor="@android:color/background_light"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
+        android:id="@+id/signature_clean_btn"
+        android:layout_width="75dip"
+        android:layout_height="0dp"
+        android:layout_marginBottom="8dp"
+        android:background="@android:color/darker_gray"
+        android:text="@string/clean"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/signature_hit" />
+
+    <Button
+        android:id="@+id/signature_completed_btn"
+        android:layout_width="75dip"
+        android:layout_height="35dip"
+        android:layout_marginBottom="7dp"
+        android:layout_marginEnd="16dp"
+        android:background="@android:color/holo_red_dark"
+        android:text="@string/completed"
+        android:textColor="@android:color/background_light"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <TextView
+        android:id="@+id/signature_hit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="13dp"
+        android:layout_marginTop="220dp"
+        android:text="@string/signature_tips"
+        app:layout_constraintBottom_toTopOf="@+id/signature_clean_btn"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+</android.support.constraint.ConstraintLayout>
