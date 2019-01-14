@@ -321,6 +321,19 @@ public class ClearanceActivity extends BaseActivity {
         offlineInfo.setLockedImei(SystemUtil.getImei(this));
         offlineInfo.setRemark(remark_ed.getText().toString().trim());
         offlineInfo.setUserAccount(SpUtil.getString(mContext, ConstantValues.UserInfo.KEY_USER_ACCOUNT, ""));
+        if(imagelist.size() > 0){
+            for(int i = 0; i< imagelist.size(); i++){
+                if(i == 0){
+                    offlineInfo.setImagePath1(imagelist.get(i).getThumbUrl());
+                }
+                if(i == 1){
+                    offlineInfo.setImagePath2(imagelist.get(i).getThumbUrl());
+                }
+                if(i == 2){
+                    offlineInfo.setImagePath3(imagelist.get(i).getThumbUrl());
+                }
+            }
+        }
 
         padlockDataSubmit(0,offlineInfo);
     }
