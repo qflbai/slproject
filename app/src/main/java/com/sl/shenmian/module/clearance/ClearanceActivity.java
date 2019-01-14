@@ -444,8 +444,18 @@ public class ClearanceActivity extends BaseActivity {
             parts.add(body3);
         }
 
+        if(parts.size()<=0){
+            // 创建请求体，内容是文件
+            RequestBody requestFile3 = RequestBody.create(MediaType.parse("multipart/form-data"), "");
+            MultipartBody.Part body3 = MultipartBody.Part.createFormData("", null, requestFile3);
+            parts.add(body3);
+        }
+
         Observable<Response<ResponseBody>> responseObservable = service.uplodas(pathUrl, paramMap, parts);
-        Disposable subscribe = responseObservable.subscribe(new Consumer<Response<ResponseBody>>() {
+        Disposable subscribe = responseObservable
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Consumer<Response<ResponseBody>>() {
                     @Override
                     public void accept(Response<ResponseBody> responseBodyResponse) throws Exception {
                         int code = responseBodyResponse.code();
@@ -468,7 +478,7 @@ public class ClearanceActivity extends BaseActivity {
                 }, new Consumer<Throwable>() {
                     @Override
                     public void accept(Throwable throwable) throws Exception {
-
+                        LogUtil.e("tag","Exception");
                     }
                 });
     }
