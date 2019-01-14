@@ -120,15 +120,18 @@
                 android:layout_marginTop="15dp"
                 />
 
-        <EditText
-            android:id="@+id/car_number_ed"
+        <Spinner
+            android:id="@+id/clearance_car_number_spinner"
             android:layout_width="175dip"
-            android:layout_height="35dip"
-            android:layout_below="@+id/clearance_addr"
-            android:layout_margin="5dip"
+            android:layout_height="25dip"
+            android:layout_below="@+id/clearance_addr_spinner"
+            android:layout_marginLeft="5dip"
+            android:layout_marginRight="5dip"
+            android:layout_marginTop="10dip"
             android:layout_toRightOf="@+id/car_number"
-            android:textSize="@dimen/dp_14"
-            tools:text="123456" />
+            android:entries="@array/addr_array"
+            android:text="addr" />
+
         <TextView
             android:id="@+id/remark"
             android:layout_alignParentLeft="true"
@@ -139,17 +142,16 @@
             android:text="@string/remark"
             android:layout_marginLeft="5dip"
             android:layout_marginRight="5dip"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="15dp"
             />
-
         <EditText
             android:id="@+id/remark_ed"
             android:layout_width="175dip"
             android:layout_height="35dip"
-            android:layout_below="@+id/car_number_ed"
+            android:layout_below="@+id/clearance_car_number_spinner"
             android:layout_margin="5dip"
             android:layout_toRightOf="@+id/remark"
-            android:text="123456"
+            android:text=""
             android:textSize="@dimen/dp_14" />
     </RelativeLayout>
     <LinearLayout
@@ -178,7 +180,7 @@
                          android:rowCount="1"
                          android:columnCount="3"
                          android:layout_margin="5dip"
-                         android:visibility="gone"
+                         android:visibility="visible"
                          />
                     <ImageView
                         android:id="@+id/sig_add_btn"

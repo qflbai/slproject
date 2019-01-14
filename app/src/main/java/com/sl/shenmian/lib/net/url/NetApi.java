@@ -51,7 +51,7 @@ public final class NetApi {
         /**
          * 封条状态
          */
-        public static final String SEAL_STATUS = "mvc/appindex/sealing/getSealSatus.mvc";
+        public static final String SEAL_STATUS = "mvc/appindex/sealing/getSealStatus.mvc";
 
         /**
          * 扫码查询
@@ -62,5 +62,13 @@ public final class NetApi {
          * 修改密码
          */
         public static final String AMEND_PWD= "mvc/appindex/user/updatePsw.mvc";
+        /**
+         * 获取车牌
+         */
+        public static final String LOAD_CARLIC= "mvc/appindex/sealing/getCarLicList.mvc";
+        /**
+         * 获取站点
+         */
+        public static final String LOAD_STATION= "mvc/appindex/sealing/getStationList.mvc";
     }
 }

@@ -1,7 +1,6 @@
 package com.sl.shenmian.module.offline.model;
 
 
-import android.widget.TextView;
 
 /**
  * @author WenXian Bai

@@ -1,4 +1,4 @@
-package com.sl.shenmian.module.clearance;
+package com.sl.shenmian.module.wareinstorage;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -6,13 +6,12 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.GridLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -28,35 +27,22 @@ import com.sl.shenmian.lib.constant.ConstantValues;
 import com.sl.shenmian.lib.net.RetrofitManage;
 import com.sl.shenmian.lib.net.body.ServerResponseResult;
 import com.sl.shenmian.lib.net.callback.DataNetCallback;
-import com.sl.shenmian.lib.net.callback.NetCallback;
 import com.sl.shenmian.lib.net.retrofit.RetrofitService;
 import com.sl.shenmian.lib.net.rxjava.DataNetObserver;
-import com.sl.shenmian.lib.net.rxjava.NetObserver;
 import com.sl.shenmian.lib.net.url.NetApi;
-import com.sl.shenmian.lib.net.url.NetBaseUrl;
 import com.sl.shenmian.lib.ui.dialog.CustomDialog;
 import com.sl.shenmian.lib.ui.dialog.ImageDialog;
 import com.sl.shenmian.lib.ui.dialog.MenuDialog;
-import com.sl.shenmian.lib.utils.FileUtil;
-import com.sl.shenmian.lib.utils.StringUtils;
-import com.sl.shenmian.lib.utils.SystemUtil;
 import com.sl.shenmian.lib.utils.image.BitmapUtils;
 import com.sl.shenmian.lib.utils.sharedpreferences.SpUtil;
 import com.sl.shenmian.lib.utils.toast.ToastUtil;
+import com.sl.shenmian.module.clearance.ClearanceActivity;
 import com.sl.shenmian.module.commons.Constants;
-import com.sl.shenmian.module.db.dao.DBDao;
-import com.sl.shenmian.module.db.database.AppDatabase;
-import com.sl.shenmian.module.db.entity.SealInfoEntity;
-import com.sl.shenmian.module.main.pojo.CarLic;
-import com.sl.shenmian.module.main.pojo.Result;
 import com.sl.shenmian.module.main.pojo.Station;
 import com.sl.shenmian.module.main.pojo.StationType;
-import com.sl.shenmian.module.main.ui.adapter.SpinnerCarlicAdapter;
 import com.sl.shenmian.module.main.ui.adapter.SpinnerStationAdapter;
-import com.sl.shenmian.module.offline.model.OfflineInfo;
-import com.sl.shenmian.module.offline.model.SealType;
-import com.sl.shenmian.module.scan.pojo.CodeState;
 import com.sl.shenmian.module.seachcode.pojo.SeachCodeInfo;
+import com.sl.shenmian.module.seachcode.ui.adapter.SeachCodeAdapter;
 import com.sl.shenmian.module.signature.SignatureActivity;
 
 import java.io.File;
@@ -67,67 +53,75 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.OnClick;
-import butterknife.OnItemClick;
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
-import okhttp3.MediaType;
-import okhttp3.MultipartBody;
-import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import retrofit2.Response;
 
 import static com.sl.shenmian.lib.constant.ActivityConstant.ACTIVITY_SIGNAGURE_KEY;
 
-public class ClearanceActivity extends BaseActivity {
-
-
-    @BindView(R.id.feng_code_tv)
-    TextView feng_code_tv;
-    @BindView(R.id.clearance_user_tv)
-    TextView clearance_user_tv;
-    @BindView(R.id.clearance_addr_spinner)
-    Spinner clearance_addr_spinner;
-    @BindView(R.id.clearance_car_number_spinner)
-    Spinner clearance_car_number_spinner;
-    @BindView(R.id.remark_ed)
-    TextView remark_ed;
-    @BindView(R.id.sig_add_btn)
-    ImageView sig_add_btn;
-    @BindView(R.id.sig_list_view)
-    GridLayout sig_list_view;
-
-    private List<SeachCodeInfo.ImgBean> imagelist = new ArrayList<>();
+/**
+ * 仓库出库解封
+ */
+public class WareInStorageActivity extends BaseActivity {
 
     private String seal_code;
-    private List<CarLic> carLics = new ArrayList<>();
+
+    /**
+     * 站点
+     */
     private List<Station> stations = new ArrayList<>();
 
     private RetrofitManage mRetrofitManage;
-    private DataNetObserver mCarLicNetObserver;
     private DataNetObserver mStationNetObserver;
-
-    private SpinnerCarlicAdapter spinnerCarlicAdapter;
+    private DataNetObserver mSeachCodeNetObserver;
     private SpinnerStationAdapter spinnerStationAdapter;
+
+    private int addrIndex = -1;
 
     private final int REQUEST_CODE_SIGNATURE = 11001;
     private final int REQUEST_CODE_PHOTO = 11002;
 
+    private List<SeachCodeInfo.ImgBean> imagelist = new ArrayList<>();
+    private List<SeachCodeInfo> seachCodeInfoList = new ArrayList<>();
+
+
+    @BindView(R.id.feng_code_tv) TextView feng_code_tv;
+    /**
+     * 施封信息
+     */
+    @BindView(R.id.ware_in_storage_user_tv) TextView ware_in_storage_user_tv;
+    @BindView(R.id.ware_in_storage_addr_spinner) Spinner ware_in_storage_addr_spinner;
+    @BindView(R.id.ware_in_storage_remark_tv) TextView ware_in_storage_remark_tv;
+    @BindView(R.id.sig_add_btn) ImageView sig_add_btn;
+    @BindView(R.id.sig_list_view) GridLayout sig_list_view;
+
+    /**
+     * 解封信息
+     */
+    @BindView(R.id.clearance_user_tv) TextView clearance_user_tv;
+    @BindView(R.id.clearance_time_tv) TextView clearance_time_tv;
+    @BindView(R.id.clearance_addr_tv) TextView clearance_addr_tv;
+    @BindView(R.id.car_number_tv) TextView car_number_tv;
+    @BindView(R.id.remark_tv) TextView remark_tv;
+    @BindView(R.id.clearance_sig_list_view) GridLayout clearance_sig_list_view;
+    @BindView(R.id.show_signature_list) TextView show_signature_list;
+
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.layout_clearance_view);
         seal_code =  getIntent().getStringExtra("seal_code");
+        setContentView(R.layout.layout_ware_in_storage_view);
+
         initConfig();
-        loadCarLic();
-        loadStation();
         initData();
     }
 
     private void initConfig() {
-        initBackToolbar(getString(R.string.clearance));
+        initBackToolbar(getString(R.string.ware_in_storage));
         Toolbar toolbar = getToolbar();
         toolbar.setNavigationIcon(R.mipmap.ic_title_back);
         toolbar.setOnClickListener(new View.OnClickListener() {
@@ -143,129 +137,36 @@ public class ClearanceActivity extends BaseActivity {
         titleButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 showUploadConfimDialog();
             }
         });
     }
 
-
     private void initData(){
         feng_code_tv.setText(seal_code);
         String account = SpUtil.getString(mContext, ConstantValues.UserInfo.KEY_USER_ACCOUNT, "");
-        clearance_user_tv.setText(account);
-        spinnerCarlicAdapter = new SpinnerCarlicAdapter(this,carLics);
-        spinnerStationAdapter = new SpinnerStationAdapter(this,stations);
-        mDbDao = AppDatabase.getInstance().dbDao();
+        ware_in_storage_user_tv.setText(account);
 
-        clearance_addr_spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        loadStation();
+
+        spinnerStationAdapter = new SpinnerStationAdapter(this,stations);
+        ware_in_storage_addr_spinner.setAdapter(spinnerStationAdapter);
+        ware_in_storage_addr_spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 addrIndex = position;
             }
-
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
-
             }
         });
-        clearance_car_number_spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                carnumberIndex = position;
-            }
 
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
-        });
-        clearance_car_number_spinner.setAdapter(spinnerCarlicAdapter);
-        clearance_addr_spinner.setAdapter(spinnerStationAdapter);
-    }
-
-    private void updateCarlic(){
-        spinnerCarlicAdapter.setData(carLics);
-        spinnerCarlicAdapter.notifyDataSetChanged();
+        loadSeachResultData();
     }
 
     private void updateStation(){
         spinnerStationAdapter.setData(stations);
         spinnerStationAdapter.notifyDataSetChanged();
-    }
-
-    int addrIndex = 0;
-    int carnumberIndex = 0;
-
-    private View.OnClickListener onClickListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            switch (v.getId()) {
-                case R.id.dialog_left_btn:
-
-                    submitData();
-                    break;
-                case R.id.dialog_right_btn:
-
-                    dismiss();
-                    break;
-                case R.id.dialog_title_btn:
-                    dismiss();
-                    break;
-                default:
-                    break;
-            }
-        }
-    };
-
-    @OnClick({R.id.sig_add_btn})
-    void OnClick(View v){
-
-        switch (v.getId()){
-            case R.id.sig_add_btn:
-
-                    showSignatureMenuDialog();
-                break;
-        }
-    }
-
-    private void loadCarLic(){
-        mRetrofitManage = null;
-        if (mRetrofitManage == null) {
-            mRetrofitManage = new RetrofitManage();
-        }
-        if(null == mCarLicNetObserver) {
-            mCarLicNetObserver = new DataNetObserver(mContext,new DataNetCallback() {
-                @Override
-                public void onError(Throwable e) {
-
-                }
-
-                @Override
-                public void onSubscribe(Disposable disposable) {
-
-                }
-
-                @Override
-                public void onFailResponse(String dataJson, ServerResponseResult serverResponseResult) {
-
-                }
-
-                @Override
-                public void onOkResponse(String dataJson) {
-                    carLics = JSON.parseArray(dataJson,CarLic.class);
-                    updateCarlic();
-                }
-            });
-        }
-
-        HashMap<String,Object> paramMap = new HashMap<>();
-        RetrofitService service = mRetrofitManage.createService();
-        String urlPath = NetApi.App.LOAD_CARLIC;
-        Observable<Response<ResponseBody>> observable = service.postFormNet(urlPath,paramMap);
-        observable.subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(mCarLicNetObserver);
     }
 
     private void loadStation(){
@@ -299,7 +200,7 @@ public class ClearanceActivity extends BaseActivity {
         }
 
         HashMap<String,Object> paramMap = new HashMap<>();
-        paramMap.put("stationType", StationType.CUSTOMS.name());
+        paramMap.put("stationType", StationType.WAREHOUSE.name());
         RetrofitService service = mRetrofitManage.createService();
         String urlPath = NetApi.App.LOAD_STATION;
         Observable<Response<ResponseBody>> observable = service.postFormNet(urlPath,paramMap);
@@ -308,39 +209,95 @@ public class ClearanceActivity extends BaseActivity {
                 .subscribe(mStationNetObserver);
     }
 
-    private RetrofitManage retrofitManage = new RetrofitManage();
-    private DBDao mDbDao;
+    private void loadSeachResultData(){
+        seachCodeInfoList.clear();
+        mRetrofitManage = null;
+        if(null == mRetrofitManage) {
+            mRetrofitManage = new RetrofitManage();
+        }
+        if(null == mSeachCodeNetObserver) {
+            mSeachCodeNetObserver = new DataNetObserver(this,new DataNetCallback() {
 
-    private void submitData(){
+                @Override
+                public void onOkResponse(String dataJson) {
 
-        OfflineInfo offlineInfo = new OfflineInfo();
-        offlineInfo.setAddress(stations.get(addrIndex).getId());
-        offlineInfo.setCarLicense(carLics.get(carnumberIndex).getCarLic());
-        offlineInfo.setCoding(seal_code);
-        offlineInfo.setLockedImei(SystemUtil.getImei(this));
-        offlineInfo.setRemark(remark_ed.getText().toString().trim());
-        offlineInfo.setUserAccount(SpUtil.getString(mContext, ConstantValues.UserInfo.KEY_USER_ACCOUNT, ""));
+                    List<SeachCodeInfo> mlist = JSON.parseArray(dataJson,SeachCodeInfo.class);
+                    seachCodeInfoList.addAll(mlist);
+                    setScanResult();
 
-        padlockDataSubmit(0,offlineInfo);
+                }
+
+                @Override
+                public void onFailResponse(String dataJson, ServerResponseResult serverResponseResult) {
+
+                }
+
+                @Override
+                public void onSubscribe(Disposable disposable) {
+
+                }
+
+                @Override
+                public void onError(Throwable e) {
+
+                }
+            });
+        }
+
+        HashMap<String,Object> paramMap = new HashMap<>();
+        paramMap.put("labelCode",seal_code);
+        RetrofitService service = mRetrofitManage.createService();
+        String urlPath = NetApi.App.SEARCH_CODE;
+        Observable<Response<ResponseBody>> observable = service.postFormNet(urlPath,paramMap);
+        observable.subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(mSeachCodeNetObserver);
+
     }
 
+    private void setScanResult(){
+       //seachCodeInfoList
+        if(seachCodeInfoList.size() > 0){
+            SeachCodeInfo searchCodeInfo = seachCodeInfoList.get(seachCodeInfoList.size() - 1);
+            clearance_user_tv.setText(searchCodeInfo.getUsername());
+            clearance_addr_tv.setText(searchCodeInfo.getAddr());
+            car_number_tv.setText(searchCodeInfo.getLic());
+            remark_tv.setText(searchCodeInfo.getRemark());
+            clearance_time_tv.setText(searchCodeInfo.getTime());
 
-    private void saveData(OfflineInfo offlineInfo){
+            if (searchCodeInfo.getImg().size() > 0) {
+                for (SeachCodeInfo.ImgBean image : searchCodeInfo.getImg()) {
+                    ImageView imageView = new ImageView(mContext);
+                    imageView.setLayoutParams(new LinearLayout.LayoutParams(75, 75));
+                    imageView.setPadding(5, 5, 5, 5);
+                    //imageView.setim
+                    Glide.with(mContext)
+                            .load(image.getThumbUrl())
+                            .asBitmap()//只加载静态图片，如果是git图片则只加载第一帧。
+                            .placeholder(R.mipmap.loading)
+                            .error(R.mipmap.fail)
+                            .diskCacheStrategy(DiskCacheStrategy.NONE)
+                            .into(imageView);
+                    imageView.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            ImageDialog imageDialog = new ImageDialog();
+                            imageDialog.setDialogTitleBtnOnClick(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    imageDialog.dismissAllowingStateLoss();
+                                }
+                            });
+                            imageDialog.setImagUrl(image.getUrl());
+                            imageDialog.show(getSupportFragmentManager(),"image");
+                        }
+                    });
 
-        SealInfoEntity sealInfoEntity = new SealInfoEntity();
-        sealInfoEntity.setAddress(offlineInfo.getAddress());
-        sealInfoEntity.setCarLicense(offlineInfo.getCarLicense());
-        sealInfoEntity.setCoding(offlineInfo.getCoding());
-        sealInfoEntity.setLockedImei(offlineInfo.getLockedImei());
-        sealInfoEntity.setRemark(offlineInfo.getRemark());
-        sealInfoEntity.setUploadingState(offlineInfo.getUploadingStae());
-        sealInfoEntity.setSealType(SealType.tongGuanPadlock.getValue());
-        sealInfoEntity.setUserName(SpUtil.getString(mContext, ConstantValues.UserInfo.KEY_USER_USERNAME, ""));
-        sealInfoEntity.setUserAccount(offlineInfo.getUserAccount());
-        sealInfoEntity.setTime(StringUtils.getCurrentTimeStr());
-
-        mDbDao.insert(sealInfoEntity);
+                }
+            }
+        }
     }
+
 
     private CustomDialog dialog = null;
     private void showUploadConfimDialog() {
@@ -361,7 +318,7 @@ public class ClearanceActivity extends BaseActivity {
         dialog.setDialogLeftBtnOnClick(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                submitData();
+               // submitData();
                 dialog.dismissAllowingStateLoss();
             }
         });
@@ -380,82 +337,22 @@ public class ClearanceActivity extends BaseActivity {
         }
     }
 
-    /**
-     * 施封数据上传
-     */
-    private void padlockDataSubmit(int type, OfflineInfo offlineInfo) {
-        RetrofitService service = retrofitManage.createService();
-        String pathUrl = NetApi.App.PADLOCK_INFO;
+    @OnClick({R.id.sig_add_btn,R.id.show_signature_list})
+    void OnClick(View v){
 
-        String imagePath1 = offlineInfo.getImagePath1();
-        //    Bitmap bitmap1 = BitmapFactory.decodeFile(imagePath1);
-        String imagePath2 = offlineInfo.getImagePath2();
-        // Bitmap bitmap2 = BitmapFactory.decodeFile(imagePath2);
-        String imagePath3 = offlineInfo.getImagePath3();
-        //  Bitmap bitmap3 = BitmapFactory.decodeFile(imagePath3);
+        switch (v.getId()){
+            case R.id.sig_add_btn:
 
-        HashMap<String, Object> paramMap = new HashMap<>();
-        paramMap.put("loginCode", offlineInfo.getUserAccount());
-        paramMap.put("logType", type);
-        paramMap.put("carLicense", offlineInfo.getCarLicense());
-        paramMap.put("lockedRemark", offlineInfo.getRemark());
-        paramMap.put("labelCode", offlineInfo.getCoding());
-        paramMap.put("lockedAddrId", offlineInfo.getAddress());
-        paramMap.put("lockedImei", offlineInfo.getLockedImei());
-
-        ArrayList<MultipartBody.Part> parts = new ArrayList<>();
-
-        if(null != imagePath1 && imagePath1.length() > 0) {
-            final File file1 = new File(imagePath1);
-            // 创建请求体，内容是文件
-            RequestBody requestFile1 = RequestBody.create(MediaType.parse("multipart/form-data"), file1);
-            MultipartBody.Part body1 = MultipartBody.Part.createFormData("file1", file1.getName(), requestFile1);
-            parts.add(body1);
-        }
-
-        if(null != imagePath2 && imagePath2.length() > 0) {
-            final File file2 = new File(imagePath2);
-            // 创建请求体，内容是文件
-            RequestBody requestFile2 = RequestBody.create(MediaType.parse("multipart/form-data"), file2);
-            MultipartBody.Part body2 = MultipartBody.Part.createFormData("file2", file2.getName(), requestFile2);
-            parts.add(body2);
-        }
-
-        if(null != imagePath3 && imagePath3.length() > 0) {
-            final File file3 = new File(imagePath3);
-            // 创建请求体，内容是文件
-            RequestBody requestFile3 = RequestBody.create(MediaType.parse("multipart/form-data"), file3);
-            MultipartBody.Part body3 = MultipartBody.Part.createFormData("file1", file3.getName(), requestFile3);
-            parts.add(body3);
-        }
-
-        Observable<Response<ResponseBody>> responseObservable = service.uplodas(pathUrl, paramMap, parts);
-        Disposable subscribe = responseObservable.subscribe(new Consumer<Response<ResponseBody>>() {
-                    @Override
-                    public void accept(Response<ResponseBody> responseBodyResponse) throws Exception {
-                        int code = responseBodyResponse.code();
-                        if (code == 200) {
-                            ResponseBody body = responseBodyResponse.body();
-                            assert body != null;
-                            String string = body.string();
-                            ServerResponseResult serverResponseResult = JSON.parseObject(string, ServerResponseResult.class);
-                            if (serverResponseResult.isSuccess()) {
-                                offlineInfo.setUploadingStae(1);
-                            } else {
-                                offlineInfo.setUploadingStae(0);
-                            }
-                        } else {
-                            offlineInfo.setUploadingStae(0);
-                        }
-
-                        saveData(offlineInfo);
+                showSignatureMenuDialog();
+                break;
+            case R.id.show_signature_list:
+                    if(clearance_sig_list_view.getVisibility() == View.VISIBLE){
+                        clearance_sig_list_view.setVisibility(View.GONE);
+                    }else {
+                        clearance_sig_list_view.setVisibility(View.VISIBLE);
                     }
-                }, new Consumer<Throwable>() {
-                    @Override
-                    public void accept(Throwable throwable) throws Exception {
-
-                    }
-                });
+                break;
+        }
     }
 
     private MenuDialog menuDialog;
@@ -475,7 +372,7 @@ public class ClearanceActivity extends BaseActivity {
         public void onClick(View v) {
             switch (v.getId()){
                 case R.id.signature_menu:
-                    Intent intent = new Intent(ClearanceActivity.this, SignatureActivity.class);
+                    Intent intent = new Intent(WareInStorageActivity.this, SignatureActivity.class);
                     startActivityForResult(intent,REQUEST_CODE_SIGNATURE);
                     menuDialog.dismissAllowingStateLoss();
                     break;
@@ -529,7 +426,7 @@ public class ClearanceActivity extends BaseActivity {
             BitmapUtils.saveBitmapToJPG(bitmap,file);
         } catch (IOException e) {
             e.printStackTrace();
-            ToastUtil.show(ClearanceActivity.this,getString(R.string.signature_save_error));
+            ToastUtil.show(WareInStorageActivity.this,getString(R.string.signature_save_error));
         }
 
         return fileName;
@@ -584,8 +481,5 @@ public class ClearanceActivity extends BaseActivity {
             ToastUtil.show(this,"签名图片最多三张!");
         }
 
-
-
     }
-
 }

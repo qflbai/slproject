@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/dialog_bg_color">
+
+        <RelativeLayout
+            android:id="@+id/dialog_tile_view"
+            android:layout_width="match_parent"
+            android:layout_height="45dip"
+            android:background="@color/title_bg_color">
+                <ImageView
+                    android:id="@+id/dialog_title_btn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_marginRight="@dimen/dp_10"
+                    android:layout_centerVertical="true"
+                    android:background="@android:drawable/ic_menu_close_clear_cancel" />
+        </RelativeLayout>
+        <ImageView
+            android:id="@+id/show_image_imag"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:scaleType="center"
+            />
+
+
+</LinearLayout>

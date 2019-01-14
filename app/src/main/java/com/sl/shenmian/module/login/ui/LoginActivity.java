@@ -275,6 +275,7 @@ public class LoginActivity extends AbsActivity<LoginViewModel> {
             String pwd = SpUtil.getString(mContext, ConstantValues.UserInfo.KEY_USER_PWD, "");
             account_ed.setText(userName);
             password_ed.setText(pwd);
+            account_ed.setSelection(userName.length());
         }
     }
 }

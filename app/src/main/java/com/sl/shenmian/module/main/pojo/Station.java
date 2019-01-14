@@ -5,10 +5,6 @@ package com.sl.shenmian.module.main.pojo;
  */
 public class Station {
     /**
-     * 站点类型
-     */
-    private String stationType;
-    /**
      * 站点名称
      */
     private String siteName;
@@ -17,4 +13,19 @@ public class Station {
      */
     private String id;
 
+    public String getSiteName() {
+        return siteName;
+    }
+
+    public void setSiteName(String siteName) {
+        this.siteName = siteName;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
 }

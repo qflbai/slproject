@@ -25,6 +25,9 @@ import com.sl.shenmian.module.clearance.ClearanceActivity;
 import com.sl.shenmian.module.commons.IntentKeys;
 import com.sl.shenmian.module.main.pojo.Result;
 import com.sl.shenmian.module.scan.pojo.CodeState;
+import com.sl.shenmian.module.storeinstorage.StoreInStorageActivity;
+import com.sl.shenmian.module.wareinstorage.WareInStorageActivity;
+import com.sl.shenmian.module.wareoutstorage.WareOutStorageActivity;
 
 import java.util.HashMap;
 
@@ -111,7 +114,7 @@ public class ScanActivity extends ZbarActivity {
 
         HashMap<String,Object> paramMap = new HashMap<>();
         paramMap.put("labelCode",data);
-        RetrofitService service = mRetrofitManage.createService(NetBaseUrl.getBaseUrl());
+        RetrofitService service = mRetrofitManage.createService();
         String urlPath = NetApi.App.SEAL_STATUS;
         Observable<Response<ResponseBody>> observable = service.postFormNet(urlPath,paramMap);
         observable.subscribeOn(Schedulers.io())
@@ -171,21 +174,21 @@ public class ScanActivity extends ZbarActivity {
         }else  if(mTitleResId == R.string.ware_out_storage){
             //仓库出库施封
             if(checkHasSeal(codeState)){
-                Intent intent = new Intent(ScanActivity.this, ClearanceActivity.class);
+                Intent intent = new Intent(ScanActivity.this, WareOutStorageActivity.class);
                 startIntent(intent);
             }
 
         }else  if(mTitleResId == R.string.store_in_storage){
             //门店入库解封
             if(checkHasLock(codeState)){
-                Intent intent = new Intent(ScanActivity.this, ClearanceActivity.class);
+                Intent intent = new Intent(ScanActivity.this, StoreInStorageActivity.class);
                 startIntent(intent);
             }
 
         }else  if(mTitleResId == R.string.ware_in_storage){
             //仓库入库解封
             if(checkHasLock(codeState)){
-                Intent intent = new Intent(ScanActivity.this, ClearanceActivity.class);
+                Intent intent = new Intent(ScanActivity.this, WareInStorageActivity.class);
                 startIntent(intent);
             }
 

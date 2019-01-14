@@ -12,4 +12,20 @@ public class CarLic {
      * 车牌号码
      */
     private String carLic;
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getCarLic() {
+        return carLic;
+    }
+
+    public void setCarLic(String carLic) {
+        this.carLic = carLic;
+    }
 }

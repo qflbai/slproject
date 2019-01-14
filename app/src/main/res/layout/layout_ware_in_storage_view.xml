@@ -86,40 +86,58 @@
             android:layout_toRightOf="@+id/clearance_user"
             android:gravity="center_vertical|left"
             android:text="张三" />
+        <TextView
+            android:id="@+id/clearance_time"
+            style="@style/InfoStyle"
+            android:layout_width="95dip"
+            android:layout_height="wrap_content"
+            android:layout_alignStart="@+id/clearance_user"
+            android:layout_below="@+id/clearance_user"
+            android:text="@string/clearance_time" />
 
+        <TextView
+            android:id="@+id/clearance_time_tv"
+            style="@style/InfoStyle"
+            android:layout_width="175dip"
+            android:layout_height="wrap_content"
+            android:layout_alignStart="@+id/clearance_user_tv"
+            android:layout_alignTop="@+id/clearance_time"
+            android:gravity="center_vertical|left"
+            android:text="高新园" />
         <TextView
             android:id="@+id/clearance_addr"
             style="@style/InfoStyle"
             android:layout_width="95dip"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/clearance_user"
             android:layout_alignStart="@+id/clearance_user"
-            android:text="@string/clearance_addr" />
+            android:layout_below="@+id/clearance_time"
+            android:text="@string/clearance_addr1" />
 
         <TextView
             android:id="@+id/clearance_addr_tv"
             style="@style/InfoStyle"
             android:layout_width="175dip"
             android:layout_height="wrap_content"
-            android:layout_alignStart="@+id/clearance_user_tv"
+            android:layout_alignStart="@+id/clearance_time_tv"
             android:layout_alignTop="@+id/clearance_addr"
             android:gravity="center_vertical|left"
             android:text="高新园" />
-        <TextView
-            android:id="@+id/car_number"
-            android:layout_alignParentLeft="true"
-            android:layout_below="@+id/clearance_addr"
-            android:layout_width="95dip"
-            android:layout_height="wrap_content"
-            style="@style/InfoStyle"
-            android:text="@string/car_number"
-            android:layout_marginLeft="5dip"
-            android:layout_marginTop="5dip"
-            android:layout_marginRight="5dip"
-            />
 
         <TextView
-            android:id="@+id/car_number_ed"
+            android:id="@+id/car_number"
+            style="@style/InfoStyle"
+            android:layout_width="95dip"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_below="@+id/clearance_addr"
+            android:layout_marginLeft="5dip"
+            android:layout_marginRight="5dip"
+            android:layout_marginTop="5dip"
+            android:text="@string/car_number1" />
+
+        <TextView
+            android:id="@+id/car_number_tv"
+            style="@style/InfoStyle"
             android:layout_width="175dip"
             android:layout_height="wrap_content"
             android:layout_alignStart="@+id/clearance_user_tv"
@@ -127,7 +145,6 @@
             android:layout_marginTop="2dip"
             android:gravity="center_vertical|left"
             android:text="123456"
-            style="@style/InfoStyle"
             android:textSize="@dimen/dp_14" />
         <TextView
             android:id="@+id/remark"
@@ -143,7 +160,7 @@
             />
 
         <TextView
-            android:id="@+id/remark_ed"
+            android:id="@+id/remark_tv"
             android:layout_width="175dip"
             android:layout_height="wrap_content"
             android:layout_alignStart="@+id/clearance_user_tv"
@@ -157,7 +174,7 @@
             android:id="@+id/show_signature_list"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/remark_ed"
+            android:layout_below="@+id/remark_tv"
             android:gravity="center_horizontal"
             style="@style/LinkStyle"
             android:text="查看签名"
@@ -223,12 +240,13 @@
             android:layout_height="25dip"
             android:layout_below="@+id/ware_in_storage_user_tv"
             android:layout_marginRight="5dip"
-            android:layout_marginLeft="10dip"
+            android:layout_marginLeft="5dip"
             android:layout_marginTop="2dip"
             android:layout_marginBottom="2dip"
             style="@style/InfoStyle"
+            android:gravity="center_vertical|left"
             android:layout_toRightOf="@+id/ware_in_storage_addr"
-            android:entries="@array/addr_array" />
+            />
         <TextView
             android:id="@+id/ware_in_storage_remark"
             android:layout_alignParentLeft="true"
@@ -243,13 +261,12 @@
             />
 
         <EditText
-            android:id="@+id/ware_in_storage_remark_ed"
+            android:id="@+id/ware_in_storage_remark_tv"
             android:layout_width="175dip"
             android:layout_height="35dip"
             android:layout_below="@+id/ware_in_storage_addr"
             android:layout_margin="5dip"
             android:layout_toRightOf="@+id/ware_in_storage_remark"
-            android:text="张三"
             android:textSize="@dimen/dp_14" />
     </RelativeLayout>
     <LinearLayout

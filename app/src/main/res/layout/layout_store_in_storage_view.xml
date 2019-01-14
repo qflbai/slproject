@@ -88,13 +88,31 @@
             android:text="张三" />
 
         <TextView
+            android:id="@+id/ware_out_storage_time"
+            style="@style/InfoStyle"
+            android:layout_width="95dip"
+            android:layout_height="wrap_content"
+            android:layout_alignStart="@+id/ware_out_storage_user"
+            android:layout_below="@+id/ware_out_storage_user"
+            android:text="@string/clearance_time" />
+
+        <TextView
+            android:id="@+id/ware_out_storage_time_tv"
+            style="@style/InfoStyle"
+            android:layout_width="175dip"
+            android:layout_height="wrap_content"
+            android:layout_alignStart="@+id/ware_out_storage_user_tv"
+            android:layout_alignTop="@+id/ware_out_storage_time"
+            android:gravity="center_vertical|left" />
+
+        <TextView
             android:id="@+id/ware_out_storage_addr"
             style="@style/InfoStyle"
             android:layout_width="95dip"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/ware_out_storage_user"
             android:layout_alignStart="@+id/ware_out_storage_user"
-            android:text="@string/clearance_addr" />
+            android:layout_below="@+id/ware_out_storage_time"
+            android:text="@string/clearance_addr1" />
 
         <TextView
             android:id="@+id/ware_out_storage_addr_tv"
@@ -105,21 +123,21 @@
             android:layout_alignTop="@+id/ware_out_storage_addr"
             android:gravity="center_vertical|left"
             android:text="高新园" />
-        <TextView
-            android:id="@+id/car_number"
-            android:layout_alignParentLeft="true"
-            android:layout_below="@+id/ware_out_storage_addr"
-            android:layout_width="95dip"
-            android:layout_height="wrap_content"
-            style="@style/InfoStyle"
-            android:text="@string/car_number"
-            android:layout_marginLeft="5dip"
-            android:layout_marginTop="5dip"
-            android:layout_marginRight="5dip"
-            />
 
         <TextView
-            android:id="@+id/car_number_ed"
+            android:id="@+id/car_number"
+            style="@style/InfoStyle"
+            android:layout_width="95dip"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_below="@+id/ware_out_storage_addr"
+            android:layout_marginLeft="5dip"
+            android:layout_marginRight="5dip"
+            android:layout_marginTop="5dip"
+            android:text="@string/car_number1" />
+
+        <TextView
+            android:id="@+id/ware_out_car_number_tv"
             android:layout_width="175dip"
             android:layout_height="wrap_content"
             android:layout_alignStart="@+id/ware_out_storage_user_tv"
@@ -143,7 +161,7 @@
             />
 
         <TextView
-            android:id="@+id/remark_ed"
+            android:id="@+id/ware_out_remark_tv"
             android:layout_width="175dip"
             android:layout_height="wrap_content"
             android:layout_alignStart="@+id/ware_out_storage_user_tv"
@@ -157,7 +175,7 @@
             android:id="@+id/show_signature_list"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/remark_ed"
+            android:layout_below="@+id/ware_out_remark_tv"
             android:gravity="center_horizontal"
             style="@style/LinkStyle"
             android:text="查看签名"
@@ -243,14 +261,14 @@
             />
 
         <EditText
-            android:id="@+id/ware_in_storage_remark_ed"
+            android:id="@+id/ware_in_storage_remark_tv"
             android:layout_width="175dip"
             android:layout_height="35dip"
             android:layout_below="@+id/ware_in_storage_addr"
             android:layout_margin="5dip"
             android:layout_toRightOf="@+id/ware_in_storage_remark"
             android:text="张三"
-            android:textSize="@dimen/dp_14" />
+            android:textSize="12sp" />
     </RelativeLayout>
     <LinearLayout
         android:layout_width="match_parent"
@@ -272,7 +290,7 @@
             android:orientation="horizontal"
             android:layout_margin="5dip">
             <GridLayout
-                android:id="@+id/sig_list_view"
+                android:id="@+id/clearance_sig_list_view"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:rowCount="1"

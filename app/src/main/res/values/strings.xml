@@ -34,8 +34,8 @@
     <string name="clearance_addr">*施封地点:</string>
     <string name="clearance_addr1">施封地点:</string>
     <string name="clearance_time">施封时间:</string>
-    <string name="out_addr">解封封地点:</string>
-    <string name="out_time">解封封时间:</string>
+    <string name="out_addr">解封地点:</string>
+    <string name="out_time">解封时间:</string>
     <string name="out_user">解封人:</string>
     <string name="car_number">*车牌号:</string>
     <string name="car_number1">车牌号:</string>

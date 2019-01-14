@@ -36,7 +36,7 @@ public class LoadingDialog extends BaseDialogFragment {
     private boolean mIsShow = false;
 
     public static LoadingDialog newInstance() {
-        if (mLoadingDialog == null) {
+        if (null == mLoadingDialog) {
             mLoadingDialog = new LoadingDialog();
             //Bundle args = new Bundle();
         }
@@ -76,7 +76,7 @@ public class LoadingDialog extends BaseDialogFragment {
     @Override
     public void dismiss() {
         if (mIsShow) {
-            super.dismiss();
+            super.dismissAllowingStateLoss();
             mIsShow = false;
         }
 

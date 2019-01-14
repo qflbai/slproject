@@ -65,4 +65,5 @@ public class BitmapUtils {
         newBitmap.compress(Bitmap.CompressFormat.JPEG, 80, stream);
         stream.close();
     }
+
 }

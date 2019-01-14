@@ -1,10 +1,12 @@
 package com.sl.shenmian.lib.base.activity;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.Toolbar;
+import android.telephony.TelephonyManager;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -214,5 +216,7 @@ public class BaseActivity extends LibBaseActivity {
             baseObserver.closeNet();
         }
     }
+
+
 
 }

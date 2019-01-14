@@ -1,4 +1,4 @@
-package com.sl.shenmian.module.clearance;
+package com.sl.shenmian.module.wareoutstorage;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -10,9 +10,7 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.GridLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -28,16 +26,12 @@ import com.sl.shenmian.lib.constant.ConstantValues;
 import com.sl.shenmian.lib.net.RetrofitManage;
 import com.sl.shenmian.lib.net.body.ServerResponseResult;
 import com.sl.shenmian.lib.net.callback.DataNetCallback;
-import com.sl.shenmian.lib.net.callback.NetCallback;
 import com.sl.shenmian.lib.net.retrofit.RetrofitService;
 import com.sl.shenmian.lib.net.rxjava.DataNetObserver;
-import com.sl.shenmian.lib.net.rxjava.NetObserver;
 import com.sl.shenmian.lib.net.url.NetApi;
-import com.sl.shenmian.lib.net.url.NetBaseUrl;
 import com.sl.shenmian.lib.ui.dialog.CustomDialog;
 import com.sl.shenmian.lib.ui.dialog.ImageDialog;
 import com.sl.shenmian.lib.ui.dialog.MenuDialog;
-import com.sl.shenmian.lib.utils.FileUtil;
 import com.sl.shenmian.lib.utils.StringUtils;
 import com.sl.shenmian.lib.utils.SystemUtil;
 import com.sl.shenmian.lib.utils.image.BitmapUtils;
@@ -48,14 +42,12 @@ import com.sl.shenmian.module.db.dao.DBDao;
 import com.sl.shenmian.module.db.database.AppDatabase;
 import com.sl.shenmian.module.db.entity.SealInfoEntity;
 import com.sl.shenmian.module.main.pojo.CarLic;
-import com.sl.shenmian.module.main.pojo.Result;
 import com.sl.shenmian.module.main.pojo.Station;
 import com.sl.shenmian.module.main.pojo.StationType;
 import com.sl.shenmian.module.main.ui.adapter.SpinnerCarlicAdapter;
 import com.sl.shenmian.module.main.ui.adapter.SpinnerStationAdapter;
 import com.sl.shenmian.module.offline.model.OfflineInfo;
 import com.sl.shenmian.module.offline.model.SealType;
-import com.sl.shenmian.module.scan.pojo.CodeState;
 import com.sl.shenmian.module.seachcode.pojo.SeachCodeInfo;
 import com.sl.shenmian.module.signature.SignatureActivity;
 
@@ -67,7 +59,6 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.OnClick;
-import butterknife.OnItemClick;
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
@@ -81,7 +72,10 @@ import retrofit2.Response;
 
 import static com.sl.shenmian.lib.constant.ActivityConstant.ACTIVITY_SIGNAGURE_KEY;
 
-public class ClearanceActivity extends BaseActivity {
+/**
+ * 仓库出库施封
+ */
+public class WareOutStorageActivity extends BaseActivity {
 
 
     @BindView(R.id.feng_code_tv)
@@ -127,7 +121,7 @@ public class ClearanceActivity extends BaseActivity {
     }
 
     private void initConfig() {
-        initBackToolbar(getString(R.string.clearance));
+        initBackToolbar(getString(R.string.ware_out_storage));
         Toolbar toolbar = getToolbar();
         toolbar.setNavigationIcon(R.mipmap.ic_title_back);
         toolbar.setOnClickListener(new View.OnClickListener() {
@@ -224,7 +218,7 @@ public class ClearanceActivity extends BaseActivity {
         switch (v.getId()){
             case R.id.sig_add_btn:
 
-                    showSignatureMenuDialog();
+                showSignatureMenuDialog();
                 break;
         }
     }
@@ -431,31 +425,31 @@ public class ClearanceActivity extends BaseActivity {
 
         Observable<Response<ResponseBody>> responseObservable = service.uplodas(pathUrl, paramMap, parts);
         Disposable subscribe = responseObservable.subscribe(new Consumer<Response<ResponseBody>>() {
-                    @Override
-                    public void accept(Response<ResponseBody> responseBodyResponse) throws Exception {
-                        int code = responseBodyResponse.code();
-                        if (code == 200) {
-                            ResponseBody body = responseBodyResponse.body();
-                            assert body != null;
-                            String string = body.string();
-                            ServerResponseResult serverResponseResult = JSON.parseObject(string, ServerResponseResult.class);
-                            if (serverResponseResult.isSuccess()) {
-                                offlineInfo.setUploadingStae(1);
-                            } else {
-                                offlineInfo.setUploadingStae(0);
-                            }
-                        } else {
-                            offlineInfo.setUploadingStae(0);
-                        }
-
-                        saveData(offlineInfo);
+            @Override
+            public void accept(Response<ResponseBody> responseBodyResponse) throws Exception {
+                int code = responseBodyResponse.code();
+                if (code == 200) {
+                    ResponseBody body = responseBodyResponse.body();
+                    assert body != null;
+                    String string = body.string();
+                    ServerResponseResult serverResponseResult = JSON.parseObject(string, ServerResponseResult.class);
+                    if (serverResponseResult.isSuccess()) {
+                        offlineInfo.setUploadingStae(1);
+                    } else {
+                        offlineInfo.setUploadingStae(0);
                     }
-                }, new Consumer<Throwable>() {
-                    @Override
-                    public void accept(Throwable throwable) throws Exception {
+                } else {
+                    offlineInfo.setUploadingStae(0);
+                }
 
-                    }
-                });
+                saveData(offlineInfo);
+            }
+        }, new Consumer<Throwable>() {
+            @Override
+            public void accept(Throwable throwable) throws Exception {
+
+            }
+        });
     }
 
     private MenuDialog menuDialog;
@@ -475,7 +469,7 @@ public class ClearanceActivity extends BaseActivity {
         public void onClick(View v) {
             switch (v.getId()){
                 case R.id.signature_menu:
-                    Intent intent = new Intent(ClearanceActivity.this, SignatureActivity.class);
+                    Intent intent = new Intent(WareOutStorageActivity.this, SignatureActivity.class);
                     startActivityForResult(intent,REQUEST_CODE_SIGNATURE);
                     menuDialog.dismissAllowingStateLoss();
                     break;
@@ -529,7 +523,7 @@ public class ClearanceActivity extends BaseActivity {
             BitmapUtils.saveBitmapToJPG(bitmap,file);
         } catch (IOException e) {
             e.printStackTrace();
-            ToastUtil.show(ClearanceActivity.this,getString(R.string.signature_save_error));
+            ToastUtil.show(WareOutStorageActivity.this,getString(R.string.signature_save_error));
         }
 
         return fileName;

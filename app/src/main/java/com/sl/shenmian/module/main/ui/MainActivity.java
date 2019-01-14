@@ -75,8 +75,6 @@ public class MainActivity extends BaseActivity {
     @BindView(R.id.main_settings_btn)
     Button main_settings_btn;
 
-    private RetrofitManage mRetrofitManage;
-    private NetObserver mNetObserver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -89,6 +87,12 @@ public class MainActivity extends BaseActivity {
         initBackToolbar(getString(R.string.main_menu));
         Toolbar toolbar = getToolbar();
         toolbar.setNavigationIcon(R.mipmap.ic_title_back);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showExitDialog();
+            }
+        });
         toolbar.setOnClickListener(onClickListener);
     }
 
@@ -106,7 +110,7 @@ public class MainActivity extends BaseActivity {
                     dismiss();
                     break;
                 case R.id.dialog_title_btn:
-                    dismiss();
+                    showExitDialog();
                     break;
                 default:
                     showExitDialog();

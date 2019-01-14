@@ -1,7 +1,9 @@
 package com.sl.shenmian.module.seachcode.ui.adapter;
 
+import android.app.FragmentManagerNonConfig;
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,6 +16,7 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.sl.shenmian.R;
+import com.sl.shenmian.lib.ui.dialog.ImageDialog;
 import com.sl.shenmian.module.seachcode.pojo.SeachCodeInfo;
 
 import java.util.ArrayList;
@@ -26,9 +29,11 @@ public class SeachCodeAdapter extends RecyclerView.Adapter {
 
     private Context mContext;
     private List<SeachCodeInfo> mlist = new ArrayList<>();
+    private FragmentManager fragmentManager;
 
-    public SeachCodeAdapter(Context context) {
+    public SeachCodeAdapter(Context context, FragmentManager fragmentManager) {
         this.mContext = context;
+        this.fragmentManager = fragmentManager;
     }
 
     public void setData(List<SeachCodeInfo> list) {
@@ -101,8 +106,8 @@ public class SeachCodeAdapter extends RecyclerView.Adapter {
         if (seachCodeInfo.getImg().size() > 0) {
             for (SeachCodeInfo.ImgBean image : seachCodeInfo.getImg()) {
                 ImageView imageView = new ImageView(mContext);
-                imageView.setLayoutParams(new LinearLayout.LayoutParams(35, 35));
-                imageView.setPadding(2, 2, 2, 2);
+                imageView.setLayoutParams(new LinearLayout.LayoutParams(75, 75));
+                imageView.setPadding(5, 5, 5, 5);
                 //imageView.setim
                 Glide.with(mContext)
                         .load(image.getThumbUrl())
@@ -114,9 +119,19 @@ public class SeachCodeAdapter extends RecyclerView.Adapter {
                 imageView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-
+                        ImageDialog imageDialog = new ImageDialog();
+                        imageDialog.setDialogTitleBtnOnClick(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                imageDialog.dismissAllowingStateLoss();
+                            }
+                        });
+                        imageDialog.setImagUrl(image.getUrl());
+                        imageDialog.show(fragmentManager,"image");
                     }
                 });
+
+                viewHodler.signature_list_view.addView(imageView);
             }
         }
     }

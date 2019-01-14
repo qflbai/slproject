@@ -131,7 +131,7 @@ public class SearchResultActivity extends BaseActivity {
     };
 
     private void setScanResult(){
-        adapter = new SeachCodeAdapter(this);
+        adapter = new SeachCodeAdapter(this,getSupportFragmentManager());
         adapter.setData(seachCodeInfoList);
         search_result_view.setAdapter(adapter);
         adapter.notifyDataSetChanged();

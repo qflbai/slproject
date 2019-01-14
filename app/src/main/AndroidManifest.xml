@@ -10,6 +10,10 @@
     <!-- 读写权限 -->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+
 
     <application
         android:name=".App"
@@ -51,6 +55,30 @@
         <!-- 扫码查询结果页面 -->
         <activity
             android:name=".module.seachcode.ui.SearchResultActivity"
+            android:configChanges="orientation|keyboardHidden"
+            android:screenOrientation="portrait">
+        </activity>
+        <!-- 通关施封 -->
+        <activity
+            android:name=".module.clearance.ClearanceActivity"
+            android:configChanges="orientation|keyboardHidden"
+            android:screenOrientation="portrait">
+        </activity>
+        <!-- 仓库出库施封 -->
+        <activity
+            android:name=".module.wareoutstorage.WareOutStorageActivity"
+            android:configChanges="orientation|keyboardHidden"
+            android:screenOrientation="portrait">
+        </activity>
+        <!-- 仓库入库解封 -->
+        <activity
+            android:name=".module.wareinstorage.WareInStorageActivity"
+            android:configChanges="orientation|keyboardHidden"
+            android:screenOrientation="portrait">
+        </activity>
+        <!-- 门店入库解封 -->
+        <activity
+            android:name=".module.storeinstorage.StoreInStorageActivity"
             android:configChanges="orientation|keyboardHidden"
             android:screenOrientation="portrait">
         </activity>
