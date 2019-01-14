@@ -41,6 +41,7 @@ import com.sl.shenmian.lib.utils.FileUtil;
 import com.sl.shenmian.lib.utils.StringUtils;
 import com.sl.shenmian.lib.utils.SystemUtil;
 import com.sl.shenmian.lib.utils.image.BitmapUtils;
+import com.sl.shenmian.lib.utils.log.LogUtil;
 import com.sl.shenmian.lib.utils.sharedpreferences.SpUtil;
 import com.sl.shenmian.lib.utils.toast.ToastUtil;
 import com.sl.shenmian.module.commons.Constants;
@@ -343,6 +344,7 @@ public class ClearanceActivity extends BaseActivity {
     }
 
     private CustomDialog dialog = null;
+
     private void showUploadConfimDialog() {
         if (null == dialog) {
             dialog = new CustomDialog();

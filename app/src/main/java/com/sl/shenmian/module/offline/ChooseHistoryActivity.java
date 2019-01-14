@@ -18,6 +18,11 @@ public class ChooseHistoryActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_offline_uploading);
+        initUI();
+    }
+
+    private void initUI() {
+        initBackToolbar("查看历史");
     }
 
     @OnClick({R.id.tv_1, R.id.tv_2, R.id.tv_3, R.id.tv_4})
@@ -41,5 +46,6 @@ public class ChooseHistoryActivity extends BaseActivity {
         }
         Intent intent = new Intent(mContext, RecordHistoryActivity.class);
         intent.putExtra(ConstantValues.OfflineInfo.KEY_SEAL_TYPE,sealType);
+        activityJumps(intent);
     }
 }
