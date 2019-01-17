@@ -33,17 +33,25 @@ import com.sl.shenmian.lib.net.url.NetApi;
 import com.sl.shenmian.lib.ui.dialog.CustomDialog;
 import com.sl.shenmian.lib.ui.dialog.ImageDialog;
 import com.sl.shenmian.lib.ui.dialog.MenuDialog;
+import com.sl.shenmian.lib.utils.StringUtils;
+import com.sl.shenmian.lib.utils.SystemUtil;
 import com.sl.shenmian.lib.utils.image.BitmapUtils;
 import com.sl.shenmian.lib.utils.sharedpreferences.SpUtil;
 import com.sl.shenmian.lib.utils.toast.ToastUtil;
 import com.sl.shenmian.module.clearance.ClearanceActivity;
 import com.sl.shenmian.module.commons.Constants;
+import com.sl.shenmian.module.db.dao.DBDao;
+import com.sl.shenmian.module.db.database.AppDatabase;
+import com.sl.shenmian.module.db.entity.SealInfoEntity;
 import com.sl.shenmian.module.main.pojo.Station;
 import com.sl.shenmian.module.main.pojo.StationType;
 import com.sl.shenmian.module.main.ui.adapter.SpinnerStationAdapter;
+import com.sl.shenmian.module.offline.model.OfflineInfo;
+import com.sl.shenmian.module.offline.model.SealType;
 import com.sl.shenmian.module.seachcode.pojo.SeachCodeInfo;
 import com.sl.shenmian.module.seachcode.ui.adapter.SeachCodeAdapter;
 import com.sl.shenmian.module.signature.SignatureActivity;
+import com.sl.shenmian.module.storeinstorage.StoreInStorageActivity;
 
 import java.io.File;
 import java.io.IOException;
@@ -56,14 +64,18 @@ import butterknife.OnClick;
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import retrofit2.Response;
 
 import static com.sl.shenmian.lib.constant.ActivityConstant.ACTIVITY_SIGNAGURE_KEY;
 
 /**
- * 仓库出库解封
+ * 仓库入库解封
  */
 public class WareInStorageActivity extends BaseActivity {
 
@@ -162,6 +174,7 @@ public class WareInStorageActivity extends BaseActivity {
         });
 
         loadSeachResultData();
+        mDbDao = AppDatabase.getInstance().dbDao();
     }
 
     private void updateStation(){
@@ -266,6 +279,7 @@ public class WareInStorageActivity extends BaseActivity {
             clearance_time_tv.setText(searchCodeInfo.getTime());
 
             if (searchCodeInfo.getImg().size() > 0) {
+                sig_list_view.removeAllViews();
                 for (SeachCodeInfo.ImgBean image : searchCodeInfo.getImg()) {
                     ImageView imageView = new ImageView(mContext);
                     imageView.setLayoutParams(new LinearLayout.LayoutParams(75, 75));
@@ -293,7 +307,9 @@ public class WareInStorageActivity extends BaseActivity {
                         }
                     });
 
+                    sig_list_view.addView(imageView);
                 }
+
             }
         }
     }
@@ -301,12 +317,16 @@ public class WareInStorageActivity extends BaseActivity {
 
     private CustomDialog dialog = null;
     private void showUploadConfimDialog() {
+        if(null != dialog){
+            dialog.dismissAllowingStateLoss();
+            dialog = null;
+        }
         if (null == dialog) {
             dialog = new CustomDialog();
         }
         dialog.removeWindowTitle(true);
         dialog.setContentIconIsShow(false);
-        dialog.setDialogContentMsg(R.string.confim_upload_clearance_dialog_tips);
+        dialog.setDialogContentMsg(R.string.confim_upload_unlock_dialog_tips);
         dialog.setDialogLeftBtnText(R.string.ok);
         dialog.setDialogRightBtnText(R.string.cancel);
         dialog.setDialogTitleBtnOnClick(new View.OnClickListener() {
@@ -318,7 +338,7 @@ public class WareInStorageActivity extends BaseActivity {
         dialog.setDialogLeftBtnOnClick(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-               // submitData();
+                submitData();
                 dialog.dismissAllowingStateLoss();
             }
         });
@@ -333,7 +353,7 @@ public class WareInStorageActivity extends BaseActivity {
 
     private void dismiss() {
         if (null != dialog) {
-            dialog.dismiss();
+            dialog.dismissAllowingStateLoss();
         }
     }
 
@@ -357,7 +377,10 @@ public class WareInStorageActivity extends BaseActivity {
 
     private MenuDialog menuDialog;
     private void showSignatureMenuDialog(){
-        menuDialog = null;
+        if(null != menuDialog){
+            menuDialog.dismissAllowingStateLoss();
+            menuDialog = null;
+        }
         if (null == menuDialog) {
             menuDialog = new MenuDialog();
         }
@@ -384,6 +407,142 @@ public class WareInStorageActivity extends BaseActivity {
             }
         }
     };
+
+    private void submitData(){
+
+        OfflineInfo offlineInfo = new OfflineInfo();
+        offlineInfo.setAddress(stations.get(addrIndex).getId());
+        offlineInfo.setCoding(seal_code);
+        offlineInfo.setLockedImei(SystemUtil.getImei(this));
+        offlineInfo.setRemark(ware_in_storage_remark_tv.getText().toString().trim());
+        offlineInfo.setUserAccount(SpUtil.getString(mContext, ConstantValues.UserInfo.KEY_USER_ACCOUNT, ""));
+        if(imagelist.size() > 0){
+            for(int i = 0; i< imagelist.size(); i++){
+                if(i == 0){
+                    offlineInfo.setImagePath1(imagelist.get(i).getThumbUrl());
+                }
+                if(i == 1){
+                    offlineInfo.setImagePath2(imagelist.get(i).getThumbUrl());
+                }
+                if(i == 2){
+                    offlineInfo.setImagePath3(imagelist.get(i).getThumbUrl());
+                }
+            }
+        }
+
+        padlockDataSubmit(1,offlineInfo);
+    }
+
+    private RetrofitManage retrofitManage = new RetrofitManage();
+    private DBDao mDbDao;
+    /**
+     * 解封数据上传
+     */
+    private void padlockDataSubmit(int type, OfflineInfo offlineInfo) {
+        RetrofitService service = retrofitManage.createService();
+        String pathUrl = NetApi.App.UNLOCK_INFO;
+
+        String imagePath1 = offlineInfo.getImagePath1();
+        //    Bitmap bitmap1 = BitmapFactory.decodeFile(imagePath1);
+        String imagePath2 = offlineInfo.getImagePath2();
+        // Bitmap bitmap2 = BitmapFactory.decodeFile(imagePath2);
+        String imagePath3 = offlineInfo.getImagePath3();
+        //  Bitmap bitmap3 = BitmapFactory.decodeFile(imagePath3);
+
+        HashMap<String, Object> paramMap = new HashMap<>();
+        paramMap.put("loginCode", offlineInfo.getUserAccount());
+        paramMap.put("logType", type);
+        paramMap.put("unlockRemark", offlineInfo.getRemark());
+        paramMap.put("labelCode", offlineInfo.getCoding());
+        paramMap.put("unlockAddrId", offlineInfo.getAddress());
+        paramMap.put("unlockImei", offlineInfo.getLockedImei());
+
+        ArrayList<MultipartBody.Part> parts = new ArrayList<>();
+
+        if(null != imagePath1 && imagePath1.length() > 0) {
+            final File file1 = new File(imagePath1);
+            // 创建请求体，内容是文件
+            RequestBody requestFile1 = RequestBody.create(MediaType.parse("multipart/form-data"), file1);
+            MultipartBody.Part body1 = MultipartBody.Part.createFormData("file1", file1.getName(), requestFile1);
+            parts.add(body1);
+        }
+
+        if(null != imagePath2 && imagePath2.length() > 0) {
+            final File file2 = new File(imagePath2);
+            // 创建请求体，内容是文件
+            RequestBody requestFile2 = RequestBody.create(MediaType.parse("multipart/form-data"), file2);
+            MultipartBody.Part body2 = MultipartBody.Part.createFormData("file2", file2.getName(), requestFile2);
+            parts.add(body2);
+        }
+
+        if(null != imagePath3 && imagePath3.length() > 0) {
+            final File file3 = new File(imagePath3);
+            // 创建请求体，内容是文件
+            RequestBody requestFile3 = RequestBody.create(MediaType.parse("multipart/form-data"), file3);
+            MultipartBody.Part body3 = MultipartBody.Part.createFormData("file1", file3.getName(), requestFile3);
+            parts.add(body3);
+        }
+
+        if(parts.size()<=0){
+            // 创建请求体，内容是文件
+            RequestBody requestFile3 = RequestBody.create(MediaType.parse("multipart/form-data"), "");
+            MultipartBody.Part body3 = MultipartBody.Part.createFormData("", null, requestFile3);
+            // parts.add(body3);
+        }
+
+        Observable<Response<ResponseBody>> responseObservable = service.uplodas(pathUrl, paramMap, parts);
+        Disposable subscribe = responseObservable
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Consumer<Response<ResponseBody>>() {
+                    @Override
+                    public void accept(Response<ResponseBody> responseBodyResponse) throws Exception {
+                        int code = responseBodyResponse.code();
+                        if (code == 200) {
+                            ResponseBody body = responseBodyResponse.body();
+                            assert body != null;
+                            String string = body.string();
+                            ServerResponseResult serverResponseResult = JSON.parseObject(string, ServerResponseResult.class);
+                            if (serverResponseResult.isSuccess()) {
+                                offlineInfo.setUploadingStae(1);
+                            } else {
+                                offlineInfo.setUploadingStae(0);
+                            }
+                            if(!serverResponseResult.getResultCode().equals("0")){
+                                ToastUtil.show(WareInStorageActivity.this,serverResponseResult.getMessage());
+                            }
+                        } else {
+                            offlineInfo.setUploadingStae(0);
+                        }
+
+                        saveData(offlineInfo);
+                        ToastUtil.show(WareInStorageActivity.this,"上传解封数据成功!");
+
+                    }
+                }, new Consumer<Throwable>() {
+                    @Override
+                    public void accept(Throwable throwable) throws Exception {
+
+                    }
+                });
+    }
+
+    private void saveData(OfflineInfo offlineInfo){
+
+        SealInfoEntity sealInfoEntity = new SealInfoEntity();
+        sealInfoEntity.setAddress(offlineInfo.getAddress());
+        sealInfoEntity.setCarLicense(offlineInfo.getCarLicense());
+        sealInfoEntity.setCoding(offlineInfo.getCoding());
+        sealInfoEntity.setLockedImei(offlineInfo.getLockedImei());
+        sealInfoEntity.setRemark(offlineInfo.getRemark());
+        sealInfoEntity.setUploadingState(offlineInfo.getUploadingStae());
+        sealInfoEntity.setSealType(SealType.tongGuanPadlock.getValue());
+        sealInfoEntity.setUserName(SpUtil.getString(mContext, ConstantValues.UserInfo.KEY_USER_USERNAME, ""));
+        sealInfoEntity.setUserAccount(offlineInfo.getUserAccount());
+        sealInfoEntity.setTime(StringUtils.getCurrentTimeStr());
+
+        mDbDao.insert(sealInfoEntity);
+    }
 
     private String savePath;
     @Override

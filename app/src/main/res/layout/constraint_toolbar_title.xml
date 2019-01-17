@@ -35,7 +35,7 @@
         <Button
             android:id="@+id/title_btn_other"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="@dimen/dp_40"
             android:layout_gravity="end"
             android:layout_marginRight="@dimen/dp_6"
             android:elevation="@dimen/dp_5"

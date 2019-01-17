@@ -139,6 +139,7 @@ public class ClearanceActivity extends BaseActivity {
         });
         Button titleButton = getTitleButton();
         titleButton.setVisibility(View.VISIBLE);
+        titleButton.setBackgroundResource(R.drawable.shape_right_btn);
         titleButton.setText(getString(R.string.upload));
 
         titleButton.setOnClickListener(new View.OnClickListener() {
@@ -357,8 +358,11 @@ public class ClearanceActivity extends BaseActivity {
     }
 
     private CustomDialog dialog = null;
-
     private void showUploadConfimDialog() {
+        if(null != dialog){
+            dialog.dismissAllowingStateLoss();
+            dialog = null;
+        }
         if (null == dialog) {
             dialog = new CustomDialog();
         }
@@ -391,7 +395,7 @@ public class ClearanceActivity extends BaseActivity {
 
     private void dismiss() {
         if (null != dialog) {
-            dialog.dismiss();
+            dialog.dismissAllowingStateLoss();
         }
     }
 
@@ -448,7 +452,7 @@ public class ClearanceActivity extends BaseActivity {
             // 创建请求体，内容是文件
             RequestBody requestFile3 = RequestBody.create(MediaType.parse("multipart/form-data"), "");
             MultipartBody.Part body3 = MultipartBody.Part.createFormData("", null, requestFile3);
-            parts.add(body3);
+           // parts.add(body3);
         }
 
         Observable<Response<ResponseBody>> responseObservable = service.uplodas(pathUrl, paramMap, parts);
@@ -473,7 +477,9 @@ public class ClearanceActivity extends BaseActivity {
                             offlineInfo.setUploadingStae(0);
                         }
 
+                        ToastUtil.show(ClearanceActivity.this,"上传施封数据成功!");
                         saveData(offlineInfo);
+                        finish();
                     }
                 }, new Consumer<Throwable>() {
                     @Override
@@ -485,7 +491,10 @@ public class ClearanceActivity extends BaseActivity {
 
     private MenuDialog menuDialog;
     private void showSignatureMenuDialog(){
-        menuDialog = null;
+        if(null != menuDialog){
+            menuDialog.dismissAllowingStateLoss();
+            menuDialog = null;
+        }
         if (null == menuDialog) {
             menuDialog = new MenuDialog();
         }
@@ -593,8 +602,8 @@ public class ClearanceActivity extends BaseActivity {
                                 imageDialog.dismissAllowingStateLoss();
                             }
                         });
-                        imageDialog.setImagUrl(image.getUrl());
-                        imageDialog.show(getSupportFragmentManager(),"image_src");
+                        imageDialog.setImagUrl(image.getThumbUrl());
+                        imageDialog.show(getSupportFragmentManager(),"image_src_log");
                     }
                 });
                 sig_list_view.addView(imageView);

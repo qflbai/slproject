@@ -47,7 +47,10 @@ public final class NetApi {
          * 施封接口
          */
         public static final String PADLOCK_INFO = "mvc/appindex/sealing/saveLockedInfo.mvc";
-
+        /**
+         * 解封接口
+         */
+        public static final String UNLOCK_INFO = "mvc/appindex/sealing/saveUnlockInfo.mvc";
         /**
          * 封条状态
          */

@@ -2,6 +2,7 @@ package com.sl.shenmian.module.offline;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ListView;
@@ -57,10 +58,13 @@ public class RecordHistoryActivity extends BaseActivity {
     private Flowable<String> flowable;
     private DBDao mDbDao;
 
+    private String title;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_istory);
+        title = getIntent().getStringExtra("title");
         initUI();
         initData();
     }
@@ -74,13 +78,24 @@ public class RecordHistoryActivity extends BaseActivity {
     }
 
     private void initUI() {
+        initBackToolbar(title);
+        Toolbar toolbar = getToolbar();
+        toolbar.setNavigationIcon(R.mipmap.ic_title_back);
+        toolbar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
         Button titleButton = getTitleButton();
         titleButton.setVisibility(View.VISIBLE);
-        titleButton.setText("一键上传");
+        titleButton.setBackgroundResource(R.drawable.shape_right_btn);
+        titleButton.setText(getString(R.string.key_upload));
 
         titleButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 submitData();
             }
         });

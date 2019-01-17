@@ -1,68 +1,121 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<LinearLayout xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/white"
-    tools:context=".module.offline.ChooseHistoryActivity">
+    tools:context=".module.offline.ChooseHistoryActivity"
+    android:orientation="vertical"
+    tools:layout_editor_absoluteY="25dp">
 
     <include
         android:id="@+id/include_title"
         layout="@layout/constraint_toolbar_title" />
 
-    <TextView
+    <RelativeLayout
         android:id="@+id/tv_1"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/white"
-        android:foreground="?attr/selectableItemBackground"
-        android:clickable="true"
-        android:gravity="center"
-        android:padding="@dimen/dp_10"
-        android:text="通关施封历史记录"
-        android:textSize="@dimen/sp_18"
-        app:layout_constraintTop_toBottomOf="@id/include_title" />
-    <TextView
+        android:layout_height="45dip"
+        android:background="@drawable/layout_line_top_bg"
+        android:layout_marginLeft="@dimen/dp_10"
+        android:layout_marginRight="@dimen/dp_10"
+        android:layout_marginTop="@dimen/dp_10">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/tgsflsjl"
+            style="@style/InfoStyle"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="5dip"
+            android:layout_alignParentLeft="true"
+            />
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@mipmap/menu_right"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="5dip"
+            />
+    </RelativeLayout>
+    <RelativeLayout
         android:id="@+id/tv_2"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/white"
-        android:foreground="?attr/selectableItemBackground"
-        android:clickable="true"
-        android:layout_marginTop="@dimen/dp_5"
-        android:gravity="center"
-        android:padding="@dimen/dp_10"
-        android:text="仓库解封历史记录"
-        android:textSize="@dimen/sp_18"
-        app:layout_constraintTop_toBottomOf="@id/tv_1" />
-
-    <TextView
+        android:layout_height="45dip"
+        android:background="@drawable/layout_line_top_bg"
+        android:layout_marginLeft="@dimen/dp_10"
+        android:layout_marginRight="@dimen/dp_10"
+        android:layout_marginTop="@dimen/dp_10"
+        android:layout_marginBottom="-2dp">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/ckjflsjl"
+            style="@style/InfoStyle"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="5dip"
+            android:layout_alignParentLeft="true"
+            />
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@mipmap/menu_right"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="5dip"
+            />
+    </RelativeLayout>
+    <RelativeLayout
         android:id="@+id/tv_3"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/white"
-        android:foreground="?attr/selectableItemBackground"
-        android:clickable="true"
-        android:gravity="center"
-        android:layout_marginTop="@dimen/dp_5"
-        android:padding="@dimen/dp_10"
-        android:text="仓库出库施封历史记录"
-        android:textSize="@dimen/sp_18"
-        app:layout_constraintTop_toBottomOf="@id/tv_2" />
-
-    <TextView
+        android:layout_height="45dip"
+        android:background="@drawable/layout_line_middle_bg"
+        android:layout_marginLeft="@dimen/dp_10"
+        android:layout_marginRight="@dimen/dp_10"
+        android:layout_marginBottom="-2dp">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/ckcksflsjl"
+            style="@style/InfoStyle"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="5dip"
+            android:layout_alignParentLeft="true"
+            />
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@mipmap/menu_right"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="5dip"
+            />
+    </RelativeLayout>
+    <RelativeLayout
         android:id="@+id/tv_4"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/white"
-        android:foreground="?attr/selectableItemBackground"
-        android:clickable="true"
-        android:gravity="center"
-        android:padding="@dimen/dp_10"
-        android:text="门店解封历史记录"
-        android:layout_marginTop="@dimen/dp_5"
-        android:textSize="@dimen/sp_18"
-        app:layout_constraintTop_toBottomOf="@id/tv_3" />
+        android:layout_height="45dip"
+        android:background="@drawable/layout_line_bottom_bg"
+        android:layout_marginLeft="@dimen/dp_10"
+        android:layout_marginRight="@dimen/dp_10">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/mdjflsjl"
+            style="@style/InfoStyle"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="5dip"
+            android:layout_alignParentLeft="true"
+            />
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@mipmap/menu_right"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="5dip"
+            />
+    </RelativeLayout>
 
-</android.support.constraint.ConstraintLayout>
+</LinearLayout>

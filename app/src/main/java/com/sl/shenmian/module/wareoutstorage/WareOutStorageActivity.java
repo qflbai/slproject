@@ -37,6 +37,7 @@ import com.sl.shenmian.lib.utils.SystemUtil;
 import com.sl.shenmian.lib.utils.image.BitmapUtils;
 import com.sl.shenmian.lib.utils.sharedpreferences.SpUtil;
 import com.sl.shenmian.lib.utils.toast.ToastUtil;
+import com.sl.shenmian.module.clearance.ClearanceActivity;
 import com.sl.shenmian.module.commons.Constants;
 import com.sl.shenmian.module.db.dao.DBDao;
 import com.sl.shenmian.module.db.database.AppDatabase;
@@ -50,6 +51,7 @@ import com.sl.shenmian.module.offline.model.OfflineInfo;
 import com.sl.shenmian.module.offline.model.SealType;
 import com.sl.shenmian.module.seachcode.pojo.SeachCodeInfo;
 import com.sl.shenmian.module.signature.SignatureActivity;
+import com.sl.shenmian.module.wareinstorage.WareInStorageActivity;
 
 import java.io.File;
 import java.io.IOException;
@@ -314,7 +316,19 @@ public class WareOutStorageActivity extends BaseActivity {
         offlineInfo.setLockedImei(SystemUtil.getImei(this));
         offlineInfo.setRemark(remark_ed.getText().toString().trim());
         offlineInfo.setUserAccount(SpUtil.getString(mContext, ConstantValues.UserInfo.KEY_USER_ACCOUNT, ""));
-
+        if(imagelist.size() > 0){
+            for(int i = 0; i< imagelist.size(); i++){
+                if(i == 0){
+                    offlineInfo.setImagePath1(imagelist.get(i).getThumbUrl());
+                }
+                if(i == 1){
+                    offlineInfo.setImagePath2(imagelist.get(i).getThumbUrl());
+                }
+                if(i == 2){
+                    offlineInfo.setImagePath3(imagelist.get(i).getThumbUrl());
+                }
+            }
+        }
         padlockDataSubmit(0,offlineInfo);
     }
 
@@ -338,12 +352,16 @@ public class WareOutStorageActivity extends BaseActivity {
 
     private CustomDialog dialog = null;
     private void showUploadConfimDialog() {
+        if(null != dialog){
+            dialog.dismissAllowingStateLoss();
+            dialog = null;
+        }
         if (null == dialog) {
             dialog = new CustomDialog();
         }
         dialog.removeWindowTitle(true);
         dialog.setContentIconIsShow(false);
-        dialog.setDialogContentMsg(R.string.confim_upload_clearance_dialog_tips);
+        dialog.setDialogContentMsg(R.string.confim_upload_unlock_dialog_tips);
         dialog.setDialogLeftBtnText(R.string.ok);
         dialog.setDialogRightBtnText(R.string.cancel);
         dialog.setDialogTitleBtnOnClick(new View.OnClickListener() {
@@ -365,12 +383,12 @@ public class WareOutStorageActivity extends BaseActivity {
                 dialog.dismissAllowingStateLoss();
             }
         });
-        dialog.show(getSupportFragmentManager(), "calearnce_upload_dialog");
+        dialog.show(getSupportFragmentManager(), "wareout_upload_dialog");
     }
 
     private void dismiss() {
         if (null != dialog) {
-            dialog.dismiss();
+            dialog.dismissAllowingStateLoss();
         }
     }
 
@@ -424,7 +442,9 @@ public class WareOutStorageActivity extends BaseActivity {
         }
 
         Observable<Response<ResponseBody>> responseObservable = service.uplodas(pathUrl, paramMap, parts);
-        Disposable subscribe = responseObservable.subscribe(new Consumer<Response<ResponseBody>>() {
+        Disposable subscribe = responseObservable .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Consumer<Response<ResponseBody>>() {
             @Override
             public void accept(Response<ResponseBody> responseBodyResponse) throws Exception {
                 int code = responseBodyResponse.code();
@@ -442,7 +462,9 @@ public class WareOutStorageActivity extends BaseActivity {
                     offlineInfo.setUploadingStae(0);
                 }
 
+                ToastUtil.show(WareOutStorageActivity.this,"上传施封数据成功!");
                 saveData(offlineInfo);
+                finish();
             }
         }, new Consumer<Throwable>() {
             @Override
@@ -454,7 +476,10 @@ public class WareOutStorageActivity extends BaseActivity {
 
     private MenuDialog menuDialog;
     private void showSignatureMenuDialog(){
-        menuDialog = null;
+        if(null != menuDialog){
+            menuDialog.dismissAllowingStateLoss();
+            menuDialog = null;
+        }
         if (null == menuDialog) {
             menuDialog = new MenuDialog();
         }
@@ -562,7 +587,7 @@ public class WareOutStorageActivity extends BaseActivity {
                                 imageDialog.dismissAllowingStateLoss();
                             }
                         });
-                        imageDialog.setImagUrl(image.getUrl());
+                        imageDialog.setImagUrl(image.getThumbUrl());
                         imageDialog.show(getSupportFragmentManager(),"image_src");
                     }
                 });

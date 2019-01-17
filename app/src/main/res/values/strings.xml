@@ -42,6 +42,7 @@
     <string name="remark">备注:</string>
     <string name="signature">签名:</string>
     <string name="confim_upload_clearance_dialog_tips">确认上传施封信息吗?</string>
+    <string name="confim_upload_unlock_dialog_tips">确认上传解封信息吗?</string>
     <string name="upload_data_info_suc">上传信息成功</string>
     <string name="upload_data_info_fail">上传信息失败! 服务器无响应!</string>
     <string name="upload_data_info_fail_msg">上传信息失败! 服务器错误,原因:</string>
@@ -66,4 +67,9 @@
     <string name="seal_has_locked">封条已施封</string>
     <string name="seal_has_un_block">封条已解封</string>
     <string name="seal_empty">封条编码为空!</string>
+    <string name="key_upload">一键上传</string>
+    <string name="tgsflsjl">通关施封历史记录</string>
+    <string name="ckjflsjl">仓库入解封历史记录</string>
+    <string name="ckcksflsjl">仓库出库施封历史记录</string>
+    <string name="mdjflsjl">门店入库解封历史记录</string>
 </resources>
