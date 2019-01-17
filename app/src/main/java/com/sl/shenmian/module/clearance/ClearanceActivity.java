@@ -6,6 +6,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
@@ -120,7 +121,7 @@ public class ClearanceActivity extends BaseActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.layout_clearance_view);
-        seal_code =  getIntent().getStringExtra("seal_code");
+        seal_code = getIntent().getStringExtra("seal_code");
         initConfig();
         loadCarLic();
         loadStation();
@@ -129,14 +130,6 @@ public class ClearanceActivity extends BaseActivity {
 
     private void initConfig() {
         initBackToolbar(getString(R.string.clearance));
-        Toolbar toolbar = getToolbar();
-        toolbar.setNavigationIcon(R.mipmap.ic_title_back);
-        toolbar.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish();
-            }
-        });
         Button titleButton = getTitleButton();
         titleButton.setVisibility(View.VISIBLE);
         titleButton.setBackgroundResource(R.drawable.shape_right_btn);
@@ -152,12 +145,12 @@ public class ClearanceActivity extends BaseActivity {
     }
 
 
-    private void initData(){
+    private void initData() {
         feng_code_tv.setText(seal_code);
         String account = SpUtil.getString(mContext, ConstantValues.UserInfo.KEY_USER_ACCOUNT, "");
         clearance_user_tv.setText(account);
-        spinnerCarlicAdapter = new SpinnerCarlicAdapter(this,carLics);
-        spinnerStationAdapter = new SpinnerStationAdapter(this,stations);
+        spinnerCarlicAdapter = new SpinnerCarlicAdapter(this, carLics);
+        spinnerStationAdapter = new SpinnerStationAdapter(this, stations);
         mDbDao = AppDatabase.getInstance().dbDao();
 
         clearance_addr_spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -186,12 +179,12 @@ public class ClearanceActivity extends BaseActivity {
         clearance_addr_spinner.setAdapter(spinnerStationAdapter);
     }
 
-    private void updateCarlic(){
+    private void updateCarlic() {
         spinnerCarlicAdapter.setData(carLics);
         spinnerCarlicAdapter.notifyDataSetChanged();
     }
 
-    private void updateStation(){
+    private void updateStation() {
         spinnerStationAdapter.setData(stations);
         spinnerStationAdapter.notifyDataSetChanged();
     }
@@ -199,45 +192,24 @@ public class ClearanceActivity extends BaseActivity {
     int addrIndex = 0;
     int carnumberIndex = 0;
 
-    private View.OnClickListener onClickListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            switch (v.getId()) {
-                case R.id.dialog_left_btn:
-
-                    submitData();
-                    break;
-                case R.id.dialog_right_btn:
-
-                    dismiss();
-                    break;
-                case R.id.dialog_title_btn:
-                    dismiss();
-                    break;
-                default:
-                    break;
-            }
-        }
-    };
-
     @OnClick({R.id.sig_add_btn})
-    void OnClick(View v){
+    void OnClick(View v) {
 
-        switch (v.getId()){
+        switch (v.getId()) {
             case R.id.sig_add_btn:
 
-                    showSignatureMenuDialog();
+                showSignatureMenuDialog();
                 break;
         }
     }
 
-    private void loadCarLic(){
+    private void loadCarLic() {
         mRetrofitManage = null;
         if (mRetrofitManage == null) {
             mRetrofitManage = new RetrofitManage();
         }
-        if(null == mCarLicNetObserver) {
-            mCarLicNetObserver = new DataNetObserver(mContext,new DataNetCallback() {
+        if (null == mCarLicNetObserver) {
+            mCarLicNetObserver = new DataNetObserver(mContext, new DataNetCallback() {
                 @Override
                 public void onError(Throwable e) {
 
@@ -255,28 +227,28 @@ public class ClearanceActivity extends BaseActivity {
 
                 @Override
                 public void onOkResponse(String dataJson) {
-                    carLics = JSON.parseArray(dataJson,CarLic.class);
+                    carLics = JSON.parseArray(dataJson, CarLic.class);
                     updateCarlic();
                 }
             });
         }
 
-        HashMap<String,Object> paramMap = new HashMap<>();
+        HashMap<String, Object> paramMap = new HashMap<>();
         RetrofitService service = mRetrofitManage.createService();
         String urlPath = NetApi.App.LOAD_CARLIC;
-        Observable<Response<ResponseBody>> observable = service.postFormNet(urlPath,paramMap);
+        Observable<Response<ResponseBody>> observable = service.postFormNet(urlPath, paramMap);
         observable.subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(mCarLicNetObserver);
     }
 
-    private void loadStation(){
+    private void loadStation() {
         mRetrofitManage = null;
         if (mRetrofitManage == null) {
             mRetrofitManage = new RetrofitManage();
         }
-        if(null == mStationNetObserver) {
-            mStationNetObserver = new DataNetObserver(mContext,new DataNetCallback() {
+        if (null == mStationNetObserver) {
+            mStationNetObserver = new DataNetObserver(mContext, new DataNetCallback() {
                 @Override
                 public void onError(Throwable e) {
 
@@ -294,17 +266,17 @@ public class ClearanceActivity extends BaseActivity {
 
                 @Override
                 public void onOkResponse(String dataJson) {
-                    stations = JSON.parseArray(dataJson,Station.class);
+                    stations = JSON.parseArray(dataJson, Station.class);
                     updateStation();
                 }
             });
         }
 
-        HashMap<String,Object> paramMap = new HashMap<>();
+        HashMap<String, Object> paramMap = new HashMap<>();
         paramMap.put("stationType", StationType.CUSTOMS.name());
         RetrofitService service = mRetrofitManage.createService();
         String urlPath = NetApi.App.LOAD_STATION;
-        Observable<Response<ResponseBody>> observable = service.postFormNet(urlPath,paramMap);
+        Observable<Response<ResponseBody>> observable = service.postFormNet(urlPath, paramMap);
         observable.subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(mStationNetObserver);
@@ -313,7 +285,7 @@ public class ClearanceActivity extends BaseActivity {
     private RetrofitManage retrofitManage = new RetrofitManage();
     private DBDao mDbDao;
 
-    private void submitData(){
+    private void submitData() {
 
         OfflineInfo offlineInfo = new OfflineInfo();
         offlineInfo.setAddress(stations.get(addrIndex).getId());
@@ -322,25 +294,25 @@ public class ClearanceActivity extends BaseActivity {
         offlineInfo.setLockedImei(SystemUtil.getImei(this));
         offlineInfo.setRemark(remark_ed.getText().toString().trim());
         offlineInfo.setUserAccount(SpUtil.getString(mContext, ConstantValues.UserInfo.KEY_USER_ACCOUNT, ""));
-        if(imagelist.size() > 0){
-            for(int i = 0; i< imagelist.size(); i++){
-                if(i == 0){
+        if (imagelist.size() > 0) {
+            for (int i = 0; i < imagelist.size(); i++) {
+                if (i == 0) {
                     offlineInfo.setImagePath1(imagelist.get(i).getThumbUrl());
                 }
-                if(i == 1){
+                if (i == 1) {
                     offlineInfo.setImagePath2(imagelist.get(i).getThumbUrl());
                 }
-                if(i == 2){
+                if (i == 2) {
                     offlineInfo.setImagePath3(imagelist.get(i).getThumbUrl());
                 }
             }
         }
 
-        padlockDataSubmit(0,offlineInfo);
+        padlockDataSubmit(0, offlineInfo);
     }
 
 
-    private void saveData(OfflineInfo offlineInfo){
+    private void saveData(OfflineInfo offlineInfo) {
 
         SealInfoEntity sealInfoEntity = new SealInfoEntity();
         sealInfoEntity.setAddress(offlineInfo.getAddress());
@@ -358,45 +330,27 @@ public class ClearanceActivity extends BaseActivity {
     }
 
     private CustomDialog dialog = null;
+
     private void showUploadConfimDialog() {
-        if(null != dialog){
-            dialog.dismissAllowingStateLoss();
-            dialog = null;
-        }
-        if (null == dialog) {
-            dialog = new CustomDialog();
-        }
-        dialog.removeWindowTitle(true);
-        dialog.setContentIconIsShow(false);
-        dialog.setDialogContentMsg(R.string.confim_upload_clearance_dialog_tips);
-        dialog.setDialogLeftBtnText(R.string.ok);
-        dialog.setDialogRightBtnText(R.string.cancel);
-        dialog.setDialogTitleBtnOnClick(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                dialog.dismissAllowingStateLoss();
-            }
-        });
-        dialog.setDialogLeftBtnOnClick(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                submitData();
-                dialog.dismissAllowingStateLoss();
-            }
-        });
-        dialog.setDialogRightBtnOnClick(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                dialog.dismissAllowingStateLoss();
-            }
-        });
-        dialog.show(getSupportFragmentManager(), "calearnce_upload_dialog");
+
+        showDialog("", "确定上传施封信息吗?", "", "");
+
     }
 
-    private void dismiss() {
-        if (null != dialog) {
-            dialog.dismissAllowingStateLoss();
-        }
+    @Override
+    protected void dialogRightClick(AlertDialog alertDialog) {
+        alertDialog.dismiss();
+    }
+
+    @Override
+    protected void dialogTitleRight(AlertDialog alertDialog) {
+        alertDialog.dismiss();
+    }
+
+    @Override
+    protected void dialogLeftClick(AlertDialog alertDialog) {
+        alertDialog.dismiss();
+        submitData();
     }
 
     /**
@@ -424,7 +378,7 @@ public class ClearanceActivity extends BaseActivity {
 
         ArrayList<MultipartBody.Part> parts = new ArrayList<>();
 
-        if(null != imagePath1 && imagePath1.length() > 0) {
+        if (null != imagePath1 && imagePath1.length() > 0) {
             final File file1 = new File(imagePath1);
             // 创建请求体，内容是文件
             RequestBody requestFile1 = RequestBody.create(MediaType.parse("multipart/form-data"), file1);
@@ -432,7 +386,7 @@ public class ClearanceActivity extends BaseActivity {
             parts.add(body1);
         }
 
-        if(null != imagePath2 && imagePath2.length() > 0) {
+        if (null != imagePath2 && imagePath2.length() > 0) {
             final File file2 = new File(imagePath2);
             // 创建请求体，内容是文件
             RequestBody requestFile2 = RequestBody.create(MediaType.parse("multipart/form-data"), file2);
@@ -440,7 +394,7 @@ public class ClearanceActivity extends BaseActivity {
             parts.add(body2);
         }
 
-        if(null != imagePath3 && imagePath3.length() > 0) {
+        if (null != imagePath3 && imagePath3.length() > 0) {
             final File file3 = new File(imagePath3);
             // 创建请求体，内容是文件
             RequestBody requestFile3 = RequestBody.create(MediaType.parse("multipart/form-data"), file3);
@@ -448,11 +402,11 @@ public class ClearanceActivity extends BaseActivity {
             parts.add(body3);
         }
 
-        if(parts.size()<=0){
+        if (parts.size() <= 0) {
             // 创建请求体，内容是文件
             RequestBody requestFile3 = RequestBody.create(MediaType.parse("multipart/form-data"), "");
-            MultipartBody.Part body3 = MultipartBody.Part.createFormData("", null, requestFile3);
-           // parts.add(body3);
+            MultipartBody.Part body3 = MultipartBody.Part.createFormData("1", null, requestFile3);
+            //parts.add(body3);
         }
 
         Observable<Response<ResponseBody>> responseObservable = service.uplodas(pathUrl, paramMap, parts);
@@ -477,21 +431,22 @@ public class ClearanceActivity extends BaseActivity {
                             offlineInfo.setUploadingStae(0);
                         }
 
-                        ToastUtil.show(ClearanceActivity.this,"上传施封数据成功!");
+                        ToastUtil.show(ClearanceActivity.this, "上传施封数据成功!");
                         saveData(offlineInfo);
                         finish();
                     }
                 }, new Consumer<Throwable>() {
                     @Override
                     public void accept(Throwable throwable) throws Exception {
-                        LogUtil.e("tag","Exception");
+                        LogUtil.e("tag", "Exception");
                     }
                 });
     }
 
     private MenuDialog menuDialog;
-    private void showSignatureMenuDialog(){
-        if(null != menuDialog){
+
+    private void showSignatureMenuDialog() {
+        if (null != menuDialog) {
             menuDialog.dismissAllowingStateLoss();
             menuDialog = null;
         }
@@ -507,10 +462,10 @@ public class ClearanceActivity extends BaseActivity {
     private View.OnClickListener onMenuOnClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            switch (v.getId()){
+            switch (v.getId()) {
                 case R.id.signature_menu:
                     Intent intent = new Intent(ClearanceActivity.this, SignatureActivity.class);
-                    startActivityForResult(intent,REQUEST_CODE_SIGNATURE);
+                    startActivityForResult(intent, REQUEST_CODE_SIGNATURE);
                     menuDialog.dismissAllowingStateLoss();
                     break;
                 case R.id.photo_menu:
@@ -523,6 +478,7 @@ public class ClearanceActivity extends BaseActivity {
     };
 
     private String savePath;
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         savePath = "";
@@ -530,16 +486,16 @@ public class ClearanceActivity extends BaseActivity {
             case REQUEST_CODE_SIGNATURE:
                 if (resultCode == RESULT_OK) {
                     savePath = data.getStringExtra(ACTIVITY_SIGNAGURE_KEY);
-                    if(null != savePath) {
+                    if (null != savePath) {
                         addShowSiglist(savePath);
                     }
                 }
                 break;
             case REQUEST_CODE_PHOTO:
-                if ( resultCode == RESULT_OK) {
+                if (resultCode == RESULT_OK) {
                     Bitmap bm = (Bitmap) data.getExtras().get("data");
                     savePath = saveBitmap(bm);
-                    if(null != savePath) {
+                    if (null != savePath) {
                         addShowSiglist(savePath);
                     }
                 }
@@ -549,30 +505,30 @@ public class ClearanceActivity extends BaseActivity {
 
     }
 
-    private String  saveBitmap(Bitmap bitmap){
+    private String saveBitmap(Bitmap bitmap) {
         String filePath = Constants.LocalFile.IMAGE_PATH;
-        String fileName = filePath+System.currentTimeMillis()+".jpg";
+        String fileName = filePath + System.currentTimeMillis() + ".jpg";
         bitmap = BitmapUtils.compressScale(bitmap);
 
         File directory = new File(filePath);
-        if(!directory.exists()){
+        if (!directory.exists()) {
             directory.mkdirs();
         }
         File file = new File(fileName);
         try {
-            BitmapUtils.saveBitmapToJPG(bitmap,file);
+            BitmapUtils.saveBitmapToJPG(bitmap, file);
         } catch (IOException e) {
             e.printStackTrace();
-            ToastUtil.show(ClearanceActivity.this,getString(R.string.signature_save_error));
+            ToastUtil.show(ClearanceActivity.this, getString(R.string.signature_save_error));
         }
 
         return fileName;
     }
 
-    private void addShowSiglist(String path){
+    private void addShowSiglist(String path) {
 
         Log.e(TAG, path);
-        if(imagelist.size() < 3){
+        if (imagelist.size() < 3) {
             sig_list_view.removeAllViews();
             sig_list_view.setVisibility(View.VISIBLE);
             sig_add_btn.setVisibility(View.VISIBLE);
@@ -586,7 +542,7 @@ public class ClearanceActivity extends BaseActivity {
                 imageView.setPadding(5, 5, 5, 5);
                 //imageView.setim
                 Glide.with(mContext)
-                        .load(Uri.fromFile( new File( image.getThumbUrl() )))
+                        .load(Uri.fromFile(new File(image.getThumbUrl())))
                         .asBitmap()//只加载静态图片，如果是git图片则只加载第一帧。
                         .placeholder(R.mipmap.loading)
                         .error(R.mipmap.fail)
@@ -603,21 +559,20 @@ public class ClearanceActivity extends BaseActivity {
                             }
                         });
                         imageDialog.setImagUrl(image.getThumbUrl());
-                        imageDialog.show(getSupportFragmentManager(),"image_src_log");
+                        imageDialog.show(getSupportFragmentManager(), "image_src_log");
                     }
                 });
                 sig_list_view.addView(imageView);
-                if(imagelist.size() == 3){
+                if (imagelist.size() == 3) {
                     sig_add_btn.setVisibility(View.GONE);
                 }
             }
-        }else if(imagelist.size() == 3){
+        } else if (imagelist.size() == 3) {
             sig_add_btn.setVisibility(View.GONE);
-        }else {
+        } else {
 
-            ToastUtil.show(this,"签名图片最多三张!");
+            ToastUtil.show(this, "签名图片最多三张!");
         }
-
 
 
     }

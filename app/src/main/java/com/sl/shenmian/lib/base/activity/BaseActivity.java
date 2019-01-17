@@ -1,22 +1,22 @@
 package com.sl.shenmian.lib.base.activity;
 
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
-import android.telephony.TelephonyManager;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 
 import com.sl.shenmian.R;
 import com.sl.shenmian.lib.base.LibBaseActivity;
 import com.sl.shenmian.lib.net.rxjava.BaseObserver;
-import com.sl.shenmian.lib.utils.BarUtils;
 
 import butterknife.ButterKnife;
 
@@ -93,7 +93,7 @@ public class BaseActivity extends LibBaseActivity {
      */
     protected void initToolbar(CharSequence title) {
         Toolbar toolbar = getToolbar();
-        toolbar.setNavigationIcon(R.mipmap.back);
+        toolbar.setNavigationIcon(R.mipmap.ic_title_back);
         toolbar.setBackground(getResources().getDrawable(R.color.colorPrimary));
         getTitleImageButton().setBackground(getResources().getDrawable(R.mipmap.grzx));
         setToolbarTitle(title);
@@ -107,7 +107,7 @@ public class BaseActivity extends LibBaseActivity {
 
     protected void initBackToolbar(CharSequence title){
         Toolbar toolbar = getToolbar();
-        toolbar.setNavigationIcon(R.mipmap.back);
+        toolbar.setNavigationIcon(R.mipmap.ic_title_back);
         toolbar.setBackground(getResources().getDrawable(R.color.colorPrimary));
         getTitleImageButton().setBackground(getResources().getDrawable(R.mipmap.grzx));
         setToolbarTitle(title);
@@ -126,7 +126,7 @@ public class BaseActivity extends LibBaseActivity {
      */
     protected void initToolbarNoback(CharSequence title) {
         Toolbar toolbar = getToolbar();
-        toolbar.setBackground(getResources().getDrawable(R.mipmap.back));
+        toolbar.setBackground(getResources().getDrawable(R.mipmap.ic_title_back));
         getTitleImageButton().setBackground(getResources().getDrawable(R.mipmap.grzx));
         setToolbarTitle(title);
     }
@@ -218,5 +218,69 @@ public class BaseActivity extends LibBaseActivity {
     }
 
 
+    protected void showDialog(String title, String msg, String leftBtn, String rigthBtn) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+
+        View view = inflateView(R.layout.layout_custom_dialog);
+        onDialogView(view);
+        RelativeLayout dialog_tile_view  = (RelativeLayout) view.findViewById(R.id.dialog_tile_view);
+        TextView dialog_tile_tv  = (TextView) view.findViewById(R.id.dialog_tile_tv);
+        ImageView dialog_title_btn  = (ImageView) view.findViewById(R.id.dialog_title_btn);
+        TextView dialog_content_msg  = (TextView) view.findViewById(R.id.dialog_content_msg);
+        ImageView dialog_content_icon  = (ImageView) view.findViewById(R.id.dialog_content_icon);
+        Button dialog_left_btn  = (Button) view.findViewById(R.id.dialog_left_btn);
+        Button dialog_right_btn  = (Button) view.findViewById(R.id.dialog_right_btn);
+        builder.setView(view);
+
+        dialog_content_msg.setText(msg);
+        dialog_tile_tv.setText(title);
+        if(!leftBtn.isEmpty()) {
+            dialog_left_btn.setText(leftBtn);
+        }
+        if(!rigthBtn.isEmpty()) {
+            dialog_right_btn.setText(rigthBtn);
+        }
+
+
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
+
+        dialog_left_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialogLeftClick(alertDialog);
+            }
+        });
+
+        dialog_right_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialogRightClick(alertDialog);
+            }
+        });
+
+        dialog_title_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialogTitleRight(alertDialog);
+            }
+        });
+    }
+
+    protected void onDialogView(View view){
+
+    }
+
+    protected void dialogTitleRight(AlertDialog alertDialog){
+
+    }
+
+    protected void dialogLeftClick(AlertDialog alertDialog){
+
+    }
+
+    protected void dialogRightClick(AlertDialog alertDialog){
+
+    }
 
 }

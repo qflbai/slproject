@@ -60,7 +60,10 @@
             android:layout_marginRight="10dip"
             android:layout_marginTop="25dip"
             android:layout_toLeftOf="@+id/dialog_content_msg"
-            android:background="?attr/actionModeCloseDrawable" />
+            android:background="?attr/actionModeCloseDrawable"
+
+            android:visibility="gone"
+            />
 
     </RelativeLayout>
        <ImageView

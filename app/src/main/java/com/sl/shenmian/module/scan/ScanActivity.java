@@ -63,17 +63,8 @@ public class ScanActivity extends ZbarActivity {
     }
     private void initConfig() {
         initBackToolbar(getString(mTitleResId));
-        Toolbar toolbar = getToolbar();
-        toolbar.setNavigationIcon(R.mipmap.ic_title_back);
-        toolbar.setOnClickListener(onClickListener);
     }
 
-    private View.OnClickListener onClickListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            finish();
-        }
-    };
 
     @Override
     protected void onData(String data) {
