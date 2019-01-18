@@ -20,6 +20,11 @@ public class CodeState {
      */
 
     private boolean hasUnblock;
+    /**
+     * 0: 通关施封 仓库入库解封
+     * 1: 仓库出库施封  门店入库解封
+     */
+    private int logType;
 
     public boolean isHasSeal() {
         return hasSeal;
@@ -45,4 +50,11 @@ public class CodeState {
         this.hasUnblock = hasUnblock;
     }
 
+    public int getLogType() {
+        return logType;
+    }
+
+    public void setLogType(int logType) {
+        this.logType = logType;
+    }
 }
