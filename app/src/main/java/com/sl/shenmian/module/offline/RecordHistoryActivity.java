@@ -79,14 +79,6 @@ public class RecordHistoryActivity extends BaseActivity {
 
     private void initUI() {
         initBackToolbar(title);
-        Toolbar toolbar = getToolbar();
-        toolbar.setNavigationIcon(R.mipmap.ic_title_back);
-        toolbar.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish();
-            }
-        });
         Button titleButton = getTitleButton();
         titleButton.setVisibility(View.VISIBLE);
         titleButton.setBackgroundResource(R.drawable.shape_right_btn);

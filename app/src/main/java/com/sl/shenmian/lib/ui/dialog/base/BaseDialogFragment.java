@@ -141,7 +141,7 @@ public class BaseDialogFragment extends DialogFragment {
     public void removeWindowTitle(boolean remove) {
         if (mDialog != null) {
             if (remove) {
-                mDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+               // mDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
             }
         }
     }

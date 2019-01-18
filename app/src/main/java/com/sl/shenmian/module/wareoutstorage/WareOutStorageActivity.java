@@ -6,6 +6,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
@@ -124,14 +125,6 @@ public class WareOutStorageActivity extends BaseActivity {
 
     private void initConfig() {
         initBackToolbar(getString(R.string.ware_out_storage));
-        Toolbar toolbar = getToolbar();
-        toolbar.setNavigationIcon(R.mipmap.ic_title_back);
-        toolbar.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish();
-            }
-        });
         Button titleButton = getTitleButton();
         titleButton.setVisibility(View.VISIBLE);
         titleButton.setText(getString(R.string.upload));
@@ -192,28 +185,6 @@ public class WareOutStorageActivity extends BaseActivity {
 
     int addrIndex = 0;
     int carnumberIndex = 0;
-
-    private View.OnClickListener onClickListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            switch (v.getId()) {
-                case R.id.dialog_left_btn:
-
-                    submitData();
-                    break;
-                case R.id.dialog_right_btn:
-
-                    dismiss();
-                    break;
-                case R.id.dialog_title_btn:
-                    dismiss();
-                    break;
-                default:
-                    break;
-            }
-        }
-    };
-
     @OnClick({R.id.sig_add_btn})
     void OnClick(View v){
 
@@ -352,44 +323,26 @@ public class WareOutStorageActivity extends BaseActivity {
 
     private CustomDialog dialog = null;
     private void showUploadConfimDialog() {
-        if(null != dialog){
-            dialog.dismissAllowingStateLoss();
-            dialog = null;
-        }
-        if (null == dialog) {
-            dialog = new CustomDialog();
-        }
-        dialog.removeWindowTitle(true);
-        dialog.setContentIconIsShow(false);
-        dialog.setDialogContentMsg(R.string.confim_upload_unlock_dialog_tips);
-        dialog.setDialogLeftBtnText(R.string.ok);
-        dialog.setDialogRightBtnText(R.string.cancel);
-        dialog.setDialogTitleBtnOnClick(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                dialog.dismissAllowingStateLoss();
-            }
-        });
-        dialog.setDialogLeftBtnOnClick(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                submitData();
-                dialog.dismissAllowingStateLoss();
-            }
-        });
-        dialog.setDialogRightBtnOnClick(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                dialog.dismissAllowingStateLoss();
-            }
-        });
-        dialog.show(getSupportFragmentManager(), "wareout_upload_dialog");
+
+        showDialog("", "确定上传解封信息吗?", "", "");
+
     }
 
-    private void dismiss() {
-        if (null != dialog) {
-            dialog.dismissAllowingStateLoss();
-        }
+
+    @Override
+    protected void dialogRightClick(AlertDialog alertDialog) {
+        alertDialog.dismiss();
+    }
+
+    @Override
+    protected void dialogTitleRight(AlertDialog alertDialog) {
+        alertDialog.dismiss();
+    }
+
+    @Override
+    protected void dialogLeftClick(AlertDialog alertDialog) {
+        alertDialog.dismiss();
+        submitData();
     }
 
     /**

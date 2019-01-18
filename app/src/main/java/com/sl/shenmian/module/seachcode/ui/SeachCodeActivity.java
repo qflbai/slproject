@@ -42,9 +42,6 @@ public class SeachCodeActivity extends ZbarActivity {
 
     private void initConfig() {
         initBackToolbar(getString(R.string.scan_search));
-        Toolbar toolbar = getToolbar();
-        toolbar.setNavigationIcon(R.mipmap.ic_title_back);
-        toolbar.setOnClickListener(onClickListener);
     }
 
     private View.OnClickListener onClickListener = new View.OnClickListener() {
