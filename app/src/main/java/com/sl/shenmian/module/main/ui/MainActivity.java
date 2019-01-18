@@ -74,13 +74,13 @@ public class MainActivity extends BaseActivity {
 
     @Override
     protected void onFinish() {
-        showDialog("提示","是否退出","退出","取消");
+        showDialog("提示", "是否退出", "退出", "取消");
     }
 
     @Override
     protected void dialogLeftClick(AlertDialog alertDialog) {
         alertDialog.dismiss();
-       finish();
+        finish();
     }
 
     @Override
@@ -140,7 +140,8 @@ public class MainActivity extends BaseActivity {
     }
 
 
-
-
-
+    @Override
+    public void onBackPressed() {
+        onFinish();
+    }
 }

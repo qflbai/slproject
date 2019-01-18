@@ -315,17 +315,25 @@ public class WareInStorageActivity extends BaseActivity {
 
     @Override
     protected void dialogRightClick(AlertDialog alertDialog) {
+        isQuit = false;
         alertDialog.dismiss();
     }
 
     @Override
     protected void dialogTitleRight(AlertDialog alertDialog) {
+        isQuit = false;
         alertDialog.dismiss();
     }
     @Override
     protected void dialogLeftClick(AlertDialog alertDialog) {
         alertDialog.dismiss();
-        submitData();
+        if(isQuit){
+            isQuit = false;
+            finish();
+        }else {
+            submitData();
+        }
+
     }
 
     @OnClick({R.id.sig_add_btn,R.id.show_signature_list})
@@ -430,36 +438,57 @@ public class WareInStorageActivity extends BaseActivity {
 
         ArrayList<MultipartBody.Part> parts = new ArrayList<>();
 
-        if(null != imagePath1 && imagePath1.length() > 0) {
+        if (null != imagePath1 && imagePath1.length() > 0) {
             final File file1 = new File(imagePath1);
             // 创建请求体，内容是文件
             RequestBody requestFile1 = RequestBody.create(MediaType.parse("multipart/form-data"), file1);
             MultipartBody.Part body1 = MultipartBody.Part.createFormData("file1", file1.getName(), requestFile1);
             parts.add(body1);
+        }else {
+            MultipartBody multipartBody = new MultipartBody.Builder()
+                    .setType(MultipartBody.FORM)
+                    .addFormDataPart("file1","")
+                    .build();
+
+            MultipartBody.Part part = multipartBody.part(0);
+            parts.add(part);
+
         }
 
-        if(null != imagePath2 && imagePath2.length() > 0) {
+        if (null != imagePath2 && imagePath2.length() > 0) {
             final File file2 = new File(imagePath2);
             // 创建请求体，内容是文件
             RequestBody requestFile2 = RequestBody.create(MediaType.parse("multipart/form-data"), file2);
             MultipartBody.Part body2 = MultipartBody.Part.createFormData("file2", file2.getName(), requestFile2);
             parts.add(body2);
+        }else {
+            MultipartBody multipartBody = new MultipartBody.Builder()
+                    .setType(MultipartBody.FORM)
+                    .addFormDataPart("file2","")
+                    .build();
+
+            MultipartBody.Part part = multipartBody.part(0);
+            parts.add(part);
         }
 
-        if(null != imagePath3 && imagePath3.length() > 0) {
+        if (null != imagePath3 && imagePath3.length() > 0) {
             final File file3 = new File(imagePath3);
             // 创建请求体，内容是文件
             RequestBody requestFile3 = RequestBody.create(MediaType.parse("multipart/form-data"), file3);
             MultipartBody.Part body3 = MultipartBody.Part.createFormData("file1", file3.getName(), requestFile3);
             parts.add(body3);
+        }else {
+            MultipartBody multipartBody = new MultipartBody.Builder()
+                    .setType(MultipartBody.FORM)
+                    .addFormDataPart("file3","")
+                    .build();
+
+            MultipartBody.Part part = multipartBody.part(0);
+            parts.add(part);
+
         }
 
-        if(parts.size()<=0){
-            // 创建请求体，内容是文件
-            RequestBody requestFile3 = RequestBody.create(MediaType.parse("multipart/form-data"), "");
-            MultipartBody.Part body3 = MultipartBody.Part.createFormData("", null, requestFile3);
-            // parts.add(body3);
-        }
+
 
         Observable<Response<ResponseBody>> responseObservable = service.uplodas(pathUrl, paramMap, parts);
         Disposable subscribe = responseObservable
@@ -610,6 +639,20 @@ public class WareInStorageActivity extends BaseActivity {
 
             ToastUtil.show(this,"签名图片最多三张!");
         }
-
     }
+
+    boolean isQuit;
+
+    @Override
+    public void onBackPressed() {
+        isQuit = true;
+        showDialog("", "是否退出?", "", "");
+    }
+
+    @Override
+    protected void onFinish() {
+        isQuit = true;
+        showDialog("提示", "是否退出", "退出", "取消");
+    }
+
 }

@@ -316,16 +316,22 @@ public class StoreInStorageActivity extends BaseActivity {
     @Override
     protected void dialogRightClick(AlertDialog alertDialog) {
         alertDialog.dismiss();
+        isQuit = false;
     }
 
     @Override
     protected void dialogTitleRight(AlertDialog alertDialog) {
         alertDialog.dismiss();
+        isQuit = false;
     }
     @Override
     protected void dialogLeftClick(AlertDialog alertDialog) {
         alertDialog.dismiss();
-        submitData();
+        if(isQuit){
+            finish();
+        }else {
+            submitData();
+        }
     }
 
 
@@ -610,6 +616,19 @@ public class StoreInStorageActivity extends BaseActivity {
 
             ToastUtil.show(this,"签名图片最多三张!");
         }
+    }
 
+    boolean isQuit;
+
+    @Override
+    public void onBackPressed() {
+        isQuit = true;
+        showDialog("", "是否退出?", "", "");
+    }
+
+    @Override
+    protected void onFinish() {
+        isQuit = true;
+        showDialog("提示", "是否退出", "退出", "取消");
     }
 }

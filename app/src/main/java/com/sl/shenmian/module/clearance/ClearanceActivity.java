@@ -7,11 +7,9 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.GridLayout;
@@ -29,16 +27,12 @@ import com.sl.shenmian.lib.constant.ConstantValues;
 import com.sl.shenmian.lib.net.RetrofitManage;
 import com.sl.shenmian.lib.net.body.ServerResponseResult;
 import com.sl.shenmian.lib.net.callback.DataNetCallback;
-import com.sl.shenmian.lib.net.callback.NetCallback;
 import com.sl.shenmian.lib.net.retrofit.RetrofitService;
 import com.sl.shenmian.lib.net.rxjava.DataNetObserver;
-import com.sl.shenmian.lib.net.rxjava.NetObserver;
 import com.sl.shenmian.lib.net.url.NetApi;
-import com.sl.shenmian.lib.net.url.NetBaseUrl;
 import com.sl.shenmian.lib.ui.dialog.CustomDialog;
 import com.sl.shenmian.lib.ui.dialog.ImageDialog;
 import com.sl.shenmian.lib.ui.dialog.MenuDialog;
-import com.sl.shenmian.lib.utils.FileUtil;
 import com.sl.shenmian.lib.utils.StringUtils;
 import com.sl.shenmian.lib.utils.SystemUtil;
 import com.sl.shenmian.lib.utils.image.BitmapUtils;
@@ -50,14 +44,12 @@ import com.sl.shenmian.module.db.dao.DBDao;
 import com.sl.shenmian.module.db.database.AppDatabase;
 import com.sl.shenmian.module.db.entity.SealInfoEntity;
 import com.sl.shenmian.module.main.pojo.CarLic;
-import com.sl.shenmian.module.main.pojo.Result;
 import com.sl.shenmian.module.main.pojo.Station;
 import com.sl.shenmian.module.main.pojo.StationType;
 import com.sl.shenmian.module.main.ui.adapter.SpinnerCarlicAdapter;
 import com.sl.shenmian.module.main.ui.adapter.SpinnerStationAdapter;
 import com.sl.shenmian.module.offline.model.OfflineInfo;
 import com.sl.shenmian.module.offline.model.SealType;
-import com.sl.shenmian.module.scan.pojo.CodeState;
 import com.sl.shenmian.module.seachcode.pojo.SeachCodeInfo;
 import com.sl.shenmian.module.signature.SignatureActivity;
 
@@ -69,7 +61,6 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.OnClick;
-import butterknife.OnItemClick;
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
@@ -93,7 +84,8 @@ public class ClearanceActivity extends BaseActivity {
     @BindView(R.id.clearance_addr_spinner)
     Spinner clearance_addr_spinner;
     @BindView(R.id.clearance_car_number_spinner)
-    Spinner clearance_car_number_spinner;
+   // Spinner clearance_car_number_spinner;
+    EditText mEtCarNumber;
     @BindView(R.id.remark_ed)
     TextView remark_ed;
     @BindView(R.id.sig_add_btn)
@@ -123,7 +115,7 @@ public class ClearanceActivity extends BaseActivity {
         setContentView(R.layout.layout_clearance_view);
         seal_code = getIntent().getStringExtra("seal_code");
         initConfig();
-        loadCarLic();
+        //loadCarLic();
         loadStation();
         initData();
     }
@@ -164,7 +156,7 @@ public class ClearanceActivity extends BaseActivity {
 
             }
         });
-        clearance_car_number_spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+      /*  clearance_car_number_spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 carnumberIndex = position;
@@ -175,7 +167,7 @@ public class ClearanceActivity extends BaseActivity {
 
             }
         });
-        clearance_car_number_spinner.setAdapter(spinnerCarlicAdapter);
+        clearance_car_number_spinner.setAdapter(spinnerCarlicAdapter);*/
         clearance_addr_spinner.setAdapter(spinnerStationAdapter);
     }
 
@@ -197,7 +189,6 @@ public class ClearanceActivity extends BaseActivity {
 
         switch (v.getId()) {
             case R.id.sig_add_btn:
-
                 showSignatureMenuDialog();
                 break;
         }
@@ -286,10 +277,14 @@ public class ClearanceActivity extends BaseActivity {
     private DBDao mDbDao;
 
     private void submitData() {
-
+        String carNumber = mEtCarNumber.getText().toString();
+        if(carNumber.isEmpty()){
+            ToastUtil.show(mContext,"请输入车牌号");
+            return;
+        }
         OfflineInfo offlineInfo = new OfflineInfo();
         offlineInfo.setAddress(stations.get(addrIndex).getId());
-        offlineInfo.setCarLicense(carLics.get(carnumberIndex).getCarLic());
+        offlineInfo.setCarLicense(carNumber);
         offlineInfo.setCoding(seal_code);
         offlineInfo.setLockedImei(SystemUtil.getImei(this));
         offlineInfo.setRemark(remark_ed.getText().toString().trim());
@@ -340,17 +335,25 @@ public class ClearanceActivity extends BaseActivity {
     @Override
     protected void dialogRightClick(AlertDialog alertDialog) {
         alertDialog.dismiss();
+        isQuit = false;
     }
 
     @Override
     protected void dialogTitleRight(AlertDialog alertDialog) {
         alertDialog.dismiss();
+        isQuit = false;
     }
 
     @Override
     protected void dialogLeftClick(AlertDialog alertDialog) {
-        alertDialog.dismiss();
-        submitData();
+        if(isQuit) {
+            isQuit = false;
+            alertDialog.dismiss();
+            finish();
+        }else {
+            alertDialog.dismiss();
+            submitData();
+        }
     }
 
     /**
@@ -384,6 +387,15 @@ public class ClearanceActivity extends BaseActivity {
             RequestBody requestFile1 = RequestBody.create(MediaType.parse("multipart/form-data"), file1);
             MultipartBody.Part body1 = MultipartBody.Part.createFormData("file1", file1.getName(), requestFile1);
             parts.add(body1);
+        }else {
+           MultipartBody multipartBody = new MultipartBody.Builder()
+                   .setType(MultipartBody.FORM)
+                   .addFormDataPart("file1","")
+                   .build();
+
+            MultipartBody.Part part = multipartBody.part(0);
+            parts.add(part);
+
         }
 
         if (null != imagePath2 && imagePath2.length() > 0) {
@@ -392,6 +404,14 @@ public class ClearanceActivity extends BaseActivity {
             RequestBody requestFile2 = RequestBody.create(MediaType.parse("multipart/form-data"), file2);
             MultipartBody.Part body2 = MultipartBody.Part.createFormData("file2", file2.getName(), requestFile2);
             parts.add(body2);
+        }else {
+            MultipartBody multipartBody = new MultipartBody.Builder()
+                    .setType(MultipartBody.FORM)
+                    .addFormDataPart("file2","")
+                    .build();
+
+            MultipartBody.Part part = multipartBody.part(0);
+            parts.add(part);
         }
 
         if (null != imagePath3 && imagePath3.length() > 0) {
@@ -400,14 +420,18 @@ public class ClearanceActivity extends BaseActivity {
             RequestBody requestFile3 = RequestBody.create(MediaType.parse("multipart/form-data"), file3);
             MultipartBody.Part body3 = MultipartBody.Part.createFormData("file1", file3.getName(), requestFile3);
             parts.add(body3);
+        }else {
+            MultipartBody multipartBody = new MultipartBody.Builder()
+                    .setType(MultipartBody.FORM)
+                    .addFormDataPart("file3","")
+                    .build();
+
+            MultipartBody.Part part = multipartBody.part(0);
+            parts.add(part);
+
         }
 
-        if (parts.size() <= 0) {
-            // 创建请求体，内容是文件
-            RequestBody requestFile3 = RequestBody.create(MediaType.parse("multipart/form-data"), "");
-            MultipartBody.Part body3 = MultipartBody.Part.createFormData("1", null, requestFile3);
-            //parts.add(body3);
-        }
+
 
         Observable<Response<ResponseBody>> responseObservable = service.uplodas(pathUrl, paramMap, parts);
         Disposable subscribe = responseObservable
@@ -573,8 +597,20 @@ public class ClearanceActivity extends BaseActivity {
 
             ToastUtil.show(this, "签名图片最多三张!");
         }
+    }
 
+    boolean isQuit;
 
+    @Override
+    public void onBackPressed() {
+        isQuit = true;
+        showDialog("", "是否退出?", "", "");
+    }
+
+    @Override
+    protected void onFinish() {
+        isQuit = true;
+        showDialog("提示", "是否退出", "退出", "取消");
     }
 
 }
