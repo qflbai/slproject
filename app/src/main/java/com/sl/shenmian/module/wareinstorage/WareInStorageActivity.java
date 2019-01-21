@@ -458,7 +458,9 @@ public class WareInStorageActivity extends BaseActivity {
     private void submitData(){
 
         OfflineInfo offlineInfo = new OfflineInfo();
-        offlineInfo.setAddress(stations.get(addrIndex).getId());
+        if(stations.size()>1) {
+            offlineInfo.setAddress(stations.get(addrIndex).getId());
+        }
         offlineInfo.setCoding(seal_code);
         offlineInfo.setLockedImei(SystemUtil.getImei(this));
         offlineInfo.setRemark(ware_in_storage_remark_tv.getText().toString().trim());
@@ -480,6 +482,7 @@ public class WareInStorageActivity extends BaseActivity {
         if(SystemUtil.isNetOk(this)) {
             padlockDataSubmit(0, offlineInfo);
         }else {
+            ToastUtil.show(mContext,"离线数据已保存到历史记录中");
             offlineInfo.setUploadingStae(0);
             new Thread(new Runnable() {
                 @Override
@@ -567,7 +570,6 @@ public class WareInStorageActivity extends BaseActivity {
         }
 
 
-
         Observable<Response<ResponseBody>> responseObservable = service.uplodas(pathUrl, paramMap, parts);
         Disposable subscribe = responseObservable
                 .subscribeOn(Schedulers.io())
@@ -620,8 +622,10 @@ public class WareInStorageActivity extends BaseActivity {
     private void saveData(OfflineInfo offlineInfo){
 
         SealInfoEntity sealInfoEntity = new SealInfoEntity();
-        sealInfoEntity.setAddress(stations.get(addrIndex).getSiteName());
-        sealInfoEntity.setAddressId(stations.get(addrIndex).getId());
+        if(stations.size()>0) {
+            sealInfoEntity.setAddress(stations.get(addrIndex).getSiteName());
+            sealInfoEntity.setAddressId(stations.get(addrIndex).getId());
+        }
         sealInfoEntity.setCarLicense(offlineInfo.getCarLicense());
         sealInfoEntity.setCoding(offlineInfo.getCoding());
         sealInfoEntity.setLockedImei(offlineInfo.getLockedImei());

@@ -353,7 +353,9 @@ public class ClearanceActivity extends BaseActivity {
             return;
         }
         OfflineInfo offlineInfo = new OfflineInfo();
-        offlineInfo.setAddress(stations.get(addrIndex).getId());
+        if(stations.size()>0) {
+            offlineInfo.setAddress(stations.get(addrIndex).getId());
+        }
         offlineInfo.setCarLicense(carNumber);
         offlineInfo.setCoding(seal_code);
         offlineInfo.setLockedImei(SystemUtil.getImei(this));
@@ -377,6 +379,7 @@ public class ClearanceActivity extends BaseActivity {
         if(SystemUtil.isNetOk(this)) {
             padlockDataSubmit(0, offlineInfo);
         }else {
+            ToastUtil.show(mContext,"离线数据已保存到历史记录中");
             offlineInfo.setUploadingStae(0);
             new Thread(new Runnable() {
                 @Override
@@ -392,8 +395,10 @@ public class ClearanceActivity extends BaseActivity {
     private void saveData(OfflineInfo offlineInfo) {
          DBDao dbDao = AppDatabase.getInstance().dbDao();
         SealInfoEntity sealInfoEntity = new SealInfoEntity();
-        sealInfoEntity.setAddress(stations.get(addrIndex).getSiteName());
-        sealInfoEntity.setAddressId(stations.get(addrIndex).getId());
+        if(stations.size()>0) {
+            sealInfoEntity.setAddress(stations.get(addrIndex).getSiteName());
+            sealInfoEntity.setAddressId(stations.get(addrIndex).getId());
+        }
         sealInfoEntity.setCarLicense(offlineInfo.getCarLicense());
         sealInfoEntity.setCoding(offlineInfo.getCoding());
         sealInfoEntity.setLockedImei(offlineInfo.getLockedImei());

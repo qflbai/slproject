@@ -359,7 +359,9 @@ public class WareOutStorageActivity extends BaseActivity {
     private void submitData() {
 
         OfflineInfo offlineInfo = new OfflineInfo();
-        offlineInfo.setAddress(stations.get(addrIndex).getId());
+        if(stations.size()>0) {
+            offlineInfo.setAddress(stations.get(addrIndex).getId());
+        }
         offlineInfo.setCarLicense(carLics.get(carnumberIndex).getCarLic());
         offlineInfo.setCoding(seal_code);
         offlineInfo.setLockedImei(SystemUtil.getImei(this));
@@ -381,6 +383,7 @@ public class WareOutStorageActivity extends BaseActivity {
         if(SystemUtil.isNetOk(this)) {
             padlockDataSubmit(1, offlineInfo);
         }else {
+            ToastUtil.show(mContext,"离线数据已保存到历史记录中");
             offlineInfo.setUploadingStae(0);
             new Thread(new Runnable() {
                 @Override
@@ -395,8 +398,10 @@ public class WareOutStorageActivity extends BaseActivity {
     private void saveData(OfflineInfo offlineInfo) {
 
         SealInfoEntity sealInfoEntity = new SealInfoEntity();
-        sealInfoEntity.setAddress(stations.get(addrIndex).getSiteName());
-        sealInfoEntity.setAddressId(stations.get(addrIndex).getId());
+        if(stations.size()>0) {
+            sealInfoEntity.setAddress(stations.get(addrIndex).getSiteName());
+            sealInfoEntity.setAddressId(stations.get(addrIndex).getId());
+        }
         sealInfoEntity.setCarLicense(carLics.get(carnumberIndex).getCarLic());
         sealInfoEntity.setCarLicenseId(carLics.get(carnumberIndex).getId());
         sealInfoEntity.setCoding(offlineInfo.getCoding());

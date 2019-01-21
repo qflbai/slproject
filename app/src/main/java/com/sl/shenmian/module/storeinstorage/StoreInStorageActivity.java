@@ -427,7 +427,9 @@ public class StoreInStorageActivity extends BaseActivity {
     private void submitData(){
 
         OfflineInfo offlineInfo = new OfflineInfo();
-        offlineInfo.setAddress(stations.get(addrIndex).getId());
+        if(stations.size()>0) {
+            offlineInfo.setAddress(stations.get(addrIndex).getId());
+        }
         offlineInfo.setCoding(seal_code);
         offlineInfo.setLockedImei(SystemUtil.getImei(this));
         offlineInfo.setRemark(ware_in_storage_remark_tv.getText().toString().trim());
@@ -449,6 +451,7 @@ public class StoreInStorageActivity extends BaseActivity {
         if(SystemUtil.isNetOk(this)) {
             padlockDataSubmit(1, offlineInfo);
         }else {
+            ToastUtil.show(mContext,"离线数据已保存到历史记录中");
             offlineInfo.setUploadingStae(0);
             new Thread(new Runnable() {
                 @Override
@@ -567,8 +570,10 @@ public class StoreInStorageActivity extends BaseActivity {
     private void saveData(OfflineInfo offlineInfo){
 
         SealInfoEntity sealInfoEntity = new SealInfoEntity();
-        sealInfoEntity.setAddress(stations.get(addrIndex).getSiteName());
-        sealInfoEntity.setAddressId(stations.get(addrIndex).getId());
+        if(stations.size()>0) {
+            sealInfoEntity.setAddress(stations.get(addrIndex).getSiteName());
+            sealInfoEntity.setAddressId(stations.get(addrIndex).getId());
+        }
         sealInfoEntity.setCarLicense(offlineInfo.getCarLicense());
         sealInfoEntity.setCoding(offlineInfo.getCoding());
         sealInfoEntity.setLockedImei(offlineInfo.getLockedImei());

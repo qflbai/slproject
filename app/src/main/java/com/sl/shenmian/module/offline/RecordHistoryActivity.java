@@ -177,7 +177,7 @@ public class RecordHistoryActivity extends BaseActivity {
                         for (SealInfoEntity sealInfoEntity : sealInfoEntities) {
                             OfflineInfo offlineInfo = new OfflineInfo();
                             offlineInfo.setId(sealInfoEntity.getId());
-                            offlineInfo.setAddress(sealInfoEntity.getAddressId());
+                            offlineInfo.setAddress(sealInfoEntity.getAddress());
                             offlineInfo.setCoding(sealInfoEntity.getCoding());
                             offlineInfo.setRemark(sealInfoEntity.getRemark());
                             offlineInfo.setTime(sealInfoEntity.getTime());
@@ -350,8 +350,6 @@ public class RecordHistoryActivity extends BaseActivity {
 
         Observable<Response<ResponseBody>> responseObservable = service.uplodas(pathUrl, paramMap, parts);
         Disposable subscribe = responseObservable
-                .subscribeOn(Schedulers.io())
-               // .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Consumer<Response<ResponseBody>>() {
                     @Override
                     public void accept(Response<ResponseBody> responseBodyResponse) throws Exception {
@@ -365,11 +363,11 @@ public class RecordHistoryActivity extends BaseActivity {
                                 offlineInfo.setUploadingStae(1);
                                 Log.e(TAG,"上传成功...");
                             } else {
-                                offlineInfo.setUploadingStae(2);
+                                offlineInfo.setUploadingStae(0);
                                 Log.e(TAG,"上传失败..."+serverResponseResult.getMessage());
                             }
                         } else {
-                            offlineInfo.setUploadingStae(2);
+                            offlineInfo.setUploadingStae(0);
                             Log.e(TAG,"上传失败.."+responseBodyResponse.message());
                         }
                         mDbDao.upDateUpLoadingState(offlineInfo.getId(), offlineInfo.getUploadingStae());
@@ -378,7 +376,7 @@ public class RecordHistoryActivity extends BaseActivity {
                 }, new Consumer<Throwable>() {
                     @Override
                     public void accept(Throwable throwable) {
-                        offlineInfo.setUploadingStae(2);
+                        offlineInfo.setUploadingStae(0);
                         Log.e(TAG, throwable.getMessage());
                         mDbDao.upDateUpLoadingState(offlineInfo.getId(), offlineInfo.getUploadingStae());
                     }
@@ -463,8 +461,6 @@ public class RecordHistoryActivity extends BaseActivity {
 
         Observable<Response<ResponseBody>> responseObservable = service.uplodas(pathUrl, paramMap, parts);
         Disposable subscribe = responseObservable
-                .subscribeOn(Schedulers.io())
-               // .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Consumer<Response<ResponseBody>>() {
                     @Override
                     public void accept(Response<ResponseBody> responseBodyResponse) throws Exception {
@@ -491,6 +487,7 @@ public class RecordHistoryActivity extends BaseActivity {
                     @Override
                     public void accept(Throwable throwable) {
                         Log.e(TAG,throwable.getMessage());
+                        offlineInfo.setUploadingStae(0);
                     }
                 });
     }
