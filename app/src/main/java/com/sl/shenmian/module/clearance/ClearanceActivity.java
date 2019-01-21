@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
@@ -17,6 +19,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.alibaba.fastjson.JSON;
 import com.bumptech.glide.Glide;
@@ -46,6 +49,7 @@ import com.sl.shenmian.module.db.entity.SealInfoEntity;
 import com.sl.shenmian.module.main.pojo.CarLic;
 import com.sl.shenmian.module.main.pojo.Station;
 import com.sl.shenmian.module.main.pojo.StationType;
+import com.sl.shenmian.module.main.ui.MainActivity;
 import com.sl.shenmian.module.main.ui.adapter.SpinnerCarlicAdapter;
 import com.sl.shenmian.module.main.ui.adapter.SpinnerStationAdapter;
 import com.sl.shenmian.module.offline.model.OfflineInfo;
@@ -62,6 +66,7 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.OnClick;
 import io.reactivex.Observable;
+import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
@@ -131,11 +136,62 @@ public class ClearanceActivity extends BaseActivity {
             @Override
             public void onClick(View v) {
 
-                showUploadConfimDialog();
+                if(SystemUtil.isNetOk(ClearanceActivity.this)) {
+                    showUploadConfimDialog();
+                }else {
+                    showNoFoundNetDialog();
+                }
             }
         });
     }
+    private CustomDialog noFoundNetDialog = null;
+    private void showNoFoundNetDialog() {
+        noFoundNetDialog = null;
+        if (null == noFoundNetDialog) {
+            noFoundNetDialog = new CustomDialog();
+        }
+        noFoundNetDialog.removeWindowTitle(true);
+        noFoundNetDialog.setContentIconIsShow(true);
+        noFoundNetDialog.setRightBtnIsShow(true);
+        noFoundNetDialog.setDialogContentIcon(R.mipmap.fail);
+        noFoundNetDialog.setDialogContentMsg(R.string.net_fail_login_fail_msg);
+        noFoundNetDialog.setDialogLeftBtnText(R.string.ok);
+        noFoundNetDialog.setDialogRightBtnText(R.string.local_save_data);
+        noFoundNetDialog.setDialogTitleBtnOnClick(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                dismissnoFoundNetDialog();
+            }
+        });
+        noFoundNetDialog.setDialogLeftBtnOnClick(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dismissnoFoundNetDialog();
+            }
+        });
+        noFoundNetDialog.setDialogRightBtnOnClick(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
 
+                submitData();
+                dismissnoFoundNetDialog();
+                finish();
+            }
+        });
+        noFoundNetDialog.show(getSupportFragmentManager(), "mainExitDialog");
+    }
+
+    private void dismissnoFoundNetDialog() {
+        if (null != noFoundNetDialog) {
+            noFoundNetDialog.dismiss();
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        dismissnoFoundNetDialog();
+    }
 
     private void initData() {
         feng_code_tv.setText(seal_code);
@@ -243,6 +299,7 @@ public class ClearanceActivity extends BaseActivity {
                 @Override
                 public void onError(Throwable e) {
 
+                    loadOfflineAddress();
                 }
 
                 @Override
@@ -252,11 +309,12 @@ public class ClearanceActivity extends BaseActivity {
 
                 @Override
                 public void onFailResponse(String dataJson, ServerResponseResult serverResponseResult) {
-
+                    loadOfflineAddress();
                 }
 
                 @Override
                 public void onOkResponse(String dataJson) {
+                    savleOffileAddress(dataJson);
                     stations = JSON.parseArray(dataJson, Station.class);
                     updateStation();
                 }
@@ -272,6 +330,18 @@ public class ClearanceActivity extends BaseActivity {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(mStationNetObserver);
     }
+
+    private void savleOffileAddress(String dataJson){
+        SpUtil.putString(mContext, ConstantValues.OffLineData.Clearance_address_local_key, dataJson);
+    }
+    private void loadOfflineAddress(){
+        String data = SpUtil.getString(mContext,ConstantValues.OffLineData.Clearance_address_local_key,"");
+        if(null != data && data.length() > 0){
+            stations = JSON.parseArray(data, Station.class);
+            updateStation();
+        }
+    }
+
 
     private RetrofitManage retrofitManage = new RetrofitManage();
     private DBDao mDbDao;
@@ -289,6 +359,7 @@ public class ClearanceActivity extends BaseActivity {
         offlineInfo.setLockedImei(SystemUtil.getImei(this));
         offlineInfo.setRemark(remark_ed.getText().toString().trim());
         offlineInfo.setUserAccount(SpUtil.getString(mContext, ConstantValues.UserInfo.KEY_USER_ACCOUNT, ""));
+
         if (imagelist.size() > 0) {
             for (int i = 0; i < imagelist.size(); i++) {
                 if (i == 0) {
@@ -303,14 +374,26 @@ public class ClearanceActivity extends BaseActivity {
             }
         }
 
-        padlockDataSubmit(0, offlineInfo);
+        if(SystemUtil.isNetOk(this)) {
+            padlockDataSubmit(0, offlineInfo);
+        }else {
+            offlineInfo.setUploadingStae(0);
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    saveData(offlineInfo);
+                }
+            }).start();
+
+        }
     }
 
 
     private void saveData(OfflineInfo offlineInfo) {
-
+         DBDao dbDao = AppDatabase.getInstance().dbDao();
         SealInfoEntity sealInfoEntity = new SealInfoEntity();
-        sealInfoEntity.setAddress(offlineInfo.getAddress());
+        sealInfoEntity.setAddress(stations.get(addrIndex).getSiteName());
+        sealInfoEntity.setAddressId(stations.get(addrIndex).getId());
         sealInfoEntity.setCarLicense(offlineInfo.getCarLicense());
         sealInfoEntity.setCoding(offlineInfo.getCoding());
         sealInfoEntity.setLockedImei(offlineInfo.getLockedImei());
@@ -321,7 +404,9 @@ public class ClearanceActivity extends BaseActivity {
         sealInfoEntity.setUserAccount(offlineInfo.getUserAccount());
         sealInfoEntity.setTime(StringUtils.getCurrentTimeStr());
 
-        mDbDao.insert(sealInfoEntity);
+        List<Long> count = dbDao.insert(sealInfoEntity);
+        Log.e(TAG, "count:"+count);
+
     }
 
     private CustomDialog dialog = null;
@@ -436,7 +521,7 @@ public class ClearanceActivity extends BaseActivity {
         Observable<Response<ResponseBody>> responseObservable = service.uplodas(pathUrl, paramMap, parts);
         Disposable subscribe = responseObservable
                 .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
+               // .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Consumer<Response<ResponseBody>>() {
                     @Override
                     public void accept(Response<ResponseBody> responseBodyResponse) throws Exception {
@@ -448,21 +533,32 @@ public class ClearanceActivity extends BaseActivity {
                             ServerResponseResult serverResponseResult = JSON.parseObject(string, ServerResponseResult.class);
                             if (serverResponseResult.isSuccess()) {
                                 offlineInfo.setUploadingStae(1);
+                                mHandler.sendEmptyMessage(upload_data_suc);
+                                finish();
                             } else {
-                                offlineInfo.setUploadingStae(0);
+                                offlineInfo.setUploadingStae(2);
+                                saveData(offlineInfo);
+                                Message msg = mHandler.obtainMessage(upload_data_fail, serverResponseResult.getMessage());
+                                mHandler.sendMessage(msg);
                             }
+
                         } else {
-                            offlineInfo.setUploadingStae(0);
+                            offlineInfo.setUploadingStae(2);
+                            saveData(offlineInfo);
+                            Message msg = mHandler.obtainMessage(upload_data_fail, "");
+                            mHandler.sendMessage(msg);
                         }
 
-                        ToastUtil.show(ClearanceActivity.this, "上传施封数据成功!");
-                        saveData(offlineInfo);
-                        finish();
+
                     }
                 }, new Consumer<Throwable>() {
                     @Override
                     public void accept(Throwable throwable) throws Exception {
                         LogUtil.e("tag", "Exception");
+                        offlineInfo.setUploadingStae(2);
+                        saveData(offlineInfo);
+                        Message msg = mHandler.obtainMessage(upload_data_fail, throwable.getMessage());
+                        mHandler.sendMessage(msg);
                     }
                 });
     }
@@ -516,13 +612,19 @@ public class ClearanceActivity extends BaseActivity {
                 }
                 break;
             case REQUEST_CODE_PHOTO:
-                if (resultCode == RESULT_OK) {
+                if (resultCode == RESULT_CANCELED) {
+                    Toast.makeText(ClearanceActivity.this, "取消了拍照", Toast.LENGTH_LONG).show();
+                    return;
+                }
+                if(null != data.getExtras().get("data")) {
                     Bitmap bm = (Bitmap) data.getExtras().get("data");
                     savePath = saveBitmap(bm);
                     if (null != savePath) {
                         addShowSiglist(savePath);
                     }
                 }
+
+                Log.e(TAG, "savePath:"+savePath);
                 break;
         }
 
@@ -612,5 +714,27 @@ public class ClearanceActivity extends BaseActivity {
         isQuit = true;
         showDialog("提示", "是否退出", "退出", "取消");
     }
+
+    private final int upload_data_suc = 10001;
+    private final int upload_data_fail = 10002;
+    private Handler mHandler = new Handler(){
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what){
+                case upload_data_suc:
+                    ToastUtil.show(ClearanceActivity.this, "上传施封数据成功!");
+                    finish();
+
+                    break;
+                case upload_data_fail:
+                    String data = "";
+                    if(null != msg.obj){
+                        data = msg.obj.toString();
+                    }
+                    ToastUtil.show(ClearanceActivity.this, "上传施封数据失败!"+data+"\n已离线保存");
+                    break;
+            }
+        }
+    };
 
 }

@@ -58,7 +58,7 @@
     <string name="untie_user">解封人:</string>
     <string name="untie_address">*解封地点:</string>
     <string name="input_code_number_hit">请输入条码编号</string>
-    <string name="user_name">用户名:</string>
+    <string name="user_name">用户名称:</string>
     <string name="user_account">用户账号:</string>
     <string name="user_group">所属组织:</string>
     <string name="update_password">修改密码</string>
@@ -69,7 +69,11 @@
     <string name="seal_empty">封条编码为空!</string>
     <string name="key_upload">一键上传</string>
     <string name="tgsflsjl">通关施封历史记录</string>
-    <string name="ckjflsjl">仓库入解封历史记录</string>
+    <string name="ckjflsjl">仓库入库解封历史记录</string>
     <string name="ckcksflsjl">仓库出库施封历史记录</string>
     <string name="mdjflsjl">门店入库解封历史记录</string>
+    <string name="username">用户名称:</string>
+    <string name="offline_login">离线登录</string>
+    <string name="net_fail_login_fail_msg">网络连接失败!</string>
+    <string name="local_save_data">离线保存</string>
 </resources>

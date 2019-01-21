@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
@@ -103,7 +105,7 @@ public class WareInStorageActivity extends BaseActivity {
 
     @BindView(R.id.feng_code_tv) TextView feng_code_tv;
     /**
-     * 施封信息
+     * 解封信息
      */
     @BindView(R.id.ware_in_storage_user_tv) TextView ware_in_storage_user_tv;
     @BindView(R.id.ware_in_storage_addr_spinner) Spinner ware_in_storage_addr_spinner;
@@ -112,7 +114,7 @@ public class WareInStorageActivity extends BaseActivity {
     @BindView(R.id.sig_list_view) GridLayout sig_list_view;
 
     /**
-     * 解封信息
+     * 施封信息
      */
     @BindView(R.id.clearance_user_tv) TextView clearance_user_tv;
     @BindView(R.id.clearance_time_tv) TextView clearance_time_tv;
@@ -142,14 +144,68 @@ public class WareInStorageActivity extends BaseActivity {
         titleButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                showUploadConfimDialog();
+
+                if(SystemUtil.isNetOk(WareInStorageActivity.this)) {
+                    showUploadConfimDialog();
+                }else {
+                    submitData();
+                    showNoFoundNetDialog();
+                    finish();
+                }
             }
         });
+    }
+    private CustomDialog noFoundNetDialog = null;
+    private void showNoFoundNetDialog() {
+        noFoundNetDialog = null;
+        if (null == noFoundNetDialog) {
+            noFoundNetDialog = new CustomDialog();
+        }
+        noFoundNetDialog.removeWindowTitle(true);
+        noFoundNetDialog.setContentIconIsShow(true);
+        noFoundNetDialog.setRightBtnIsShow(true);
+        noFoundNetDialog.setDialogContentIcon(R.mipmap.fail);
+        noFoundNetDialog.setDialogContentMsg(R.string.net_fail_login_fail_msg);
+        noFoundNetDialog.setDialogLeftBtnText(R.string.ok);
+        noFoundNetDialog.setDialogRightBtnText(R.string.local_save_data);
+        noFoundNetDialog.setDialogTitleBtnOnClick(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                dismissnoFoundNetDialog();
+            }
+        });
+        noFoundNetDialog.setDialogLeftBtnOnClick(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dismissnoFoundNetDialog();
+            }
+        });
+        noFoundNetDialog.setDialogRightBtnOnClick(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                submitData();
+                dismissnoFoundNetDialog();
+            }
+        });
+        noFoundNetDialog.show(getSupportFragmentManager(), "mainExitDialog");
+    }
+
+    private void dismissnoFoundNetDialog() {
+        if (null != noFoundNetDialog) {
+            noFoundNetDialog.dismiss();
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        dismissnoFoundNetDialog();
     }
 
     private void initData(){
         feng_code_tv.setText(seal_code);
-        String account = SpUtil.getString(mContext, ConstantValues.UserInfo.KEY_USER_ACCOUNT, "");
+        String account = SpUtil.getString(mContext, ConstantValues.UserInfo.KEY_USER_USERNAME, "");
         ware_in_storage_user_tv.setText(account);
 
         loadStation();
@@ -184,7 +240,7 @@ public class WareInStorageActivity extends BaseActivity {
             mStationNetObserver = new DataNetObserver(mContext,new DataNetCallback() {
                 @Override
                 public void onError(Throwable e) {
-
+                    loadOfflineAddress();
                 }
 
                 @Override
@@ -194,13 +250,14 @@ public class WareInStorageActivity extends BaseActivity {
 
                 @Override
                 public void onFailResponse(String dataJson, ServerResponseResult serverResponseResult) {
-
+                    loadOfflineAddress();
                 }
 
                 @Override
                 public void onOkResponse(String dataJson) {
                     stations = JSON.parseArray(dataJson,Station.class);
                     updateStation();
+                    savleOffileAddress(dataJson);
                 }
             });
         }
@@ -213,6 +270,17 @@ public class WareInStorageActivity extends BaseActivity {
         observable.subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(mStationNetObserver);
+    }
+
+    private void savleOffileAddress(String dataJson){
+        SpUtil.putString(mContext, ConstantValues.OffLineData.WareStorage_address_local_key, dataJson);
+    }
+    private void loadOfflineAddress(){
+        String data = SpUtil.getString(mContext,ConstantValues.OffLineData.WareStorage_address_local_key,"");
+        if(null != data && data.length() > 0){
+            stations = JSON.parseArray(data, Station.class);
+            updateStation();
+        }
     }
 
     private void loadSeachResultData(){
@@ -272,7 +340,7 @@ public class WareInStorageActivity extends BaseActivity {
             clearance_time_tv.setText(searchCodeInfo.getTime());
 
             if (searchCodeInfo.getImg().size() > 0) {
-                sig_list_view.removeAllViews();
+                clearance_sig_list_view.removeAllViews();
                 for (SeachCodeInfo.ImgBean image : searchCodeInfo.getImg()) {
                     ImageView imageView = new ImageView(mContext);
                     imageView.setLayoutParams(new LinearLayout.LayoutParams(75, 75));
@@ -300,7 +368,7 @@ public class WareInStorageActivity extends BaseActivity {
                         }
                     });
 
-                    sig_list_view.addView(imageView);
+                    clearance_sig_list_view.addView(imageView);
                 }
 
             }
@@ -409,7 +477,17 @@ public class WareInStorageActivity extends BaseActivity {
             }
         }
 
-        padlockDataSubmit(1,offlineInfo);
+        if(SystemUtil.isNetOk(this)) {
+            padlockDataSubmit(0, offlineInfo);
+        }else {
+            offlineInfo.setUploadingStae(0);
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    saveData(offlineInfo);
+                }
+            }).start();
+        }
     }
 
     private RetrofitManage retrofitManage = new RetrofitManage();
@@ -493,7 +571,7 @@ public class WareInStorageActivity extends BaseActivity {
         Observable<Response<ResponseBody>> responseObservable = service.uplodas(pathUrl, paramMap, parts);
         Disposable subscribe = responseObservable
                 .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
+               // .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Consumer<Response<ResponseBody>>() {
                     @Override
                     public void accept(Response<ResponseBody> responseBodyResponse) throws Exception {
@@ -504,25 +582,37 @@ public class WareInStorageActivity extends BaseActivity {
                             String string = body.string();
                             ServerResponseResult serverResponseResult = JSON.parseObject(string, ServerResponseResult.class);
                             if (serverResponseResult.isSuccess()) {
+                                mHandler.sendEmptyMessage(upload_data_suc);
                                 offlineInfo.setUploadingStae(1);
                             } else {
-                                offlineInfo.setUploadingStae(0);
+                                offlineInfo.setUploadingStae(2);
+                                saveData(offlineInfo);
+                                Message msg = mHandler.obtainMessage(upload_data_fail, serverResponseResult.getMessage());
+                                mHandler.sendMessage(msg);
                             }
                             if(!serverResponseResult.getResultCode().equals("0")){
-                                ToastUtil.show(WareInStorageActivity.this,serverResponseResult.getMessage());
+                                Message msg = mHandler.obtainMessage(upload_data_fail, serverResponseResult.getMessage());
+                                mHandler.sendMessage(msg);
+                                offlineInfo.setUploadingStae(2);
+                                saveData(offlineInfo);
                             }
                         } else {
-                            offlineInfo.setUploadingStae(0);
+                            offlineInfo.setUploadingStae(2);
+                            Message msg = mHandler.obtainMessage(upload_data_fail, "");
+                            mHandler.sendMessage(msg);
+                            saveData(offlineInfo);
                         }
 
-                        saveData(offlineInfo);
-                        ToastUtil.show(WareInStorageActivity.this,"上传解封数据成功!");
+
 
                     }
                 }, new Consumer<Throwable>() {
                     @Override
                     public void accept(Throwable throwable) throws Exception {
-
+                        offlineInfo.setUploadingStae(2);
+                        saveData(offlineInfo);
+                        Message msg = mHandler.obtainMessage(upload_data_fail, throwable.getMessage());
+                        mHandler.sendMessage(msg);
                     }
                 });
     }
@@ -530,13 +620,14 @@ public class WareInStorageActivity extends BaseActivity {
     private void saveData(OfflineInfo offlineInfo){
 
         SealInfoEntity sealInfoEntity = new SealInfoEntity();
-        sealInfoEntity.setAddress(offlineInfo.getAddress());
+        sealInfoEntity.setAddress(stations.get(addrIndex).getSiteName());
+        sealInfoEntity.setAddressId(stations.get(addrIndex).getId());
         sealInfoEntity.setCarLicense(offlineInfo.getCarLicense());
         sealInfoEntity.setCoding(offlineInfo.getCoding());
         sealInfoEntity.setLockedImei(offlineInfo.getLockedImei());
         sealInfoEntity.setRemark(offlineInfo.getRemark());
         sealInfoEntity.setUploadingState(offlineInfo.getUploadingStae());
-        sealInfoEntity.setSealType(SealType.tongGuanPadlock.getValue());
+        sealInfoEntity.setSealType(SealType.houseEnterDisassemble.getValue());
         sealInfoEntity.setUserName(SpUtil.getString(mContext, ConstantValues.UserInfo.KEY_USER_USERNAME, ""));
         sealInfoEntity.setUserAccount(offlineInfo.getUserAccount());
         sealInfoEntity.setTime(StringUtils.getCurrentTimeStr());
@@ -624,7 +715,7 @@ public class WareInStorageActivity extends BaseActivity {
                                 imageDialog.dismissAllowingStateLoss();
                             }
                         });
-                        imageDialog.setImagUrl(image.getUrl());
+                        imageDialog.setImagUrl(image.getThumbUrl());
                         imageDialog.show(getSupportFragmentManager(),"image_src");
                     }
                 });
@@ -654,5 +745,24 @@ public class WareInStorageActivity extends BaseActivity {
         isQuit = true;
         showDialog("提示", "是否退出", "退出", "取消");
     }
-
+    private final int upload_data_suc = 10001;
+    private final int upload_data_fail = 10002;
+    private Handler mHandler = new Handler(){
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what){
+                case upload_data_suc:
+                    ToastUtil.show(WareInStorageActivity.this, "上传解封数据成功!");
+                    finish();
+                    break;
+                case upload_data_fail:
+                    String data = "";
+                    if(null != msg.obj){
+                        data = msg.obj.toString();
+                    }
+                    ToastUtil.show(WareInStorageActivity.this, "上传解封数据失败!"+data+"\n已离线保存");
+                    break;
+            }
+        }
+    };
 }

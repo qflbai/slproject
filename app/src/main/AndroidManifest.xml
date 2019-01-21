@@ -13,7 +13,7 @@
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
-
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
 
     <application
         android:name=".App"
@@ -37,7 +37,9 @@
         <activity
             android:name=".module.scan.ScanActivity"
             android:configChanges="orientation|keyboardHidden"
-            android:screenOrientation="portrait"></activity>
+            android:screenOrientation="portrait"
+            android:launchMode="singleInstance"
+            />
         <!-- 签名页面 -->
         <activity
             android:name=".module.signature.SignatureActivity"
@@ -62,25 +64,33 @@
         <activity
             android:name=".module.clearance.ClearanceActivity"
             android:configChanges="orientation|keyboardHidden"
-            android:screenOrientation="portrait">
+            android:screenOrientation="portrait"
+            android:launchMode="singleTask"
+            >
         </activity>
         <!-- 仓库出库施封 -->
         <activity
             android:name=".module.wareoutstorage.WareOutStorageActivity"
             android:configChanges="orientation|keyboardHidden"
-            android:screenOrientation="portrait">
+            android:screenOrientation="portrait"
+            android:launchMode="singleTask"
+            >
         </activity>
         <!-- 仓库入库解封 -->
         <activity
             android:name=".module.wareinstorage.WareInStorageActivity"
             android:configChanges="orientation|keyboardHidden"
-            android:screenOrientation="portrait">
+            android:screenOrientation="portrait"
+            android:launchMode="singleTask"
+            >
         </activity>
         <!-- 门店入库解封 -->
         <activity
             android:name=".module.storeinstorage.StoreInStorageActivity"
             android:configChanges="orientation|keyboardHidden"
-            android:screenOrientation="portrait">
+            android:screenOrientation="portrait"
+            android:launchMode="singleTask"
+            >
         </activity>
     </application>
 

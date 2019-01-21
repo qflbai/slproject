@@ -2,7 +2,9 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:focusable="true"
+    android:focusableInTouchMode="true">
     <include layout="@layout/constraint_toolbar_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -63,16 +65,19 @@
         android:layout_height="wrap_content"
         android:layout_margin="10dip"
         android:background="@drawable/layout_line_bg">
+
         <TextView
             android:id="@+id/clearance_user"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentTop="true"
+            style="@style/InfoStyle"
             android:layout_width="95dip"
             android:layout_height="wrap_content"
-            style="@style/InfoStyle"
-            android:text="@string/clearance_user"
-            android:layout_margin="5dip"
-            />
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginStart="5dip"
+            android:layout_marginTop="5dip"
+            android:layout_marginEnd="5dip"
+            android:layout_marginBottom="5dip"
+            android:text="@string/clearance_user" />
         <TextView
             android:id="@+id/clearance_user_tv"
             android:layout_width="175dip"
@@ -100,11 +105,13 @@
         <Spinner
             android:id="@+id/clearance_addr_spinner"
             android:layout_width="175dip"
-            android:layout_height="25dip"
+            android:layout_height="35dip"
             android:layout_below="@+id/clearance_user_tv"
-            android:layout_margin="5dip"
+            android:layout_marginStart="5dip"
+            android:layout_marginTop="5dip"
+            android:layout_marginEnd="5dip"
+            android:layout_marginBottom="5dip"
             android:layout_toRightOf="@+id/clearance_addr"
-            android:entries="@array/addr_array"
             android:text="addr" />
 
         <TextView
@@ -126,10 +133,9 @@
             android:layout_height="25dip"
             android:layout_below="@+id/clearance_addr_spinner"
             android:layout_marginLeft="5dip"
-            android:layout_marginRight="5dip"
             android:layout_marginTop="10dip"
+            android:layout_marginRight="5dip"
             android:layout_toRightOf="@+id/car_number"
-            android:entries="@array/addr_array"
             android:text="addr" />
 
         <TextView

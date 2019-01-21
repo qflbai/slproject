@@ -2,7 +2,9 @@ package com.sl.shenmian.module.offline;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ListView;
@@ -87,8 +89,8 @@ public class RecordHistoryActivity extends BaseActivity {
         titleButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                showUploadConfimDialog();
 
-                submitData();
             }
         });
 
@@ -96,6 +98,50 @@ public class RecordHistoryActivity extends BaseActivity {
         mOffLineAdapter = new OffLineAdapter(mContext, mOfflineInfos);
         mLvCode.setAdapter(mOffLineAdapter);
 
+    }
+
+    private void showUploadConfimDialog() {
+
+        showDialog("", "确定所有离线信息都上传吗?", "", "");
+
+    }
+
+    boolean isQuit;
+
+    @Override
+    public void onBackPressed() {
+        isQuit = true;
+        showDialog("", "是否退出?", "", "");
+    }
+
+    @Override
+    protected void onFinish() {
+        isQuit = true;
+        showDialog("提示", "是否退出", "退出", "取消");
+    }
+
+    @Override
+    protected void dialogRightClick(AlertDialog alertDialog) {
+        alertDialog.dismiss();
+        isQuit = false;
+    }
+
+    @Override
+    protected void dialogTitleRight(AlertDialog alertDialog) {
+        alertDialog.dismiss();
+        isQuit = false;
+    }
+
+    @Override
+    protected void dialogLeftClick(AlertDialog alertDialog) {
+        if(isQuit) {
+            isQuit = false;
+            alertDialog.dismiss();
+            finish();
+        }else {
+            alertDialog.dismiss();
+            submitData();
+        }
     }
 
     private void initData() {
@@ -117,6 +163,7 @@ public class RecordHistoryActivity extends BaseActivity {
 
 
     private void queryDB(SealType sealType) {
+        mOfflineInfos.clear();
         String userAccount = SpUtil.getString(mContext, ConstantValues.UserInfo.KEY_USER_ACCOUNT, "");
 
         DBDao dbDao = AppDatabase.getInstance().dbDao();
@@ -126,10 +173,11 @@ public class RecordHistoryActivity extends BaseActivity {
                 .subscribe(new Consumer<List<SealInfoEntity>>() {
                     @Override
                     public void accept(List<SealInfoEntity> sealInfoEntities) throws Exception {
+                        Log.e(TAG, "data size:"+sealInfoEntities.size());
                         for (SealInfoEntity sealInfoEntity : sealInfoEntities) {
                             OfflineInfo offlineInfo = new OfflineInfo();
                             offlineInfo.setId(sealInfoEntity.getId());
-                            offlineInfo.setAddress(sealInfoEntity.getAddress());
+                            offlineInfo.setAddress(sealInfoEntity.getAddressId());
                             offlineInfo.setCoding(sealInfoEntity.getCoding());
                             offlineInfo.setRemark(sealInfoEntity.getRemark());
                             offlineInfo.setTime(sealInfoEntity.getTime());
@@ -142,9 +190,7 @@ public class RecordHistoryActivity extends BaseActivity {
                             int uploadingStae = sealInfoEntity.getUploadingState();
                             if (uploadingStae != 1) {
                                 isHaveData = true;
-                                offlineInfo.setUploadingStae(0);
-                            } else {
-                                offlineInfo.setUploadingStae(1);
+                                //offlineInfo.setUploadingStae(0);
                             }
 
                             mOfflineInfos.add(offlineInfo);
@@ -161,7 +207,7 @@ public class RecordHistoryActivity extends BaseActivity {
         if (mSealType == null) {
             return;
         }
-        if (isHaveData) {
+        if (!isHaveData) {
             return;
         }
 
@@ -214,7 +260,7 @@ public class RecordHistoryActivity extends BaseActivity {
 
             @Override
             public void onComplete() {
-
+                queryDB(mSealType);
             }
         };
         flowable.subscribeOn(Schedulers.io())
@@ -249,27 +295,63 @@ public class RecordHistoryActivity extends BaseActivity {
         paramMap.put("lockedImei", offlineInfo.getLockedImei());
 
 
-        final File file1 = new File(imagePath1);
-        final File file2 = new File(imagePath2);
-        final File file3 = new File(imagePath3);
-
-        // 创建请求体，内容是文件
-        RequestBody requestFile1 = RequestBody.create(MediaType.parse("multipart/form-data"), file1);
-        MultipartBody.Part body1 = MultipartBody.Part.createFormData("file1", file1.getName(), requestFile1);
-        // 创建请求体，内容是文件
-        RequestBody requestFile2 = RequestBody.create(MediaType.parse("multipart/form-data"), file2);
-        MultipartBody.Part body2 = MultipartBody.Part.createFormData("file2", file2.getName(), requestFile2);
-        // 创建请求体，内容是文件
-        RequestBody requestFile3 = RequestBody.create(MediaType.parse("multipart/form-data"), file3);
-        MultipartBody.Part body3 = MultipartBody.Part.createFormData("file1", file3.getName(), requestFile3);
-
         ArrayList<MultipartBody.Part> parts = new ArrayList<>();
-        parts.add(body1);
-        parts.add(body2);
-        parts.add(body3);
+
+        if (null != imagePath1 && imagePath1.length() > 0) {
+            final File file1 = new File(imagePath1);
+            // 创建请求体，内容是文件
+            RequestBody requestFile1 = RequestBody.create(MediaType.parse("multipart/form-data"), file1);
+            MultipartBody.Part body1 = MultipartBody.Part.createFormData("file1", file1.getName(), requestFile1);
+            parts.add(body1);
+        }else {
+            MultipartBody multipartBody = new MultipartBody.Builder()
+                    .setType(MultipartBody.FORM)
+                    .addFormDataPart("file1","")
+                    .build();
+
+            MultipartBody.Part part = multipartBody.part(0);
+            parts.add(part);
+
+        }
+
+        if (null != imagePath2 && imagePath2.length() > 0) {
+            final File file2 = new File(imagePath2);
+            // 创建请求体，内容是文件
+            RequestBody requestFile2 = RequestBody.create(MediaType.parse("multipart/form-data"), file2);
+            MultipartBody.Part body2 = MultipartBody.Part.createFormData("file2", file2.getName(), requestFile2);
+            parts.add(body2);
+        }else {
+            MultipartBody multipartBody = new MultipartBody.Builder()
+                    .setType(MultipartBody.FORM)
+                    .addFormDataPart("file2","")
+                    .build();
+
+            MultipartBody.Part part = multipartBody.part(0);
+            parts.add(part);
+        }
+
+        if (null != imagePath3 && imagePath3.length() > 0) {
+            final File file3 = new File(imagePath3);
+            // 创建请求体，内容是文件
+            RequestBody requestFile3 = RequestBody.create(MediaType.parse("multipart/form-data"), file3);
+            MultipartBody.Part body3 = MultipartBody.Part.createFormData("file1", file3.getName(), requestFile3);
+            parts.add(body3);
+        }else {
+            MultipartBody multipartBody = new MultipartBody.Builder()
+                    .setType(MultipartBody.FORM)
+                    .addFormDataPart("file3","")
+                    .build();
+
+            MultipartBody.Part part = multipartBody.part(0);
+            parts.add(part);
+
+        }
+
 
         Observable<Response<ResponseBody>> responseObservable = service.uplodas(pathUrl, paramMap, parts);
-        Disposable subscribe = responseObservable.observeOn(AndroidSchedulers.mainThread())
+        Disposable subscribe = responseObservable
+                .subscribeOn(Schedulers.io())
+               // .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Consumer<Response<ResponseBody>>() {
                     @Override
                     public void accept(Response<ResponseBody> responseBodyResponse) throws Exception {
@@ -281,19 +363,24 @@ public class RecordHistoryActivity extends BaseActivity {
                             ServerResponseResult serverResponseResult = JSON.parseObject(string, ServerResponseResult.class);
                             if (serverResponseResult.isSuccess()) {
                                 offlineInfo.setUploadingStae(1);
+                                Log.e(TAG,"上传成功...");
                             } else {
-                                offlineInfo.setUploadingStae(0);
+                                offlineInfo.setUploadingStae(2);
+                                Log.e(TAG,"上传失败..."+serverResponseResult.getMessage());
                             }
                         } else {
-                            offlineInfo.setUploadingStae(0);
+                            offlineInfo.setUploadingStae(2);
+                            Log.e(TAG,"上传失败.."+responseBodyResponse.message());
                         }
-
                         mDbDao.upDateUpLoadingState(offlineInfo.getId(), offlineInfo.getUploadingStae());
+
                     }
                 }, new Consumer<Throwable>() {
                     @Override
-                    public void accept(Throwable throwable) throws Exception {
-
+                    public void accept(Throwable throwable) {
+                        offlineInfo.setUploadingStae(2);
+                        Log.e(TAG, throwable.getMessage());
+                        mDbDao.upDateUpLoadingState(offlineInfo.getId(), offlineInfo.getUploadingStae());
                     }
                 });
     }
@@ -303,7 +390,7 @@ public class RecordHistoryActivity extends BaseActivity {
      */
     private void disassembleDaaSubmit(int type, OfflineInfo offlineInfo) {
         RetrofitService service = retrofitManage.createService();
-        String pathUrl = NetApi.App.PADLOCK_INFO;
+        String pathUrl = NetApi.App.UNLOCK_INFO;
 
         String imagePath1 = offlineInfo.getImagePath1();
         //    Bitmap bitmap1 = BitmapFactory.decodeFile(imagePath1);
@@ -321,27 +408,63 @@ public class RecordHistoryActivity extends BaseActivity {
         paramMap.put("unlockImei", offlineInfo.getLockedImei());
 
 
-        final File file1 = new File(imagePath1);
-        final File file2 = new File(imagePath2);
-        final File file3 = new File(imagePath3);
-
-        // 创建请求体，内容是文件
-        RequestBody requestFile1 = RequestBody.create(MediaType.parse("multipart/form-data"), file1);
-        MultipartBody.Part body1 = MultipartBody.Part.createFormData("file1", file1.getName(), requestFile1);
-        // 创建请求体，内容是文件
-        RequestBody requestFile2 = RequestBody.create(MediaType.parse("multipart/form-data"), file2);
-        MultipartBody.Part body2 = MultipartBody.Part.createFormData("file2", file2.getName(), requestFile2);
-        // 创建请求体，内容是文件
-        RequestBody requestFile3 = RequestBody.create(MediaType.parse("multipart/form-data"), file3);
-        MultipartBody.Part body3 = MultipartBody.Part.createFormData("file3", file3.getName(), requestFile3);
-
         ArrayList<MultipartBody.Part> parts = new ArrayList<>();
-        parts.add(body1);
-        parts.add(body2);
-        parts.add(body3);
+
+        if (null != imagePath1 && imagePath1.length() > 0) {
+            final File file1 = new File(imagePath1);
+            // 创建请求体，内容是文件
+            RequestBody requestFile1 = RequestBody.create(MediaType.parse("multipart/form-data"), file1);
+            MultipartBody.Part body1 = MultipartBody.Part.createFormData("file1", file1.getName(), requestFile1);
+            parts.add(body1);
+        }else {
+            MultipartBody multipartBody = new MultipartBody.Builder()
+                    .setType(MultipartBody.FORM)
+                    .addFormDataPart("file1","")
+                    .build();
+
+            MultipartBody.Part part = multipartBody.part(0);
+            parts.add(part);
+
+        }
+
+        if (null != imagePath2 && imagePath2.length() > 0) {
+            final File file2 = new File(imagePath2);
+            // 创建请求体，内容是文件
+            RequestBody requestFile2 = RequestBody.create(MediaType.parse("multipart/form-data"), file2);
+            MultipartBody.Part body2 = MultipartBody.Part.createFormData("file2", file2.getName(), requestFile2);
+            parts.add(body2);
+        }else {
+            MultipartBody multipartBody = new MultipartBody.Builder()
+                    .setType(MultipartBody.FORM)
+                    .addFormDataPart("file2","")
+                    .build();
+
+            MultipartBody.Part part = multipartBody.part(0);
+            parts.add(part);
+        }
+
+        if (null != imagePath3 && imagePath3.length() > 0) {
+            final File file3 = new File(imagePath3);
+            // 创建请求体，内容是文件
+            RequestBody requestFile3 = RequestBody.create(MediaType.parse("multipart/form-data"), file3);
+            MultipartBody.Part body3 = MultipartBody.Part.createFormData("file1", file3.getName(), requestFile3);
+            parts.add(body3);
+        }else {
+            MultipartBody multipartBody = new MultipartBody.Builder()
+                    .setType(MultipartBody.FORM)
+                    .addFormDataPart("file3","")
+                    .build();
+
+            MultipartBody.Part part = multipartBody.part(0);
+            parts.add(part);
+
+        }
+
 
         Observable<Response<ResponseBody>> responseObservable = service.uplodas(pathUrl, paramMap, parts);
-        Disposable subscribe = responseObservable.observeOn(AndroidSchedulers.mainThread())
+        Disposable subscribe = responseObservable
+                .subscribeOn(Schedulers.io())
+               // .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Consumer<Response<ResponseBody>>() {
                     @Override
                     public void accept(Response<ResponseBody> responseBodyResponse) throws Exception {
@@ -353,18 +476,21 @@ public class RecordHistoryActivity extends BaseActivity {
                             ServerResponseResult serverResponseResult = JSON.parseObject(string, ServerResponseResult.class);
                             if (serverResponseResult.isSuccess()) {
                                 offlineInfo.setUploadingStae(1);
+                                Log.e(TAG,"上传成功...");
                             } else {
                                 offlineInfo.setUploadingStae(0);
+                                Log.e(TAG,"上传失败..."+serverResponseResult.getMessage());
                             }
                         } else {
                             offlineInfo.setUploadingStae(0);
+                            Log.e(TAG,"上传失败.."+responseBodyResponse.message());
                         }
                         mDbDao.upDateUpLoadingState(offlineInfo.getId(), offlineInfo.getUploadingStae());
                     }
                 }, new Consumer<Throwable>() {
                     @Override
-                    public void accept(Throwable throwable) throws Exception {
-
+                    public void accept(Throwable throwable) {
+                        Log.e(TAG,throwable.getMessage());
                     }
                 });
     }

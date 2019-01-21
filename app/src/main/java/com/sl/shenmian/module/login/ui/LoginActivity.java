@@ -1,6 +1,9 @@
 package com.sl.shenmian.module.login.ui;
 
 import android.Manifest;
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
@@ -10,12 +13,16 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.alibaba.fastjson.JSON;
 import com.sl.shenmian.R;
@@ -30,6 +37,8 @@ import com.sl.shenmian.lib.net.rxjava.DataNetObserver;
 import com.sl.shenmian.lib.net.rxjava.NetObserver;
 import com.sl.shenmian.lib.net.state.ServerResponseState;
 import com.sl.shenmian.lib.net.url.NetApi;
+import com.sl.shenmian.lib.net.url.NetBaseUrl;
+import com.sl.shenmian.lib.ui.dialog.CustomDialog;
 import com.sl.shenmian.lib.ui.dialog.LoadingDialog;
 import com.sl.shenmian.lib.utils.SystemUtil;
 import com.sl.shenmian.lib.utils.sharedpreferences.SpUtil;
@@ -43,6 +52,7 @@ import java.util.HashMap;
 
 import butterknife.BindView;
 import butterknife.OnClick;
+import butterknife.OnLongClick;
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
@@ -60,6 +70,10 @@ public class LoginActivity extends AbsActivity<LoginViewModel> {
     CheckBox re_password_ck;
     @BindView(R.id.button)
     Button button;
+    @BindView(R.id.app_icon)
+    ImageView app_icon;
+    @BindView(R.id.version_tv)
+    TextView version_tv;
 
     //记住密码
     private boolean isRePASSWORD = true;
@@ -95,6 +109,12 @@ public class LoginActivity extends AbsActivity<LoginViewModel> {
         loadLoginInfo();
     }
 
+    @Override
+    protected void onStop() {
+        super.onStop();
+        dismiss();
+    }
+
     private void initUI() {
         isRememberPwd = SpUtil.getBoolean(mContext, ConstantValues.UserInfo.key_remember_pwd, false);
         re_password_ck.setChecked(isRememberPwd);
@@ -105,6 +125,15 @@ public class LoginActivity extends AbsActivity<LoginViewModel> {
                 SpUtil.putBoolean(mContext, ConstantValues.UserInfo.key_remember_pwd, isChecked);
             }
         });
+        app_icon.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                OnLongClick(v);
+                return false;
+            }
+        });
+
+        version_tv.setText("v"+SystemUtil.getVersionName(this));
     }
 
     private void initCheckPermissions() {
@@ -154,11 +183,62 @@ public class LoginActivity extends AbsActivity<LoginViewModel> {
 
         switch (v.getId()) {
             case R.id.button:
-                if (checkUserInfo()) {
-                    login();
+                if(SystemUtil.isNetOk(LoginActivity.this)) {
+                    if (checkUserInfo()) {
+                        login();
+                    }
+                }else {
+                    showExitDialog();
                 }
                 break;
         }
+    }
+
+    private CustomDialog customDialog = null;
+    private void showExitDialog() {
+        customDialog = null;
+        if (null == customDialog) {
+            customDialog = new CustomDialog();
+        }
+        customDialog.removeWindowTitle(true);
+        customDialog.setContentIconIsShow(true);
+        customDialog.setRightBtnIsShow(true);
+        customDialog.setDialogContentIcon(R.mipmap.fail);
+        customDialog.setDialogContentMsg(R.string.net_fail_login_fail_msg);
+        customDialog.setDialogLeftBtnText(R.string.ok);
+        customDialog.setDialogRightBtnText(R.string.offline_login);
+        customDialog.setDialogTitleBtnOnClick(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                dismiss();
+            }
+        });
+        customDialog.setDialogLeftBtnOnClick(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dismiss();
+            }
+        });
+        customDialog.setDialogRightBtnOnClick(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                offlineLogin();
+                dismiss();
+            }
+        });
+        customDialog.show(getSupportFragmentManager(), "mainExitDialog");
+    }
+
+    private void dismiss() {
+        if (null != customDialog) {
+            customDialog.dismiss();
+        }
+    }
+
+    private void offlineLogin(){
+        saveLoginInfo(null);
+        Intent intent = new Intent(mContext, MainActivity.class);
+        activityJumps(intent);
     }
 
     private boolean checkUserInfo() {
@@ -195,9 +275,13 @@ public class LoginActivity extends AbsActivity<LoginViewModel> {
         }
     }
 
-    private RetrofitManage retrofitManage = new RetrofitManage();
+    private RetrofitManage retrofitManage = null;
 
     private void login() {
+        if(null == retrofitManage) {
+            retrofitManage = new RetrofitManage();
+        }
+       // Log.e(TAG, "BASEURL:"+NetBaseUrl.getBaseUrl());
         FragmentManager supportFragmentManager = LoginActivity.this.getSupportFragmentManager();
         // 正在登陆
         LoadingDialog.newInstance().showLoad(supportFragmentManager, "正在登录...");
@@ -253,6 +337,7 @@ public class LoginActivity extends AbsActivity<LoginViewModel> {
         responseObservable.subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(dataNetObserver);
+
     }
 
     private void saveLoginInfo(LoginInfo loginInfo) {
@@ -264,9 +349,11 @@ public class LoginActivity extends AbsActivity<LoginViewModel> {
         SpUtil.putString(mContext, ConstantValues.UserInfo.KEY_USER_PWD, userInfo.getPassword());
         SpUtil.putString(mContext, ConstantValues.UserInfo.KEY_USER_ACCOUNT, userInfo.getAccount());
 
-        SpUtil.putString(mContext, ConstantValues.UserInfo.KEY_USER_USERNAME, loginInfo.getData().getUsername());
-        SpUtil.putString(mContext, ConstantValues.UserInfo.KEY_USER_ORG, loginInfo.getData().getOrgName());
-
+        if(null != loginInfo) {
+            SpUtil.putString(mContext, ConstantValues.UserInfo.KEY_USER_USERNAME, loginInfo.getData().getUsername());
+            SpUtil.putString(mContext, ConstantValues.UserInfo.KEY_USER_ORG, loginInfo.getData().getOrgName());
+        }
+       // Log.e(TAG,"username:"+loginInfo.getData().getUsername()+"-account:"+userInfo.getAccount());
     }
 
     private void loadLoginInfo() {
@@ -278,4 +365,23 @@ public class LoginActivity extends AbsActivity<LoginViewModel> {
             account_ed.setSelection(userName.length());
         }
     }
+
+
+    public void OnLongClick(View v){
+        final EditText et = new EditText(this);
+        new AlertDialog.Builder(this).setTitle("请输入路径")
+                .setIcon(android.R.drawable.sym_def_app_icon)
+                .setView(et)
+                .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        //按下确定键后的事件
+                        //Toast.makeText(getApplicationContext(), et.getText().toString(),Toast.LENGTH_LONG).show();
+                        NetBaseUrl.setBaseURL(et.getText().toString());
+                    }
+                }).setNegativeButton("取消",null).show();
+    }
+
+
+
 }

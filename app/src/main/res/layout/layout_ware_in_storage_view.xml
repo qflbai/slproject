@@ -2,7 +2,9 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:focusable="true"
+    android:focusableInTouchMode="true">
     <include layout="@layout/constraint_toolbar_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -71,16 +73,19 @@
                 android:layout_marginTop="5dip"
                 android:layout_marginRight="10dip"
                 android:background="@drawable/layout_line_bg">
+
                 <TextView
                     android:id="@+id/clearance_user"
-                    android:layout_alignParentLeft="true"
-                    android:layout_alignParentTop="true"
+                    style="@style/InfoStyle"
                     android:layout_width="95dip"
                     android:layout_height="wrap_content"
-                    style="@style/InfoStyle"
-                    android:text="@string/clearance_user"
-                    android:layout_margin="5dip"
-                    />
+                    android:layout_alignParentLeft="true"
+                    android:layout_alignParentTop="true"
+                    android:layout_marginStart="5dip"
+                    android:layout_marginTop="5dip"
+                    android:layout_marginEnd="5dip"
+                    android:layout_marginBottom="5dip"
+                    android:text="@string/clearance_user" />
 
                 <TextView
                     android:id="@+id/clearance_user_tv"
@@ -88,10 +93,12 @@
                     android:layout_width="175dip"
                     android:layout_height="wrap_content"
                     android:layout_alignParentTop="true"
-                    android:layout_margin="5dip"
+                    android:layout_marginStart="5dip"
+                    android:layout_marginTop="5dip"
+                    android:layout_marginEnd="5dip"
+                    android:layout_marginBottom="5dip"
                     android:layout_toRightOf="@+id/clearance_user"
-                    android:gravity="center_vertical|left"
-                    android:text="张三" />
+                    android:gravity="center_vertical|left" />
                 <TextView
                     android:id="@+id/clearance_time"
                     style="@style/InfoStyle"
@@ -108,8 +115,7 @@
                     android:layout_height="wrap_content"
                     android:layout_alignStart="@+id/clearance_user_tv"
                     android:layout_alignTop="@+id/clearance_time"
-                    android:gravity="center_vertical|left"
-                    android:text="高新园" />
+                    android:gravity="center_vertical|left" />
                 <TextView
                     android:id="@+id/clearance_addr"
                     style="@style/InfoStyle"
@@ -126,8 +132,7 @@
                     android:layout_height="wrap_content"
                     android:layout_alignStart="@+id/clearance_time_tv"
                     android:layout_alignTop="@+id/clearance_addr"
-                    android:gravity="center_vertical|left"
-                    android:text="高新园" />
+                    android:gravity="center_vertical|left" />
 
                 <TextView
                     android:id="@+id/car_number"
@@ -150,7 +155,6 @@
                     android:layout_alignTop="@+id/car_number"
                     android:layout_marginTop="2dip"
                     android:gravity="center_vertical|left"
-                    android:text="123456"
                     android:textSize="@dimen/dp_14" />
                 <TextView
                     android:id="@+id/remark"
@@ -167,15 +171,14 @@
 
                 <TextView
                     android:id="@+id/remark_tv"
+                    style="@style/InfoStyle"
                     android:layout_width="175dip"
                     android:layout_height="wrap_content"
-                    android:layout_alignStart="@+id/clearance_user_tv"
                     android:layout_below="@+id/car_number"
+                    android:layout_alignStart="@+id/clearance_user_tv"
                     android:layout_marginTop="5dp"
-                    android:textSize="@dimen/dp_14"
-                    style="@style/InfoStyle"
                     android:gravity="center_vertical|left"
-                    tools:text="desc" />
+                    android:textSize="@dimen/dp_14" />
                 <TextView
                     android:id="@+id/show_signature_list"
                     android:layout_width="match_parent"
@@ -209,24 +212,28 @@
 
                 <TextView
                     android:id="@+id/ware_in_storage_user"
+                    style="@style/InfoStyle"
                     android:layout_width="95dip"
                     android:layout_height="wrap_content"
                     android:layout_below="@+id/line"
-                    style="@style/InfoStyle"
-                    android:text="@string/untie_user"
-                    android:layout_margin="5dip"
-                    />
+                    android:layout_marginStart="5dip"
+                    android:layout_marginTop="5dip"
+                    android:layout_marginEnd="5dip"
+                    android:layout_marginBottom="5dip"
+                    android:text="@string/out_user" />
+
                 <TextView
                     android:id="@+id/ware_in_storage_user_tv"
+                    style="@style/InfoStyle"
                     android:layout_width="175dip"
                     android:layout_height="wrap_content"
-                    style="@style/InfoStyle"
-                    android:text="张三"
                     android:layout_below="@+id/line"
+                    android:layout_marginStart="5dip"
+                    android:layout_marginTop="5dip"
+                    android:layout_marginEnd="5dip"
+                    android:layout_marginBottom="5dip"
                     android:layout_toRightOf="@+id/ware_in_storage_user"
-                    android:gravity="center_vertical|left"
-                    android:layout_margin="5dip"
-                    />
+                    android:gravity="center_vertical|left" />
                 <TextView
                     android:id="@+id/ware_in_storage_addr"
                     android:layout_alignParentLeft="true"

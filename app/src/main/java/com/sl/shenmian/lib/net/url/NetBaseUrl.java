@@ -1,5 +1,7 @@
 package com.sl.shenmian.lib.net.url;
 
+import android.util.Log;
+
 import com.sl.shenmian.BuildConfig;
 
 /**
@@ -39,8 +41,10 @@ public class NetBaseUrl {
     /**
      * 测试地址http://47.106.157.174:8088/SM_ERP
      */
-    //private static final String clb_ip = "http://192.168.1.119:8081/SM_ERP/";
+    //private static final String clb_ip = "http://192.168.8.112:8080/SM_ERP/";
     private static final String clb_ip = "http://47.106.157.174:8088/sm/";
+    //huawei
+    //private static final String clb_ip = "http://139.159.148.137/sm/";
     /**
      * IM服务器地址
      */
@@ -83,6 +87,8 @@ public class NetBaseUrl {
      * @return
      */
     public static String getBaseUrl() {
+        String tag = "/";
+        Log.e(tag,"set path:"+(BuildConfig.DEBUG ? DEBUG_BASE_URL : BASE_URL));
         return BuildConfig.DEBUG ? DEBUG_BASE_URL : BASE_URL;
         // return BASE_URL;
     }

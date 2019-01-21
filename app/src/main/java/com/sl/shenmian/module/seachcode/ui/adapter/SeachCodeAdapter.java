@@ -71,22 +71,22 @@ public class SeachCodeAdapter extends RecyclerView.Adapter {
             viewHodler.clearance_time_tv.setText("");
         }
         if (null != seachCodeInfo && null != seachCodeInfo.getLic() && seachCodeInfo.getLic().length() > 0) {
-            viewHodler.car_number_tv.setText(seachCodeInfo.getTime());
+            viewHodler.car_number_tv.setText(seachCodeInfo.getLic());
         } else {
             viewHodler.car_number_tv.setText("");
         }
         if (null != seachCodeInfo && null != seachCodeInfo.getRemark() && seachCodeInfo.getRemark().length() > 0) {
-            viewHodler.remark_tv.setText(seachCodeInfo.getTime());
+            viewHodler.remark_tv.setText(seachCodeInfo.getRemark());
         } else {
             viewHodler.remark_tv.setText("");
         }
 
         if (position > 0) {
-            viewHodler.clearance_user.setText(mContext.getString(R.string.out_user));
+            viewHodler.clearance_user.setText(mContext.getString(R.string.user_name));
             viewHodler.clearance_addr.setText(mContext.getString(R.string.out_addr));
             viewHodler.clearance_time.setText(mContext.getString(R.string.out_time));
         } else {
-            viewHodler.clearance_user.setText(mContext.getString(R.string.clearance_user));
+            viewHodler.clearance_user.setText(mContext.getString(R.string.user_name));
             viewHodler.clearance_addr.setText(mContext.getString(R.string.clearance_addr1));
             viewHodler.clearance_time.setText(mContext.getString(R.string.clearance_time));
         }

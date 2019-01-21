@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
@@ -115,7 +117,7 @@ public class WareOutStorageActivity extends BaseActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.layout_clearance_view);
+        setContentView(R.layout.layout_ware_out_storage_view);
         seal_code = getIntent().getStringExtra("seal_code");
         initConfig();
         loadCarLic();
@@ -133,9 +135,61 @@ public class WareOutStorageActivity extends BaseActivity {
             @Override
             public void onClick(View v) {
 
-                showUploadConfimDialog();
+                if(SystemUtil.isNetOk(WareOutStorageActivity.this)) {
+                    showUploadConfimDialog();
+                }else {
+                    showNoFoundNetDialog();
+                }
             }
         });
+    }
+    private CustomDialog noFoundNetDialog = null;
+    private void showNoFoundNetDialog() {
+        noFoundNetDialog = null;
+        if (null == noFoundNetDialog) {
+            noFoundNetDialog = new CustomDialog();
+        }
+        noFoundNetDialog.removeWindowTitle(true);
+        noFoundNetDialog.setContentIconIsShow(true);
+        noFoundNetDialog.setRightBtnIsShow(true);
+        noFoundNetDialog.setDialogContentIcon(R.mipmap.fail);
+        noFoundNetDialog.setDialogContentMsg(R.string.net_fail_login_fail_msg);
+        noFoundNetDialog.setDialogLeftBtnText(R.string.ok);
+        noFoundNetDialog.setDialogRightBtnText(R.string.local_save_data);
+        noFoundNetDialog.setDialogTitleBtnOnClick(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                dismissnoFoundNetDialog();
+            }
+        });
+        noFoundNetDialog.setDialogLeftBtnOnClick(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dismissnoFoundNetDialog();
+            }
+        });
+        noFoundNetDialog.setDialogRightBtnOnClick(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                submitData();
+                dismissnoFoundNetDialog();
+                finish();
+            }
+        });
+        noFoundNetDialog.show(getSupportFragmentManager(), "mainExitDialog");
+    }
+
+    private void dismissnoFoundNetDialog() {
+        if (null != noFoundNetDialog) {
+            noFoundNetDialog.dismiss();
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        dismissnoFoundNetDialog();
     }
 
 
@@ -206,7 +260,7 @@ public class WareOutStorageActivity extends BaseActivity {
             mCarLicNetObserver = new DataNetObserver(mContext, new DataNetCallback() {
                 @Override
                 public void onError(Throwable e) {
-
+                    loadOfflineCarLic();
                 }
 
                 @Override
@@ -216,13 +270,14 @@ public class WareOutStorageActivity extends BaseActivity {
 
                 @Override
                 public void onFailResponse(String dataJson, ServerResponseResult serverResponseResult) {
-
+                    loadOfflineCarLic();
                 }
 
                 @Override
                 public void onOkResponse(String dataJson) {
                     carLics = JSON.parseArray(dataJson, CarLic.class);
                     updateCarlic();
+                    savleOffileCarLic(dataJson);
                 }
             });
         }
@@ -236,6 +291,16 @@ public class WareOutStorageActivity extends BaseActivity {
                 .subscribe(mCarLicNetObserver);
     }
 
+    private void savleOffileCarLic(String dataJson){
+        SpUtil.putString(mContext, ConstantValues.OffLineData.WareStorage_car_local_key, dataJson);
+    }
+    private void loadOfflineCarLic(){
+        String data = SpUtil.getString(mContext,ConstantValues.OffLineData.WareStorage_car_local_key,"");
+        if(null != data && data.length() > 0){
+            carLics = JSON.parseArray(data, CarLic.class);
+            updateCarlic();
+        }
+    }
     private void loadStation() {
         mRetrofitManage = null;
         if (mRetrofitManage == null) {
@@ -245,7 +310,7 @@ public class WareOutStorageActivity extends BaseActivity {
             mStationNetObserver = new DataNetObserver(mContext, new DataNetCallback() {
                 @Override
                 public void onError(Throwable e) {
-
+                    loadOfflineAddress();
                 }
 
                 @Override
@@ -255,25 +320,37 @@ public class WareOutStorageActivity extends BaseActivity {
 
                 @Override
                 public void onFailResponse(String dataJson, ServerResponseResult serverResponseResult) {
-
+                    loadOfflineAddress();
                 }
 
                 @Override
                 public void onOkResponse(String dataJson) {
                     stations = JSON.parseArray(dataJson, Station.class);
                     updateStation();
+                    savleOffileAddress(dataJson);
                 }
             });
         }
 
         HashMap<String, Object> paramMap = new HashMap<>();
-        paramMap.put("stationType", StationType.CUSTOMS.name());
+        paramMap.put("stationType", StationType.WAREHOUSE.name());
         RetrofitService service = mRetrofitManage.createService();
         String urlPath = NetApi.App.LOAD_STATION;
         Observable<Response<ResponseBody>> observable = service.postFormNet(urlPath, paramMap);
         observable.subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(mStationNetObserver);
+    }
+
+    private void savleOffileAddress(String dataJson){
+        SpUtil.putString(mContext, ConstantValues.OffLineData.WareStorage_address_local_key, dataJson);
+    }
+    private void loadOfflineAddress(){
+        String data = SpUtil.getString(mContext,ConstantValues.OffLineData.WareStorage_address_local_key,"");
+        if(null != data && data.length() > 0){
+            stations = JSON.parseArray(data, Station.class);
+            updateStation();
+        }
     }
 
     private RetrofitManage retrofitManage = new RetrofitManage();
@@ -301,20 +378,32 @@ public class WareOutStorageActivity extends BaseActivity {
                 }
             }
         }
-        padlockDataSubmit(0, offlineInfo);
+        if(SystemUtil.isNetOk(this)) {
+            padlockDataSubmit(1, offlineInfo);
+        }else {
+            offlineInfo.setUploadingStae(0);
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    saveData(offlineInfo);
+                }
+            }).start();
+        }
     }
 
 
     private void saveData(OfflineInfo offlineInfo) {
 
         SealInfoEntity sealInfoEntity = new SealInfoEntity();
-        sealInfoEntity.setAddress(offlineInfo.getAddress());
-        sealInfoEntity.setCarLicense(offlineInfo.getCarLicense());
+        sealInfoEntity.setAddress(stations.get(addrIndex).getSiteName());
+        sealInfoEntity.setAddressId(stations.get(addrIndex).getId());
+        sealInfoEntity.setCarLicense(carLics.get(carnumberIndex).getCarLic());
+        sealInfoEntity.setCarLicenseId(carLics.get(carnumberIndex).getId());
         sealInfoEntity.setCoding(offlineInfo.getCoding());
         sealInfoEntity.setLockedImei(offlineInfo.getLockedImei());
         sealInfoEntity.setRemark(offlineInfo.getRemark());
         sealInfoEntity.setUploadingState(offlineInfo.getUploadingStae());
-        sealInfoEntity.setSealType(SealType.tongGuanPadlock.getValue());
+        sealInfoEntity.setSealType(SealType.houseOutPadlock.getValue());
         sealInfoEntity.setUserName(SpUtil.getString(mContext, ConstantValues.UserInfo.KEY_USER_USERNAME, ""));
         sealInfoEntity.setUserAccount(offlineInfo.getUserAccount());
         sealInfoEntity.setTime(StringUtils.getCurrentTimeStr());
@@ -432,7 +521,7 @@ public class WareOutStorageActivity extends BaseActivity {
 
         Observable<Response<ResponseBody>> responseObservable = service.uplodas(pathUrl, paramMap, parts);
         Disposable subscribe = responseObservable.subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
+                //.observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Consumer<Response<ResponseBody>>() {
                     @Override
                     public void accept(Response<ResponseBody> responseBodyResponse) throws Exception {
@@ -443,22 +532,28 @@ public class WareOutStorageActivity extends BaseActivity {
                             String string = body.string();
                             ServerResponseResult serverResponseResult = JSON.parseObject(string, ServerResponseResult.class);
                             if (serverResponseResult.isSuccess()) {
-                                offlineInfo.setUploadingStae(1);
+                                mHandler.sendEmptyMessage(upload_data_suc);
                             } else {
-                                offlineInfo.setUploadingStae(0);
+                                offlineInfo.setUploadingStae(2);
+                                saveData(offlineInfo);
+                                Message msg = mHandler.obtainMessage(upload_data_fail, serverResponseResult.getMessage());
+                                mHandler.sendMessage(msg);
                             }
-                        } else {
-                            offlineInfo.setUploadingStae(0);
-                        }
 
-                        ToastUtil.show(WareOutStorageActivity.this, "上传施封数据成功!");
-                        saveData(offlineInfo);
+                        } else {
+                            offlineInfo.setUploadingStae(2);
+                            saveData(offlineInfo);
+                            mHandler.sendEmptyMessage(upload_data_fail);
+                        }
                         finish();
                     }
                 }, new Consumer<Throwable>() {
                     @Override
                     public void accept(Throwable throwable) throws Exception {
-
+                        offlineInfo.setUploadingStae(2);
+                        saveData(offlineInfo);
+                        Message msg = mHandler.obtainMessage(upload_data_fail, throwable.getMessage());
+                        mHandler.sendMessage(msg);
                     }
                 });
     }
@@ -609,5 +704,24 @@ public class WareOutStorageActivity extends BaseActivity {
         isQuit = true;
         showDialog("提示", "是否退出", "退出", "取消");
     }
-
+    private final int upload_data_suc = 10001;
+    private final int upload_data_fail = 10002;
+    private Handler mHandler = new Handler(){
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what){
+                case upload_data_suc:
+                    ToastUtil.show(WareOutStorageActivity.this, "上传施封数据成功!");
+                    finish();
+                    break;
+                case upload_data_fail:
+                    String data = "";
+                    if(null != msg.obj){
+                        data = msg.obj.toString();
+                    }
+                    ToastUtil.show(WareOutStorageActivity.this, "上传施封数据失败!"+data+"\n已离线保存");
+                    break;
+            }
+        }
+    };
 }

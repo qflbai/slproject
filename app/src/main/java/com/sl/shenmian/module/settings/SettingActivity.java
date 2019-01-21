@@ -78,8 +78,8 @@ public class SettingActivity extends BaseActivity {
     private void pwdWindow(){
         View view = inflateView(R.layout.alertlog_amend_pwd);
         EditText et1 = view.findViewById(R.id.et_1);
-        EditText et2 = view.findViewById(R.id.et_1);
-        EditText et3 = view.findViewById(R.id.et_1);
+        EditText et2 = view.findViewById(R.id.et_2);
+        EditText et3 = view.findViewById(R.id.et_3);
         AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
         builder.setTitle("密码修改");
         builder.setPositiveButton("确认",null)
@@ -166,7 +166,7 @@ public class SettingActivity extends BaseActivity {
 
                     @Override
                     public void onFailResponse(String dataJson, ServerResponseResult serverResponseResult) {
-
+                        ToastUtil.show(mContext,"密码修改失败:"+serverResponseResult.getMessage());
                     }
 
                     @Override
@@ -176,7 +176,7 @@ public class SettingActivity extends BaseActivity {
 
                     @Override
                     public void onError(Throwable e) {
-
+                        ToastUtil.show(mContext,"密码修改失败:"+e.getMessage());
                     }
                 }));
 

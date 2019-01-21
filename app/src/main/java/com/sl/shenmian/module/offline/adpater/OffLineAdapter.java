@@ -73,9 +73,15 @@ public class OffLineAdapter extends BaseAdapter {
         if(0==offlineInfo.getUploadingStae()){
             holderView.tv_uploading_stae.setText("未上传");
             holderView.tv_uploading_stae.setTextColor(Color.WHITE);
+            holderView.tv_uploading_stae.setBackgroundColor(mContext.getResources().getColor(R.color.title_bg_color));
+        } else if(2==offlineInfo.getUploadingStae()){
+            holderView.tv_uploading_stae.setText("上传失败");
+            holderView.tv_uploading_stae.setTextColor(Color.WHITE);
             holderView.tv_uploading_stae.setBackgroundColor(mContext.getResources().getColor(R.color._fff82624));
         }else {
             holderView.tv_uploading_stae.setText("已上传");
+            holderView.tv_uploading_stae.setTextColor(Color.BLACK);
+            holderView.tv_uploading_stae.setBackgroundColor(mContext.getResources().getColor(R.color._e0e0e0));
         }
 
         holderView.tv_remark.setText(offlineInfo.getRemark());

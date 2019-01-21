@@ -1,86 +1,86 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
     <TextView
-        android:id="@+id/tv_1"
+        android:id="@+id/code"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/dp_10"
         android:text="编码:"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintBaseline_toBaselineOf="@+id/tv_coding"
+        app:layout_constraintStart_toStartOf="parent" />
 
     <TextView
-        android:id="@+id/tv_2"
+        android:id="@+id/address"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/dp_10"
         android:text="施封地点:"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tv_1" />
+        app:layout_constraintBaseline_toBaselineOf="@+id/tv_address"
+        app:layout_constraintStart_toStartOf="parent" />
 
     <TextView
         android:id="@+id/tv_coding"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="@id/tv_1"
-        app:layout_constraintStart_toEndOf="@id/tv_1"
-        app:layout_constraintTop_toTopOf="@id/tv_1"
-
-        />
+        app:layout_constraintStart_toEndOf="@+id/code"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/tv_address"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="@id/tv_2"
-        app:layout_constraintStart_toEndOf="@id/tv_2"
-        app:layout_constraintTop_toTopOf="@id/tv_2" />
+        android:layout_marginTop="10dp"
+        app:layout_constraintStart_toEndOf="@+id/address"
+        app:layout_constraintTop_toBottomOf="@+id/tv_coding" />
 
     <TextView
         android:id="@+id/tv_time"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="@dimen/dp_10"
-        app:layout_constraintBottom_toBottomOf="@id/tv_1"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@id/tv_1" />
+        app:layout_constraintStart_toEndOf="@+id/tv_3"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/tv_uploading_stae"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="@dimen/dp_10"
+        android:layout_width="@dimen/dp_55"
+        android:layout_height="@dimen/dp_25"
+        android:layout_marginTop="28dp"
+        android:layout_marginEnd="10dp"
         android:text="未上传"
-        app:layout_constraintBottom_toBottomOf="@id/tv_2"
+        android:gravity="center"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@id/tv_2" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/tv_remark"
-        android:layout_width="wrap_content"
+        android:layout_width="85dip"
         android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="@id/tv_2"
-        app:layout_constraintEnd_toStartOf="@id/tv_uploading_stae"
-        app:layout_constraintTop_toTopOf="@id/tv_2" />
+        android:layout_marginStart="116dp"
+        android:layout_marginTop="10dp"
+        android:ellipsize="end"
+        android:singleLine="true"
+        app:layout_constraintStart_toStartOf="@+id/tv_address"
+        app:layout_constraintTop_toBottomOf="@+id/tv_3" />
 
     <TextView
         android:id="@+id/tv_4"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="@id/tv_2"
-        app:layout_constraintEnd_toStartOf="@id/tv_remark"
-        app:layout_constraintTop_toTopOf="@id/tv_2" />
+        android:layout_marginStart="144dp"
+        android:text="备注:"
+        app:layout_constraintBaseline_toBaselineOf="@+id/tv_remark"
+        app:layout_constraintStart_toStartOf="@+id/address" />
 
     <TextView
         android:id="@+id/tv_3"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="112dp"
         android:text="时间:"
-        app:layout_constraintStart_toEndOf="@id/tv_1"
-        app:layout_constraintTop_toTopOf="@id/tv_1" />
+        app:layout_constraintBaseline_toBaselineOf="@+id/tv_time"
+        app:layout_constraintStart_toStartOf="@+id/tv_coding" />
 
 </android.support.constraint.ConstraintLayout>

@@ -3,7 +3,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:focusable="true"
+    android:focusableInTouchMode="true"
+    >
 
     <include
         layout="@layout/constraint_toolbar_title"
@@ -74,7 +77,10 @@
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
             android:layout_alignParentTop="true"
-            android:layout_margin="5dip"
+            android:layout_marginStart="5dip"
+            android:layout_marginTop="5dip"
+            android:layout_marginEnd="5dip"
+            android:layout_marginBottom="5dip"
             android:text="@string/clearance_user" />
 
         <TextView
@@ -140,11 +146,11 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/clearance_addr_spinner"
             android:layout_marginLeft="5dip"
-            android:layout_marginTop="10dip"
+            android:layout_marginTop="5dip"
             android:layout_marginRight="5dip"
             android:layout_toRightOf="@+id/car_number"
             android:hint="请输入车牌号"
-          />
+            android:textSize="14sp" />
 
         <TextView
             android:id="@+id/remark"
@@ -154,7 +160,7 @@
             android:layout_below="@+id/car_number"
             android:layout_alignParentLeft="true"
             android:layout_marginLeft="5dip"
-            android:layout_marginTop="15dp"
+            android:layout_marginTop="20dp"
             android:layout_marginRight="5dip"
             android:text="@string/remark" />
 

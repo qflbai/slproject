@@ -52,6 +52,11 @@ public class SealInfoEntity {
      */
     @ColumnInfo
     private String address;
+    /**
+     * 地址id
+     */
+    @ColumnInfo
+    private String addressId;
     @ColumnInfo
     /**
      * 时间
@@ -70,6 +75,11 @@ public class SealInfoEntity {
     private String imagePath3;
     @ColumnInfo
     private String carLicense;
+    /**
+     * 车牌id
+     */
+    @ColumnInfo
+    private int carLicenseId;
     @ColumnInfo
     private String lockedImei;
     public long getId() {
@@ -190,5 +200,21 @@ public class SealInfoEntity {
 
     public void setLockedImei(String lockedImei) {
         this.lockedImei = lockedImei;
+    }
+
+    public String getAddressId() {
+        return addressId;
+    }
+
+    public void setAddressId(String addressId) {
+        this.addressId = addressId;
+    }
+
+    public int getCarLicenseId() {
+        return carLicenseId;
+    }
+
+    public void setCarLicenseId(int carLicenseId) {
+        this.carLicenseId = carLicenseId;
     }
 }

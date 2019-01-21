@@ -20,6 +20,7 @@ import com.sl.shenmian.lib.net.retrofit.RetrofitService;
 import com.sl.shenmian.lib.net.rxjava.NetObserver;
 import com.sl.shenmian.lib.net.url.NetApi;
 import com.sl.shenmian.lib.net.url.NetBaseUrl;
+import com.sl.shenmian.lib.utils.SystemUtil;
 import com.sl.shenmian.lib.utils.toast.ToastUtil;
 import com.sl.shenmian.module.clearance.ClearanceActivity;
 import com.sl.shenmian.module.commons.IntentKeys;
@@ -40,15 +41,23 @@ import retrofit2.Response;
 
 public class ScanActivity extends ZbarActivity {
 
-    private int mTitleResId;
-    private RetrofitManage mRetrofitManage;
-    private NetObserver mNetObserver;
+    private int mTitleResId = -1;
+    private RetrofitManage mRetrofitManage = null;
+    private NetObserver mNetObserver = null;
     private String code = null;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.scan_view);
+        initData();
+        initConfig();
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
         initData();
         initConfig();
     }
@@ -68,9 +77,13 @@ public class ScanActivity extends ZbarActivity {
 
     @Override
     protected void onData(String data) {
-       // Log.e(TAG, data);
+        Log.e(TAG, data);
         code = data;
-        searchCodeState(data);
+        if(SystemUtil.isNetOk(this)) {
+            searchCodeState(data);
+        }else {
+            labelCodeStatus(null);
+        }
     }
 
     private void searchCodeState(String data){
@@ -89,16 +102,18 @@ public class ScanActivity extends ZbarActivity {
                 @Override
                 public void onResponse(String dataJson) {
                     Result result = JSON.parseObject(dataJson,Result.class);
-                    if(null != result && null != result.getData() && result.getData().length() > 0){
+                    if(null != result ){
 
-                        CodeState codeState = JSON.parseObject(result.getData(),CodeState.class);
-                        labelCodeStatus(codeState);
+                        if( null != result.getData() && result.getData().length() > 0) {
+                            CodeState codeState = JSON.parseObject(result.getData(), CodeState.class);
+                            labelCodeStatus(codeState);
+                        }
                     }
                 }
 
                 @Override
                 public void onError(Throwable e) {
-
+                    ToastUtil.show(mContext,e.getMessage());
                 }
             });
         }
@@ -114,6 +129,10 @@ public class ScanActivity extends ZbarActivity {
     }
 
     private boolean checkHasSeal(CodeState codeState){
+        if(null == codeState){
+            return true;
+        }
+
         if(!codeState.isHasSeal()){
             //封条信息不存在
             ToastUtil.show(mContext,getString(R.string.seal_no_found_info));
@@ -130,6 +149,10 @@ public class ScanActivity extends ZbarActivity {
     private final static int CodeTypeHasLock = 0; //仓库
     private final static int CodeTypeHasUnLock = 1;//门店
     private boolean checkHasLock(CodeState codeState){
+        if(null == codeState){
+            return true;
+        }
+
         if(!codeState.isHasSeal()){
             //封条信息不存在
             ToastUtil.show(mContext,getString(R.string.seal_no_found_info));
@@ -146,7 +169,7 @@ public class ScanActivity extends ZbarActivity {
                 ToastUtil.show(ScanActivity.this,"交叉施解封,请使用仓库入库解封");
                 return false;
             }
-            if(mTitleResId == R.string.store_in_storage
+            if(mTitleResId == R.string.ware_in_storage
                     && codeState.getLogType() == CodeTypeHasUnLock){
                 //仓库出库对应门店入库
                 ToastUtil.show(ScanActivity.this,"交叉施解封,请使用门店入库解封");

@@ -139,4 +139,31 @@ public class ConstantValues {
          */
         public static final String KEY_UTL_IM_IP = "key_utl_im_ip";
     }
+
+    /**
+     * 本地缓存
+     */
+    public static class OffLineData {
+        /**
+         * 通关施封缓存地址key
+         */
+        public static final String Clearance_address_local_key = "Clearance_address_local_key";
+        /**
+         * 门店入库解封缓存地址key
+         */
+        public static final String StoreInStorage_address_local_key = "StoreInStorage_address_local_key";
+        /**
+         * 门店入库解封缓存车牌key
+         */
+        public static final String StoreInStorage_car_local_key = "StoreInStorage_car_local_key";
+        /**
+         * 仓库缓存地址key
+         */
+        public static final String WareStorage_address_local_key = "WareInStorage_address_local_key";
+        /**
+         * 仓库缓存车牌key
+         */
+        public static final String WareStorage_car_local_key = "WareInStorage_car_local_key";
+
+    }
 }

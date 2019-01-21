@@ -47,8 +47,8 @@ public abstract class AppDatabase extends RoomDatabase {
         public void migrate(SupportSQLiteDatabase database) {
             // database.execSQL("ALTER TABLE User ADD COLUMN age integer");
 
-            database.execSQL("drop table Acency");
-            database.execSQL("drop table OverdueAcency");
+           // database.execSQL("drop table Acency");
+            //database.execSQL("drop table OverdueAcency");
 
         }
     };

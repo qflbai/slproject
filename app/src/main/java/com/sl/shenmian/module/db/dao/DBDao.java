@@ -2,6 +2,7 @@ package com.sl.shenmian.module.db.dao;
 
 import android.arch.persistence.room.Dao;
 import android.arch.persistence.room.Insert;
+import android.arch.persistence.room.OnConflictStrategy;
 import android.arch.persistence.room.Query;
 
 import com.sl.shenmian.module.db.entity.SealInfoEntity;
@@ -17,8 +18,8 @@ import io.reactivex.Single;
  */
 @Dao
 public interface DBDao {
-    @Insert
-    void insert(SealInfoEntity... disassemblesEntities);
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    List<Long> insert(SealInfoEntity... disassemblesEntities);
 
     @Query("SELECT * FROM SealInfoEntity WHERE userAccount  = :userAccount AND sealType = :sealType")
     Single<List<SealInfoEntity>> quserOverdueAcency(String userAccount, int sealType);
