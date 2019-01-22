@@ -39,12 +39,13 @@ public class NetBaseUrl {
      */
     private static final String scan_server_ip = "http://s.sun-tech.cn/app/";
     /**
-     * 测试地址http://47.106.157.174:8088/SM_ERP
+     * 测试地址http://47.106.157.174:8088/SM_ERP http://139.159.148.137/shijiefeng/
      */
     //private static final String clb_ip = "http://192.168.8.112:8080/SM_ERP/";
-    private static final String clb_ip = "http://47.106.157.174:8088/sm/";
+    //private static final String clb_ip = "http://47.106.157.174:8088/sm/";
     //huawei
     //private static final String clb_ip = "http://139.159.148.137/sm/";
+    private static final String clb_ip = "http://139.159.148.137/shijiefeng/";
     /**
      * IM服务器地址
      */

@@ -148,9 +148,9 @@ public class SettingActivity extends BaseActivity {
      */
     private void amendPwd(String pwd1,String pwd2,String pwd3){
         HashMap<String,Object> param = new HashMap<>();
-        param.put("loginCode",pwd1);
+        param.put("loginCode",SpUtil.getString(mContext, ConstantValues.UserInfo.KEY_USER_ACCOUNT, ""));
         param.put("newPsw",pwd2);
-        param.put("oldPsw",pwd3);
+        param.put("oldPsw",SpUtil.getString(mContext, ConstantValues.UserInfo.KEY_USER_PWD, ""));
         String path = NetApi.App.AMEND_PWD;
 
         RetrofitService service = retrofitManage.createService();
