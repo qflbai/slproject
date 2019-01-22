@@ -175,7 +175,7 @@ public class ClearanceActivity extends BaseActivity {
 
                 submitData();
                 dismissnoFoundNetDialog();
-                finish();
+                //finish();
             }
         });
         noFoundNetDialog.show(getSupportFragmentManager(), "mainExitDialog");
