@@ -150,7 +150,7 @@ public class WareInStorageActivity extends BaseActivity {
                 }else {
                     submitData();
                     showNoFoundNetDialog();
-                    finish();
+                    //finish();
                 }
             }
         });
@@ -757,7 +757,7 @@ public class WareInStorageActivity extends BaseActivity {
             switch (msg.what){
                 case upload_data_suc:
                     ToastUtil.show(WareInStorageActivity.this, "上传解封数据成功!");
-                    finish();
+                   // finish();
                     break;
                 case upload_data_fail:
                     String data = "";
