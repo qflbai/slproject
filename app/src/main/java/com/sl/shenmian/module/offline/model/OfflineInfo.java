@@ -11,6 +11,7 @@ public class OfflineInfo {
     private long id ;
     private String coding;
     private String address;
+    private String addressId;
     private String time;
     private int uploadingStae;
     private String remark;
@@ -114,5 +115,13 @@ public class OfflineInfo {
 
     public void setId(long id) {
         this.id = id;
+    }
+
+    public String getAddressId() {
+        return addressId;
+    }
+
+    public void setAddressId(String addressId) {
+        this.addressId = addressId;
     }
 }

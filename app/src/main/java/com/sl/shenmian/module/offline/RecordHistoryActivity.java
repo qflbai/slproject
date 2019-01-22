@@ -17,6 +17,7 @@ import com.sl.shenmian.lib.net.RetrofitManage;
 import com.sl.shenmian.lib.net.body.ServerResponseResult;
 import com.sl.shenmian.lib.net.retrofit.RetrofitService;
 import com.sl.shenmian.lib.net.url.NetApi;
+import com.sl.shenmian.lib.utils.log.LogUtil;
 import com.sl.shenmian.lib.utils.sharedpreferences.SpUtil;
 import com.sl.shenmian.module.db.dao.DBDao;
 import com.sl.shenmian.module.db.database.AppDatabase;
@@ -134,11 +135,11 @@ public class RecordHistoryActivity extends BaseActivity {
 
     @Override
     protected void dialogLeftClick(AlertDialog alertDialog) {
-        if(isQuit) {
+        if (isQuit) {
             isQuit = false;
             alertDialog.dismiss();
             finish();
-        }else {
+        } else {
             alertDialog.dismiss();
             submitData();
         }
@@ -173,11 +174,12 @@ public class RecordHistoryActivity extends BaseActivity {
                 .subscribe(new Consumer<List<SealInfoEntity>>() {
                     @Override
                     public void accept(List<SealInfoEntity> sealInfoEntities) throws Exception {
-                        Log.e(TAG, "data size:"+sealInfoEntities.size());
+                        Log.e(TAG, "data size:" + sealInfoEntities.size());
                         for (SealInfoEntity sealInfoEntity : sealInfoEntities) {
                             OfflineInfo offlineInfo = new OfflineInfo();
                             offlineInfo.setId(sealInfoEntity.getId());
                             offlineInfo.setAddress(sealInfoEntity.getAddress());
+                            offlineInfo.setAddressId(sealInfoEntity.getAddressId());
                             offlineInfo.setCoding(sealInfoEntity.getCoding());
                             offlineInfo.setRemark(sealInfoEntity.getRemark());
                             offlineInfo.setTime(sealInfoEntity.getTime());
@@ -188,9 +190,9 @@ public class RecordHistoryActivity extends BaseActivity {
                             offlineInfo.setImagePath2(sealInfoEntity.getImagePath2());
                             offlineInfo.setImagePath3(sealInfoEntity.getImagePath3());
                             int uploadingStae = sealInfoEntity.getUploadingState();
+                            offlineInfo.setUploadingStae(uploadingStae);
                             if (uploadingStae != 1) {
                                 isHaveData = true;
-                                //offlineInfo.setUploadingStae(0);
                             }
 
                             mOfflineInfos.add(offlineInfo);
@@ -217,23 +219,25 @@ public class RecordHistoryActivity extends BaseActivity {
 
                 RetrofitManage retrofitManage = new RetrofitManage();
                 for (OfflineInfo offlineInfo : mOfflineInfos) {
-                    switch (mSealType) {
-                        case tongGuanPadlock:
-                            padlockDataSubmit(0, offlineInfo);
-                            break;
-                        case houseEnterDisassemble:
-                            disassembleDaaSubmit(0, offlineInfo);
-                            break;
-                        case houseOutPadlock:
-                            padlockDataSubmit(1, offlineInfo);
-                            break;
-                        case shopDisassemble:
-                            disassembleDaaSubmit(1, offlineInfo);
-                            break;
-                        default:
-                            break;
+                    if (offlineInfo.getUploadingStae() != 1) {
+                        switch (mSealType) {
+                            case tongGuanPadlock:
+                                padlockDataSubmit(0, offlineInfo);
+                                break;
+                            case houseEnterDisassemble:
+                                disassembleDaaSubmit(0, offlineInfo);
+                                break;
+                            case houseOutPadlock:
+                                padlockDataSubmit(1, offlineInfo);
+                                break;
+                            case shopDisassemble:
+                                disassembleDaaSubmit(1, offlineInfo);
+                                break;
+                            default:
+                                break;
+                        }
+                        s.onNext("0k");
                     }
-                    s.onNext("0k");
                 }
                 s.onComplete();
             }
@@ -249,8 +253,11 @@ public class RecordHistoryActivity extends BaseActivity {
 
             @Override
             public void onNext(String o) {
-                mOffLineAdapter.notifyDataSetChanged();
                 mSubscription.request(10);
+                for (OfflineInfo offlineInfo : mOfflineInfos) {
+                    LogUtil.d("tag", "getUploadingStae" + offlineInfo.getUploadingStae());
+                }
+                mOffLineAdapter.notifyDataSetChanged();
             }
 
             @Override
@@ -260,7 +267,7 @@ public class RecordHistoryActivity extends BaseActivity {
 
             @Override
             public void onComplete() {
-                queryDB(mSealType);
+                //queryDB(mSealType);
             }
         };
         flowable.subscribeOn(Schedulers.io())
@@ -291,7 +298,7 @@ public class RecordHistoryActivity extends BaseActivity {
         paramMap.put("carLicense", offlineInfo.getCarLicense());
         paramMap.put("lockedRemark", offlineInfo.getRemark());
         paramMap.put("labelCode", offlineInfo.getCoding());
-        paramMap.put("lockedAddrId", offlineInfo.getAddress());
+        paramMap.put("lockedAddrId", offlineInfo.getAddressId());
         paramMap.put("lockedImei", offlineInfo.getLockedImei());
 
 
@@ -303,10 +310,10 @@ public class RecordHistoryActivity extends BaseActivity {
             RequestBody requestFile1 = RequestBody.create(MediaType.parse("multipart/form-data"), file1);
             MultipartBody.Part body1 = MultipartBody.Part.createFormData("file1", file1.getName(), requestFile1);
             parts.add(body1);
-        }else {
+        } else {
             MultipartBody multipartBody = new MultipartBody.Builder()
                     .setType(MultipartBody.FORM)
-                    .addFormDataPart("file1","")
+                    .addFormDataPart("file1", "")
                     .build();
 
             MultipartBody.Part part = multipartBody.part(0);
@@ -320,10 +327,10 @@ public class RecordHistoryActivity extends BaseActivity {
             RequestBody requestFile2 = RequestBody.create(MediaType.parse("multipart/form-data"), file2);
             MultipartBody.Part body2 = MultipartBody.Part.createFormData("file2", file2.getName(), requestFile2);
             parts.add(body2);
-        }else {
+        } else {
             MultipartBody multipartBody = new MultipartBody.Builder()
                     .setType(MultipartBody.FORM)
-                    .addFormDataPart("file2","")
+                    .addFormDataPart("file2", "")
                     .build();
 
             MultipartBody.Part part = multipartBody.part(0);
@@ -336,10 +343,10 @@ public class RecordHistoryActivity extends BaseActivity {
             RequestBody requestFile3 = RequestBody.create(MediaType.parse("multipart/form-data"), file3);
             MultipartBody.Part body3 = MultipartBody.Part.createFormData("file1", file3.getName(), requestFile3);
             parts.add(body3);
-        }else {
+        } else {
             MultipartBody multipartBody = new MultipartBody.Builder()
                     .setType(MultipartBody.FORM)
-                    .addFormDataPart("file3","")
+                    .addFormDataPart("file3", "")
                     .build();
 
             MultipartBody.Part part = multipartBody.part(0);
@@ -361,22 +368,21 @@ public class RecordHistoryActivity extends BaseActivity {
                             ServerResponseResult serverResponseResult = JSON.parseObject(string, ServerResponseResult.class);
                             if (serverResponseResult.isSuccess()) {
                                 offlineInfo.setUploadingStae(1);
-                                Log.e(TAG,"上传成功...");
+                                Log.e(TAG, "上传成功...");
                             } else {
-                                offlineInfo.setUploadingStae(0);
-                                Log.e(TAG,"上传失败..."+serverResponseResult.getMessage());
+                                offlineInfo.setUploadingStae(2);
+                                Log.e(TAG, "上传失败..." + serverResponseResult.getMessage());
                             }
                         } else {
-                            offlineInfo.setUploadingStae(0);
-                            Log.e(TAG,"上传失败.."+responseBodyResponse.message());
+                            offlineInfo.setUploadingStae(2);
+                            Log.e(TAG, "上传失败.." + responseBodyResponse.message());
                         }
                         mDbDao.upDateUpLoadingState(offlineInfo.getId(), offlineInfo.getUploadingStae());
-
                     }
                 }, new Consumer<Throwable>() {
                     @Override
                     public void accept(Throwable throwable) {
-                        offlineInfo.setUploadingStae(0);
+                        offlineInfo.setUploadingStae(2);
                         Log.e(TAG, throwable.getMessage());
                         mDbDao.upDateUpLoadingState(offlineInfo.getId(), offlineInfo.getUploadingStae());
                     }
@@ -414,10 +420,10 @@ public class RecordHistoryActivity extends BaseActivity {
             RequestBody requestFile1 = RequestBody.create(MediaType.parse("multipart/form-data"), file1);
             MultipartBody.Part body1 = MultipartBody.Part.createFormData("file1", file1.getName(), requestFile1);
             parts.add(body1);
-        }else {
+        } else {
             MultipartBody multipartBody = new MultipartBody.Builder()
                     .setType(MultipartBody.FORM)
-                    .addFormDataPart("file1","")
+                    .addFormDataPart("file1", "")
                     .build();
 
             MultipartBody.Part part = multipartBody.part(0);
@@ -431,10 +437,10 @@ public class RecordHistoryActivity extends BaseActivity {
             RequestBody requestFile2 = RequestBody.create(MediaType.parse("multipart/form-data"), file2);
             MultipartBody.Part body2 = MultipartBody.Part.createFormData("file2", file2.getName(), requestFile2);
             parts.add(body2);
-        }else {
+        } else {
             MultipartBody multipartBody = new MultipartBody.Builder()
                     .setType(MultipartBody.FORM)
-                    .addFormDataPart("file2","")
+                    .addFormDataPart("file2", "")
                     .build();
 
             MultipartBody.Part part = multipartBody.part(0);
@@ -447,10 +453,10 @@ public class RecordHistoryActivity extends BaseActivity {
             RequestBody requestFile3 = RequestBody.create(MediaType.parse("multipart/form-data"), file3);
             MultipartBody.Part body3 = MultipartBody.Part.createFormData("file1", file3.getName(), requestFile3);
             parts.add(body3);
-        }else {
+        } else {
             MultipartBody multipartBody = new MultipartBody.Builder()
                     .setType(MultipartBody.FORM)
-                    .addFormDataPart("file3","")
+                    .addFormDataPart("file3", "")
                     .build();
 
             MultipartBody.Part part = multipartBody.part(0);
@@ -472,22 +478,22 @@ public class RecordHistoryActivity extends BaseActivity {
                             ServerResponseResult serverResponseResult = JSON.parseObject(string, ServerResponseResult.class);
                             if (serverResponseResult.isSuccess()) {
                                 offlineInfo.setUploadingStae(1);
-                                Log.e(TAG,"上传成功...");
+                                Log.e(TAG, "上传成功...");
                             } else {
-                                offlineInfo.setUploadingStae(0);
-                                Log.e(TAG,"上传失败..."+serverResponseResult.getMessage());
+                                offlineInfo.setUploadingStae(2);
+                                Log.e(TAG, "上传失败..." + serverResponseResult.getMessage());
                             }
                         } else {
-                            offlineInfo.setUploadingStae(0);
-                            Log.e(TAG,"上传失败.."+responseBodyResponse.message());
+                            offlineInfo.setUploadingStae(2);
+                            Log.e(TAG, "上传失败.." + responseBodyResponse.message());
                         }
                         mDbDao.upDateUpLoadingState(offlineInfo.getId(), offlineInfo.getUploadingStae());
                     }
                 }, new Consumer<Throwable>() {
                     @Override
                     public void accept(Throwable throwable) {
-                        Log.e(TAG,throwable.getMessage());
-                        offlineInfo.setUploadingStae(0);
+                        Log.e(TAG, throwable.getMessage());
+                        offlineInfo.setUploadingStae(2);
                     }
                 });
     }

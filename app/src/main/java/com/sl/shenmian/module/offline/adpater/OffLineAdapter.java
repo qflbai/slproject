@@ -9,6 +9,7 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import com.sl.shenmian.R;
+import com.sl.shenmian.lib.utils.log.LogUtil;
 import com.sl.shenmian.module.offline.model.OfflineInfo;
 
 import java.util.List;
@@ -50,7 +51,6 @@ public class OffLineAdapter extends BaseAdapter {
             holderView = new HolderView();
             View inflate = LayoutInflater.from(mContext).inflate(R.layout.listview_item_offlien, null);
 
-
             TextView tv_coding = inflate.findViewById(R.id.tv_coding);
             TextView tv_address = inflate.findViewById(R.id.tv_address);
             TextView tv_time = inflate.findViewById(R.id.tv_time);
@@ -70,6 +70,7 @@ public class OffLineAdapter extends BaseAdapter {
         holderView.tv_coding.setText(offlineInfo.getCoding());
         holderView.tv_address.setText(offlineInfo.getAddress());
         holderView.tv_time.setText(offlineInfo.getTime());
+        LogUtil.d("tag","getUploadingStae:"+offlineInfo.getUploadingStae());
         if(0==offlineInfo.getUploadingStae()){
             holderView.tv_uploading_stae.setText("未上传");
             holderView.tv_uploading_stae.setTextColor(Color.WHITE);
@@ -85,7 +86,6 @@ public class OffLineAdapter extends BaseAdapter {
         }
 
         holderView.tv_remark.setText(offlineInfo.getRemark());
-
         return convertView;
     }
 
