@@ -94,7 +94,7 @@ public class WareInStorageActivity extends BaseActivity {
     private DataNetObserver mSeachCodeNetObserver;
     private SpinnerStationAdapter spinnerStationAdapter;
 
-    private int addrIndex = -1;
+    private int addrIndex = 0;
 
     private final int REQUEST_CODE_SIGNATURE = 11001;
     private final int REQUEST_CODE_PHOTO = 11002;
@@ -458,8 +458,9 @@ public class WareInStorageActivity extends BaseActivity {
     private void submitData(){
 
         OfflineInfo offlineInfo = new OfflineInfo();
-        if(stations.size()>1) {
-            offlineInfo.setAddress(stations.get(addrIndex).getId());
+        if(stations.size() > 0) {
+            offlineInfo.setAddressId(stations.get(addrIndex).getId());
+            offlineInfo.setAddress(stations.get(addrIndex).getSiteName());
         }
         offlineInfo.setCoding(seal_code);
         offlineInfo.setLockedImei(SystemUtil.getImei(this));
@@ -514,7 +515,7 @@ public class WareInStorageActivity extends BaseActivity {
         paramMap.put("logType", type);
         paramMap.put("unlockRemark", offlineInfo.getRemark());
         paramMap.put("labelCode", offlineInfo.getCoding());
-        paramMap.put("unlockAddrId", offlineInfo.getAddress());
+        paramMap.put("unlockAddrId", offlineInfo.getAddressId());
         paramMap.put("unlockImei", offlineInfo.getLockedImei());
 
         ArrayList<MultipartBody.Part> parts = new ArrayList<>();
@@ -583,6 +584,7 @@ public class WareInStorageActivity extends BaseActivity {
                             assert body != null;
                             String string = body.string();
                             ServerResponseResult serverResponseResult = JSON.parseObject(string, ServerResponseResult.class);
+                            Log.e(TAG, serverResponseResult.getMessage());
                             if (serverResponseResult.isSuccess()) {
                                 mHandler.sendEmptyMessage(upload_data_suc);
                                 offlineInfo.setUploadingStae(1);
@@ -615,6 +617,7 @@ public class WareInStorageActivity extends BaseActivity {
                         saveData(offlineInfo);
                         Message msg = mHandler.obtainMessage(upload_data_fail, throwable.getMessage());
                         mHandler.sendMessage(msg);
+                        Log.e(TAG, throwable.getMessage());
                     }
                 });
     }

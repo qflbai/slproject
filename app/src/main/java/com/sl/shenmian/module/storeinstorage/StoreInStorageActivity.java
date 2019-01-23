@@ -428,7 +428,8 @@ public class StoreInStorageActivity extends BaseActivity {
 
         OfflineInfo offlineInfo = new OfflineInfo();
         if(stations.size()>0) {
-            offlineInfo.setAddress(stations.get(addrIndex).getId());
+            offlineInfo.setAddressId(stations.get(addrIndex).getId());
+            offlineInfo.setAddress(stations.get(addrIndex).getSiteName());
         }
         offlineInfo.setCoding(seal_code);
         offlineInfo.setLockedImei(SystemUtil.getImei(this));
@@ -482,7 +483,7 @@ public class StoreInStorageActivity extends BaseActivity {
         paramMap.put("logType", type);
         paramMap.put("unlockRemark", offlineInfo.getRemark());
         paramMap.put("labelCode", offlineInfo.getCoding());
-        paramMap.put("unlockAddrId", offlineInfo.getAddress());
+        paramMap.put("unlockAddrId", offlineInfo.getAddressId());
         paramMap.put("unlockImei", offlineInfo.getLockedImei());
 
         ArrayList<MultipartBody.Part> parts = new ArrayList<>();

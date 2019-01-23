@@ -222,15 +222,19 @@ public class RecordHistoryActivity extends BaseActivity {
                     if (offlineInfo.getUploadingStae() != 1) {
                         switch (mSealType) {
                             case tongGuanPadlock:
+                                //通关施封
                                 padlockDataSubmit(0, offlineInfo);
                                 break;
                             case houseEnterDisassemble:
+                                //仓库入库解封
                                 disassembleDaaSubmit(0, offlineInfo);
                                 break;
                             case houseOutPadlock:
+                                //仓库出库施封
                                 padlockDataSubmit(1, offlineInfo);
                                 break;
                             case shopDisassemble:
+                                //门店入库解封
                                 disassembleDaaSubmit(1, offlineInfo);
                                 break;
                             default:
@@ -408,7 +412,7 @@ public class RecordHistoryActivity extends BaseActivity {
         paramMap.put("logType", type);
         paramMap.put("unlockRemark", offlineInfo.getRemark());
         paramMap.put("labelCode", offlineInfo.getCoding());
-        paramMap.put("unlockAddrId", offlineInfo.getAddress());
+        paramMap.put("unlockAddrId", offlineInfo.getAddressId());
         paramMap.put("unlockImei", offlineInfo.getLockedImei());
 
 
