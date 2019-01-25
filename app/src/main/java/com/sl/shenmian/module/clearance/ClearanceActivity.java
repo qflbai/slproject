@@ -1,13 +1,16 @@
 package com.sl.shenmian.module.clearance;
 
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
+import android.support.v4.content.FileProvider;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.View;
@@ -49,7 +52,6 @@ import com.sl.shenmian.module.db.entity.SealInfoEntity;
 import com.sl.shenmian.module.main.pojo.CarLic;
 import com.sl.shenmian.module.main.pojo.Station;
 import com.sl.shenmian.module.main.pojo.StationType;
-import com.sl.shenmian.module.main.ui.MainActivity;
 import com.sl.shenmian.module.main.ui.adapter.SpinnerCarlicAdapter;
 import com.sl.shenmian.module.main.ui.adapter.SpinnerStationAdapter;
 import com.sl.shenmian.module.offline.model.OfflineInfo;
@@ -66,7 +68,6 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.OnClick;
 import io.reactivex.Observable;
-import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
@@ -89,8 +90,8 @@ public class ClearanceActivity extends BaseActivity {
     @BindView(R.id.clearance_addr_spinner)
     Spinner clearance_addr_spinner;
     @BindView(R.id.clearance_car_number_spinner)
-   // Spinner clearance_car_number_spinner;
-    EditText mEtCarNumber;
+    // Spinner clearance_car_number_spinner;
+            EditText mEtCarNumber;
     @BindView(R.id.remark_ed)
     TextView remark_ed;
     @BindView(R.id.sig_add_btn)
@@ -136,15 +137,17 @@ public class ClearanceActivity extends BaseActivity {
             @Override
             public void onClick(View v) {
 
-                if(SystemUtil.isNetOk(ClearanceActivity.this)) {
+                if (SystemUtil.isNetOk(ClearanceActivity.this)) {
                     showUploadConfimDialog();
-                }else {
+                } else {
                     showNoFoundNetDialog();
                 }
             }
         });
     }
+
     private CustomDialog noFoundNetDialog = null;
+
     private void showNoFoundNetDialog() {
         noFoundNetDialog = null;
         if (null == noFoundNetDialog) {
@@ -157,7 +160,7 @@ public class ClearanceActivity extends BaseActivity {
         noFoundNetDialog.setDialogContentMsg(R.string.net_fail_login_fail_msg);
         noFoundNetDialog.setDialogLeftBtnText(R.string.ok);
         noFoundNetDialog.setDialogRightBtnText(R.string.local_save_data);
-        noFoundNetDialog.setDialogTitleBtnOnClick(new View.OnClickListener(){
+        noFoundNetDialog.setDialogTitleBtnOnClick(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 dismissnoFoundNetDialog();
@@ -331,12 +334,13 @@ public class ClearanceActivity extends BaseActivity {
                 .subscribe(mStationNetObserver);
     }
 
-    private void savleOffileAddress(String dataJson){
+    private void savleOffileAddress(String dataJson) {
         SpUtil.putString(mContext, ConstantValues.OffLineData.Clearance_address_local_key, dataJson);
     }
-    private void loadOfflineAddress(){
-        String data = SpUtil.getString(mContext,ConstantValues.OffLineData.Clearance_address_local_key,"");
-        if(null != data && data.length() > 0){
+
+    private void loadOfflineAddress() {
+        String data = SpUtil.getString(mContext, ConstantValues.OffLineData.Clearance_address_local_key, "");
+        if (null != data && data.length() > 0) {
             stations = JSON.parseArray(data, Station.class);
             updateStation();
         }
@@ -348,12 +352,12 @@ public class ClearanceActivity extends BaseActivity {
 
     private void submitData() {
         String carNumber = mEtCarNumber.getText().toString();
-        if(carNumber.isEmpty()){
-            ToastUtil.show(mContext,"请输入车牌号");
+        if (carNumber.isEmpty()) {
+            ToastUtil.show(mContext, "请输入车牌号");
             return;
         }
         OfflineInfo offlineInfo = new OfflineInfo();
-        if(stations.size()>0) {
+        if (stations.size() > 0) {
             offlineInfo.setAddress(stations.get(addrIndex).getId());
         }
         offlineInfo.setCarLicense(carNumber);
@@ -376,10 +380,10 @@ public class ClearanceActivity extends BaseActivity {
             }
         }
 
-        if(SystemUtil.isNetOk(this)) {
+        if (SystemUtil.isNetOk(this)) {
             padlockDataSubmit(0, offlineInfo);
-        }else {
-            ToastUtil.show(mContext,"离线数据已保存到历史记录中");
+        } else {
+            ToastUtil.show(mContext, "离线数据已保存到历史记录中");
             offlineInfo.setUploadingStae(0);
             new Thread(new Runnable() {
                 @Override
@@ -393,9 +397,9 @@ public class ClearanceActivity extends BaseActivity {
 
 
     private void saveData(OfflineInfo offlineInfo) {
-         DBDao dbDao = AppDatabase.getInstance().dbDao();
+        DBDao dbDao = AppDatabase.getInstance().dbDao();
         SealInfoEntity sealInfoEntity = new SealInfoEntity();
-        if(stations.size()>0) {
+        if (stations.size() > 0) {
             sealInfoEntity.setAddress(stations.get(addrIndex).getSiteName());
             sealInfoEntity.setAddressId(stations.get(addrIndex).getId());
         }
@@ -409,8 +413,12 @@ public class ClearanceActivity extends BaseActivity {
         sealInfoEntity.setUserAccount(offlineInfo.getUserAccount());
         sealInfoEntity.setTime(StringUtils.getCurrentTimeStr());
 
+        sealInfoEntity.setImagePath1(offlineInfo.getImagePath1());
+        sealInfoEntity.setImagePath2(offlineInfo.getImagePath2());
+        sealInfoEntity.setImagePath3(offlineInfo.getImagePath3());
+
         List<Long> count = dbDao.insert(sealInfoEntity);
-        Log.e(TAG, "count:"+count);
+        Log.e(TAG, "count:" + count);
 
     }
 
@@ -436,11 +444,11 @@ public class ClearanceActivity extends BaseActivity {
 
     @Override
     protected void dialogLeftClick(AlertDialog alertDialog) {
-        if(isQuit) {
+        if (isQuit) {
             isQuit = false;
             alertDialog.dismiss();
             finish();
-        }else {
+        } else {
             alertDialog.dismiss();
             submitData();
         }
@@ -477,11 +485,11 @@ public class ClearanceActivity extends BaseActivity {
             RequestBody requestFile1 = RequestBody.create(MediaType.parse("multipart/form-data"), file1);
             MultipartBody.Part body1 = MultipartBody.Part.createFormData("file1", file1.getName(), requestFile1);
             parts.add(body1);
-        }else {
-           MultipartBody multipartBody = new MultipartBody.Builder()
-                   .setType(MultipartBody.FORM)
-                   .addFormDataPart("file1","")
-                   .build();
+        } else {
+            MultipartBody multipartBody = new MultipartBody.Builder()
+                    .setType(MultipartBody.FORM)
+                    .addFormDataPart("file1", "")
+                    .build();
 
             MultipartBody.Part part = multipartBody.part(0);
             parts.add(part);
@@ -494,10 +502,10 @@ public class ClearanceActivity extends BaseActivity {
             RequestBody requestFile2 = RequestBody.create(MediaType.parse("multipart/form-data"), file2);
             MultipartBody.Part body2 = MultipartBody.Part.createFormData("file2", file2.getName(), requestFile2);
             parts.add(body2);
-        }else {
+        } else {
             MultipartBody multipartBody = new MultipartBody.Builder()
                     .setType(MultipartBody.FORM)
-                    .addFormDataPart("file2","")
+                    .addFormDataPart("file2", "")
                     .build();
 
             MultipartBody.Part part = multipartBody.part(0);
@@ -510,10 +518,10 @@ public class ClearanceActivity extends BaseActivity {
             RequestBody requestFile3 = RequestBody.create(MediaType.parse("multipart/form-data"), file3);
             MultipartBody.Part body3 = MultipartBody.Part.createFormData("file1", file3.getName(), requestFile3);
             parts.add(body3);
-        }else {
+        } else {
             MultipartBody multipartBody = new MultipartBody.Builder()
                     .setType(MultipartBody.FORM)
-                    .addFormDataPart("file3","")
+                    .addFormDataPart("file3", "")
                     .build();
 
             MultipartBody.Part part = multipartBody.part(0);
@@ -522,11 +530,10 @@ public class ClearanceActivity extends BaseActivity {
         }
 
 
-
         Observable<Response<ResponseBody>> responseObservable = service.uplodas(pathUrl, paramMap, parts);
         Disposable subscribe = responseObservable
                 .subscribeOn(Schedulers.io())
-               // .observeOn(AndroidSchedulers.mainThread())
+                // .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Consumer<Response<ResponseBody>>() {
                     @Override
                     public void accept(Response<ResponseBody> responseBodyResponse) throws Exception {
@@ -595,8 +602,7 @@ public class ClearanceActivity extends BaseActivity {
                     menuDialog.dismissAllowingStateLoss();
                     break;
                 case R.id.photo_menu:
-                    Intent openCameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE); //系统常量， 启动相机的关键
-                    startActivityForResult(openCameraIntent, REQUEST_CODE_PHOTO);
+                    takePhoto();
                     menuDialog.dismissAllowingStateLoss();
                     break;
             }
@@ -617,48 +623,26 @@ public class ClearanceActivity extends BaseActivity {
                     }
                 }
                 break;
-            case REQUEST_CODE_PHOTO:
+            case TAKE_PHOTO:
                 if (resultCode == RESULT_CANCELED) {
                     Toast.makeText(ClearanceActivity.this, "取消了拍照", Toast.LENGTH_LONG).show();
                     return;
                 }
-                if(null != data.getExtras().get("data")) {
-                    Bitmap bm = (Bitmap) data.getExtras().get("data");
-                    savePath = saveBitmap(bm);
-                    if (null != savePath) {
-                        addShowSiglist(savePath);
-                    }
-                }
 
-                Log.e(TAG, "savePath:"+savePath);
+                if (resultCode == RESULT_OK) {
+                    addShowSiglist(mImageFile.getPath());
+                    // bitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(mImageUri));
+                    galleryAddPic(mImageUriFromFile);
+                }
+                break;
+
+            default:
                 break;
         }
-
-
     }
 
-    private String saveBitmap(Bitmap bitmap) {
-        String filePath = Constants.LocalFile.IMAGE_PATH;
-        String fileName = filePath + System.currentTimeMillis() + ".jpg";
-        bitmap = BitmapUtils.compressScale(bitmap);
-
-        File directory = new File(filePath);
-        if (!directory.exists()) {
-            directory.mkdirs();
-        }
-        File file = new File(fileName);
-        try {
-            BitmapUtils.saveBitmapToJPG(bitmap, file);
-        } catch (IOException e) {
-            e.printStackTrace();
-            ToastUtil.show(ClearanceActivity.this, getString(R.string.signature_save_error));
-        }
-
-        return fileName;
-    }
 
     private void addShowSiglist(String path) {
-
         Log.e(TAG, path);
         if (imagelist.size() < 3) {
             sig_list_view.removeAllViews();
@@ -723,10 +707,10 @@ public class ClearanceActivity extends BaseActivity {
 
     private final int upload_data_suc = 10001;
     private final int upload_data_fail = 10002;
-    private Handler mHandler = new Handler(){
+    private Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
-            switch (msg.what){
+            switch (msg.what) {
                 case upload_data_suc:
                     ToastUtil.show(ClearanceActivity.this, "上传施封数据成功!");
                     finish();
@@ -734,14 +718,76 @@ public class ClearanceActivity extends BaseActivity {
                     break;
                 case upload_data_fail:
                     String data = "";
-                    if(null != msg.obj){
+                    if (null != msg.obj) {
                         data = msg.obj.toString();
                     }
-                    ToastUtil.show(ClearanceActivity.this, "上传施封数据失败!"+data+"\n已离线保存");
+                    ToastUtil.show(ClearanceActivity.this, "上传施封数据失败!" + data + "\n已离线保存");
                     finish();
                     break;
             }
         }
     };
+
+    private static final int CHOOSE_PHOTO = 385;
+    private static final int TAKE_PHOTO = 189;
+    private static final String FILE_PROVIDER_AUTHORITY = "com.sl.shenmian.fileprovider";
+
+    private Uri mImageUri;
+    private Uri mImageUriFromFile;
+    private File mImageFile;
+
+    /**
+     * 拍照
+     */
+    private void takePhoto() {
+        Intent takePhotoIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);//打开相机的Intent
+        if (takePhotoIntent.resolveActivity(getPackageManager()) != null) {//这句作用是如果没有相机则该应用不会闪退，要是不加这句则当系统没有相机应用的时候该应用会闪退
+            mImageFile = createImageFile();//创建用来保存照片的文件
+            mImageUriFromFile = Uri.fromFile(mImageFile);
+
+            if (mImageFile != null) {
+                mImageUri = null;
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    /*7.0以上要通过FileProvider将File转化为Uri*/
+                    mImageUri = FileProvider.getUriForFile(this, FILE_PROVIDER_AUTHORITY, mImageFile);
+                } else {
+                    /*7.0以下则直接使用Uri的fromFile方法将File转化为Uri*/
+                    mImageUri = Uri.fromFile(mImageFile);
+                }
+                takePhotoIntent.putExtra(MediaStore.EXTRA_OUTPUT, mImageUri);//将用于输出的文件Uri传递给相机
+                startActivityForResult(takePhotoIntent, TAKE_PHOTO);//打开相机
+            }
+        }
+    }
+
+    /**
+     * 创建用来存储图片的文件，以时间来命名就不会产生命名冲突
+     *
+     * @return 创建的图片文件
+     */
+    private File createImageFile() {
+        String filePath = Constants.LocalFile.IMAGE_PATH;
+        String fileName = filePath + System.currentTimeMillis() + ".jpg";
+
+        File directory = new File(filePath);
+        if (!directory.exists()) {
+            directory.mkdirs();
+        }
+        File file = new File(fileName);
+        return file;
+    }
+
+
+    /**
+     * 将拍的照片添加到相册
+     *
+     * @param uri 拍的照片的Uri
+     */
+    private void galleryAddPic(Uri uri) {
+        Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+        mediaScanIntent.setData(uri);
+        sendBroadcast(mediaScanIntent);
+    }
+
 
 }

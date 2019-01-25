@@ -3,11 +3,13 @@ package com.sl.shenmian.module.storeinstorage;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
+import android.support.v4.content.FileProvider;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -20,6 +22,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.alibaba.fastjson.JSON;
 import com.bumptech.glide.Glide;
@@ -589,6 +592,9 @@ public class StoreInStorageActivity extends BaseActivity {
         sealInfoEntity.setUserAccount(offlineInfo.getUserAccount());
         sealInfoEntity.setTime(StringUtils.getCurrentTimeStr());
 
+        sealInfoEntity.setImagePath1(offlineInfo.getImagePath1());
+        sealInfoEntity.setImagePath2(offlineInfo.getImagePath2());
+        sealInfoEntity.setImagePath3(offlineInfo.getImagePath3());
         mDbDao.insert(sealInfoEntity);
     }
 
@@ -617,8 +623,7 @@ public class StoreInStorageActivity extends BaseActivity {
                     menuDialog.dismissAllowingStateLoss();
                     break;
                 case R.id.photo_menu:
-                    Intent openCameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE); //系统常量， 启动相机的关键
-                    startActivityForResult(openCameraIntent, REQUEST_CODE_PHOTO);
+                    takePhoto();
                     menuDialog.dismissAllowingStateLoss();
                     break;
             }
@@ -638,14 +643,18 @@ public class StoreInStorageActivity extends BaseActivity {
                     }
                 }
                 break;
-            case REQUEST_CODE_PHOTO:
-                if ( resultCode == RESULT_OK) {
-                    Bitmap bm = (Bitmap) data.getExtras().get("data");
-                    savePath = saveBitmap(bm);
-                    if(null != savePath) {
-                        addShowSiglist(savePath);
-                    }
+            case TAKE_PHOTO:
+                if (resultCode == RESULT_CANCELED) {
+                    Toast.makeText(mContext, "取消了拍照", Toast.LENGTH_LONG).show();
+                    return;
                 }
+
+                if (resultCode == RESULT_OK) {
+                    addShowSiglist(mImageFile.getPath());
+                    // bitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(mImageUri));
+                    galleryAddPic(mImageUriFromFile);
+                }
+
                 break;
         }
 
@@ -757,4 +766,66 @@ public class StoreInStorageActivity extends BaseActivity {
             }
         }
     };
+
+    private static final int CHOOSE_PHOTO = 385;
+    private static final int TAKE_PHOTO = 189;
+    private static final String FILE_PROVIDER_AUTHORITY = "com.sl.shenmian.fileprovider";
+
+    private Uri mImageUri;
+    private Uri mImageUriFromFile;
+    private File mImageFile;
+
+    /**
+     * 拍照
+     */
+    private void takePhoto() {
+        Intent takePhotoIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);//打开相机的Intent
+        if (takePhotoIntent.resolveActivity(getPackageManager()) != null) {//这句作用是如果没有相机则该应用不会闪退，要是不加这句则当系统没有相机应用的时候该应用会闪退
+            mImageFile = createImageFile();//创建用来保存照片的文件
+            mImageUriFromFile = Uri.fromFile(mImageFile);
+
+            if (mImageFile != null) {
+                mImageUri = null;
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    /*7.0以上要通过FileProvider将File转化为Uri*/
+                    mImageUri = FileProvider.getUriForFile(this, FILE_PROVIDER_AUTHORITY, mImageFile);
+                } else {
+                    /*7.0以下则直接使用Uri的fromFile方法将File转化为Uri*/
+                    mImageUri = Uri.fromFile(mImageFile);
+                }
+                takePhotoIntent.putExtra(MediaStore.EXTRA_OUTPUT, mImageUri);//将用于输出的文件Uri传递给相机
+                startActivityForResult(takePhotoIntent, TAKE_PHOTO);//打开相机
+            }
+        }
+    }
+
+    /**
+     * 创建用来存储图片的文件，以时间来命名就不会产生命名冲突
+     *
+     * @return 创建的图片文件
+     */
+    private File createImageFile() {
+        String filePath = Constants.LocalFile.IMAGE_PATH;
+        String fileName = filePath + System.currentTimeMillis() + ".jpg";
+
+        File directory = new File(filePath);
+        if (!directory.exists()) {
+            directory.mkdirs();
+        }
+        File file = new File(fileName);
+        return file;
+    }
+
+
+    /**
+     * 将拍的照片添加到相册
+     *
+     * @param uri 拍的照片的Uri
+     */
+    private void galleryAddPic(Uri uri) {
+        Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+        mediaScanIntent.setData(uri);
+        sendBroadcast(mediaScanIntent);
+    }
+
 }
