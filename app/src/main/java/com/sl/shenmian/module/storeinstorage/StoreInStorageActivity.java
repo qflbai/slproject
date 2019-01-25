@@ -460,6 +460,7 @@ public class StoreInStorageActivity extends BaseActivity {
                     saveData(offlineInfo);
                 }
             }).start();
+            finish();
         }
     }
     private RetrofitManage retrofitManage = new RetrofitManage();
@@ -534,6 +535,7 @@ public class StoreInStorageActivity extends BaseActivity {
                             ServerResponseResult serverResponseResult = JSON.parseObject(string, ServerResponseResult.class);
                             if (serverResponseResult.isSuccess()) {
                                 offlineInfo.setUploadingStae(1);
+                                saveData(offlineInfo);
                                 mHandler.sendEmptyMessage(upload_data_suc);
                             } else {
                                 offlineInfo.setUploadingStae(2);
@@ -542,17 +544,18 @@ public class StoreInStorageActivity extends BaseActivity {
                                 mHandler.sendMessage(msg);
                             }
                             if(!serverResponseResult.getResultCode().equals("0")){
-                                Message msg = mHandler.obtainMessage(upload_data_fail, serverResponseResult.getMessage());
-                                mHandler.sendMessage(msg);
                                 offlineInfo.setUploadingStae(2);
                                 saveData(offlineInfo);
+                                Message msg = mHandler.obtainMessage(upload_data_fail, serverResponseResult.getMessage());
+                                mHandler.sendMessage(msg);
                             }
 
-
                         } else {
-                            mHandler.sendEmptyMessage(upload_data_fail);
+
                             offlineInfo.setUploadingStae(2);
                             saveData(offlineInfo);
+                            Message msg = mHandler.obtainMessage(upload_data_fail, responseBodyResponse.message());
+                            mHandler.sendMessage(msg);
                         }
 
 
@@ -560,10 +563,11 @@ public class StoreInStorageActivity extends BaseActivity {
                 }, new Consumer<Throwable>() {
                     @Override
                     public void accept(Throwable throwable) throws Exception {
-                        Message msg = mHandler.obtainMessage(upload_data_fail, throwable.getMessage());
-                        mHandler.sendMessage(msg);
                         offlineInfo.setUploadingStae(2);
                         saveData(offlineInfo);
+                        Message msg = mHandler.obtainMessage(upload_data_fail, throwable.getMessage());
+                        mHandler.sendMessage(msg);
+
                     }
                 });
     }
@@ -748,6 +752,7 @@ public class StoreInStorageActivity extends BaseActivity {
                         data = msg.obj.toString();
                     }
                     ToastUtil.show(StoreInStorageActivity.this, "上传解封数据失败!"+data+"\n已离线保存");
+                    finish();
                     break;
             }
         }

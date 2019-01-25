@@ -391,6 +391,7 @@ public class WareOutStorageActivity extends BaseActivity {
                     saveData(offlineInfo);
                 }
             }).start();
+            finish();
         }
     }
 
@@ -537,6 +538,8 @@ public class WareOutStorageActivity extends BaseActivity {
                             String string = body.string();
                             ServerResponseResult serverResponseResult = JSON.parseObject(string, ServerResponseResult.class);
                             if (serverResponseResult.isSuccess()) {
+                                offlineInfo.setUploadingStae(1);
+                                saveData(offlineInfo);
                                 mHandler.sendEmptyMessage(upload_data_suc);
                             } else {
                                 offlineInfo.setUploadingStae(2);
@@ -725,6 +728,7 @@ public class WareOutStorageActivity extends BaseActivity {
                         data = msg.obj.toString();
                     }
                     ToastUtil.show(WareOutStorageActivity.this, "上传施封数据失败!"+data+"\n已离线保存");
+                    finish();
                     break;
             }
         }

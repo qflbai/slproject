@@ -62,7 +62,7 @@ public class BitmapUtils {
         canvas.drawColor(Color.WHITE);
         canvas.drawBitmap(bitmap, 0, 0, null);
         OutputStream stream = new FileOutputStream(photo);
-        newBitmap.compress(Bitmap.CompressFormat.JPEG, 80, stream);
+        newBitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
         stream.close();
     }
 

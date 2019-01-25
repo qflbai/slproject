@@ -2,6 +2,8 @@ package com.sl.shenmian.module.offline;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -19,12 +21,14 @@ import com.sl.shenmian.lib.net.retrofit.RetrofitService;
 import com.sl.shenmian.lib.net.url.NetApi;
 import com.sl.shenmian.lib.utils.log.LogUtil;
 import com.sl.shenmian.lib.utils.sharedpreferences.SpUtil;
+import com.sl.shenmian.lib.utils.toast.ToastUtil;
 import com.sl.shenmian.module.db.dao.DBDao;
 import com.sl.shenmian.module.db.database.AppDatabase;
 import com.sl.shenmian.module.db.entity.SealInfoEntity;
 import com.sl.shenmian.module.offline.adpater.OffLineAdapter;
 import com.sl.shenmian.module.offline.model.OfflineInfo;
 import com.sl.shenmian.module.offline.model.SealType;
+import com.sl.shenmian.module.storeinstorage.StoreInStorageActivity;
 
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
@@ -372,14 +376,16 @@ public class RecordHistoryActivity extends BaseActivity {
                             ServerResponseResult serverResponseResult = JSON.parseObject(string, ServerResponseResult.class);
                             if (serverResponseResult.isSuccess()) {
                                 offlineInfo.setUploadingStae(1);
-                                Log.e(TAG, "上传成功...");
+                                mHandle.sendEmptyMessage(upload_shi_data_suc);
                             } else {
                                 offlineInfo.setUploadingStae(2);
-                                Log.e(TAG, "上传失败..." + serverResponseResult.getMessage());
+                                Message msg = mHandle.obtainMessage(upload_shi_data_fail, serverResponseResult.getMessage());
+                                mHandle.sendMessage(msg);
                             }
                         } else {
                             offlineInfo.setUploadingStae(2);
-                            Log.e(TAG, "上传失败.." + responseBodyResponse.message());
+                            Message msg = mHandle.obtainMessage(upload_shi_data_fail, responseBodyResponse.message());
+                            mHandle.sendMessage(msg);
                         }
                         mDbDao.upDateUpLoadingState(offlineInfo.getId(), offlineInfo.getUploadingStae());
                     }
@@ -387,8 +393,9 @@ public class RecordHistoryActivity extends BaseActivity {
                     @Override
                     public void accept(Throwable throwable) {
                         offlineInfo.setUploadingStae(2);
-                        Log.e(TAG, throwable.getMessage());
                         mDbDao.upDateUpLoadingState(offlineInfo.getId(), offlineInfo.getUploadingStae());
+                        Message msg = mHandle.obtainMessage(upload_shi_data_fail, throwable.getMessage());
+                        mHandle.sendMessage(msg);
                     }
                 });
     }
@@ -483,22 +490,64 @@ public class RecordHistoryActivity extends BaseActivity {
                             if (serverResponseResult.isSuccess()) {
                                 offlineInfo.setUploadingStae(1);
                                 Log.e(TAG, "上传成功...");
+                                Message msg = mHandle.obtainMessage(upload_data_suc, serverResponseResult.getMessage());
+                                mHandle.sendMessage(msg);
                             } else {
                                 offlineInfo.setUploadingStae(2);
-                                Log.e(TAG, "上传失败..." + serverResponseResult.getMessage());
+                                Message msg = mHandle.obtainMessage(upload_data_fail, serverResponseResult.getMessage());
+                                mHandle.sendMessage(msg);
                             }
                         } else {
                             offlineInfo.setUploadingStae(2);
-                            Log.e(TAG, "上传失败.." + responseBodyResponse.message());
+                            //Log.e(TAG, "上传失败.." + responseBodyResponse.message());
+                            Message msg = mHandle.obtainMessage(upload_data_fail, responseBodyResponse.message());
+                            mHandle.sendMessage(msg);
                         }
                         mDbDao.upDateUpLoadingState(offlineInfo.getId(), offlineInfo.getUploadingStae());
                     }
                 }, new Consumer<Throwable>() {
                     @Override
                     public void accept(Throwable throwable) {
-                        Log.e(TAG, throwable.getMessage());
+                        Message msg = mHandle.obtainMessage(upload_data_fail, throwable.getMessage());
+                        mHandle.sendMessage(msg);
                         offlineInfo.setUploadingStae(2);
                     }
                 });
     }
+
+    private final int upload_shi_data_suc = 10001;
+    private final int upload_shi_data_fail = 10002;
+    private final int upload_data_suc = 10003;
+    private final int upload_data_fail = 10004;
+    private Handler mHandle = new Handler(){
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what){
+                case upload_data_suc:
+                    ToastUtil.show(RecordHistoryActivity.this, "上传解封数据成功!");
+                   // finish();
+                    break;
+                case upload_data_fail:
+                    String data = "";
+                    if(null != msg.obj){
+                        data = msg.obj.toString();
+                    }
+                    ToastUtil.show(RecordHistoryActivity.this, "上传解封数据失败!"+data);
+                    //finish();
+                    break;
+                case upload_shi_data_suc:
+                    ToastUtil.show(RecordHistoryActivity.this, "上传施封数据成功!");
+                    // finish();
+                    break;
+                case upload_shi_data_fail:
+                    String shidata = "";
+                    if(null != msg.obj){
+                        shidata = msg.obj.toString();
+                    }
+                    ToastUtil.show(RecordHistoryActivity.this, "上传施封数据失败!"+shidata);
+                    //finish();
+                    break;
+            }
+        }
+    };
 }

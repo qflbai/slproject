@@ -148,8 +148,8 @@ public class WareInStorageActivity extends BaseActivity {
                 if(SystemUtil.isNetOk(WareInStorageActivity.this)) {
                     showUploadConfimDialog();
                 }else {
-                    submitData();
                     showNoFoundNetDialog();
+                   // submitData();
                     //finish();
                 }
             }
@@ -491,6 +491,7 @@ public class WareInStorageActivity extends BaseActivity {
                     saveData(offlineInfo);
                 }
             }).start();
+            finish();
         }
     }
 
@@ -586,8 +587,10 @@ public class WareInStorageActivity extends BaseActivity {
                             ServerResponseResult serverResponseResult = JSON.parseObject(string, ServerResponseResult.class);
                             Log.e(TAG, serverResponseResult.getMessage());
                             if (serverResponseResult.isSuccess()) {
-                                mHandler.sendEmptyMessage(upload_data_suc);
+
                                 offlineInfo.setUploadingStae(1);
+                                saveData(offlineInfo);
+                                mHandler.sendEmptyMessage(upload_data_suc);
                             } else {
                                 offlineInfo.setUploadingStae(2);
                                 saveData(offlineInfo);
@@ -595,16 +598,16 @@ public class WareInStorageActivity extends BaseActivity {
                                 mHandler.sendMessage(msg);
                             }
                             if(!serverResponseResult.getResultCode().equals("0")){
-                                Message msg = mHandler.obtainMessage(upload_data_fail, serverResponseResult.getMessage());
-                                mHandler.sendMessage(msg);
                                 offlineInfo.setUploadingStae(2);
                                 saveData(offlineInfo);
+                                Message msg = mHandler.obtainMessage(upload_data_fail, serverResponseResult.getMessage());
+                                mHandler.sendMessage(msg);
                             }
                         } else {
                             offlineInfo.setUploadingStae(2);
+                            saveData(offlineInfo);
                             Message msg = mHandler.obtainMessage(upload_data_fail, "");
                             mHandler.sendMessage(msg);
-                            saveData(offlineInfo);
                         }
 
 
@@ -760,7 +763,7 @@ public class WareInStorageActivity extends BaseActivity {
             switch (msg.what){
                 case upload_data_suc:
                     ToastUtil.show(WareInStorageActivity.this, "上传解封数据成功!");
-                   // finish();
+                    finish();
                     break;
                 case upload_data_fail:
                     String data = "";
@@ -768,6 +771,7 @@ public class WareInStorageActivity extends BaseActivity {
                         data = msg.obj.toString();
                     }
                     ToastUtil.show(WareInStorageActivity.this, "上传解封数据失败!"+data+"\n已离线保存");
+                    finish();
                     break;
             }
         }

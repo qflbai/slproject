@@ -387,7 +387,7 @@ public class ClearanceActivity extends BaseActivity {
                     saveData(offlineInfo);
                 }
             }).start();
-
+            finish();
         }
     }
 
@@ -538,8 +538,9 @@ public class ClearanceActivity extends BaseActivity {
                             ServerResponseResult serverResponseResult = JSON.parseObject(string, ServerResponseResult.class);
                             if (serverResponseResult.isSuccess()) {
                                 offlineInfo.setUploadingStae(1);
+                                saveData(offlineInfo);
                                 mHandler.sendEmptyMessage(upload_data_suc);
-                                finish();
+
                             } else {
                                 offlineInfo.setUploadingStae(2);
                                 saveData(offlineInfo);
@@ -737,6 +738,7 @@ public class ClearanceActivity extends BaseActivity {
                         data = msg.obj.toString();
                     }
                     ToastUtil.show(ClearanceActivity.this, "上传施封数据失败!"+data+"\n已离线保存");
+                    finish();
                     break;
             }
         }
